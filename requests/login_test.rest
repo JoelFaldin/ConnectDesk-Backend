@@ -1,0 +1,8 @@
+### Testing the login:
+POST localhost:3001/api/login
+Content-Type: application/json
+
+{
+    rut: '11.111.111-1'
+    password: icmufmoudfnm1283
+}
