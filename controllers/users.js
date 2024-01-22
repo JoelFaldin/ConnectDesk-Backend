@@ -3,10 +3,17 @@ const User = require('../models/user')
 const bcrypt = require('bcrypt')
 
 // Obtener la data para la tabla:
-userRouter.get('/api/data', async (req, res, next) => {
+userRouter.get('/api/data/', async (req, res, next) => {
+    const { pageSize, page } = req.query
+    const pageNumber = parseInt(page)
+    const pageSizeNumber = parseInt(pageSize)
+    const skip = (pageNumber - 1) * pageSizeNumber
+    console.log(pageNumber, pageSizeNumber, skip)
+    
     try {
-        const data = await User.find({})
-        res.status(200).json(data)
+        const firstN = await User.find({}).skip(skip).limit(pageSizeNumber)
+        const totalData = await User.countDocuments()
+        res.status(200).json({ firstN, totalData })
     } catch(error) {
         next(error)
     }
