@@ -2,13 +2,13 @@ const config = require('./utils/config')
 const express = require('express')
 const app = express()
 const cors = require('cors')
-const userRouter = require('./controllers/users')
 const mongoose = require('mongoose')
 const {errorHandler, endpointTypo} = require('./middleware/errorHandler')
 
-mongoose.set('strictQuery', false)
+const userRouter = require('./controllers/users')
+const filterRouter = require('./controllers/filterData')
 
-// logger.information(`Connecting to: ${config.MONGO_URI}`)
+mongoose.set('strictQuery', false)
 
 mongoose.connect(config.MONGO_URI)
     .then(() => {
@@ -20,8 +20,11 @@ app.use(cors())
 // app.use(express.static('dist'))
 app.use(express.json())
 
+// Routers:
 app.use('', userRouter)
+app.use('', filterRouter)
 
+// Error handlers:
 app.use(errorHandler)
 app.use(endpointTypo)
 

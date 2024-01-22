@@ -8,7 +8,6 @@ userRouter.get('/api/data/', async (req, res, next) => {
     const pageNumber = parseInt(page)
     const pageSizeNumber = parseInt(pageSize)
     const skip = (pageNumber - 1) * pageSizeNumber
-    console.log(pageNumber, pageSizeNumber, skip)
     
     try {
         const firstN = await User.find({}).skip(skip).limit(pageSizeNumber)
@@ -24,7 +23,7 @@ userRouter.post('/api/verify', async (req, res, next) => {
     const { rut, password } = req.body
     
     try {
-        const user = await User.findOne({ rut: rut})
+        const user = await User.findOne({ rut: rut })
         if (user) {
             if (bcrypt.compareSync(password, user.passHash)) {
                 console.log('Credenciales correctas!!!')
