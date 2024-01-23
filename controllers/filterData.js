@@ -27,12 +27,19 @@ filterRouter.get('/api/filter/', async (req, res) => {
 
 filterRouter.get('/api/filter/search', async (req, res) => {
     const { column, value, pageSize, page } = req.query
+
     const pageNumber = parseInt(page)
     const pageSizeNumber = parseInt(pageSize)
     const skip = (pageNumber - 1) * pageSizeNumber
 
+    const regexPattern = new RegExp(value, 'i')
+
     try {
-        const filteredData = await User.find({ [column]: value }).skip(skip).limit(pageSizeNumber)
+        const filteredData = await User.find({
+            $or: [
+                { [column]: { $regex: regexPattern } }
+            ]
+        }).skip(skip).limit(pageSizeNumber)
         res.status(200).json(filteredData)
     } catch(error) {
         res.status(404).json({ message: 'Hubo un problema :c', error })
