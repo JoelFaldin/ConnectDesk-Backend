@@ -43,5 +43,5 @@ mongoose.set('strictQuery', false)
 const port = config.PORT
 app.listen(port, () => {
     console.log('Server iniciado!')
-    console.log('http://localhost:3001')
+    console.log(`http://localhost:${port}`)
 })

@@ -1,0 +1,9 @@
+GET /api/filter/search/
+Content-Type: application/json
+
+{
+    column: 'nombres',
+    value: 'Test',
+    pageSize: 10,
+    page: 1    
+}
