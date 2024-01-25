@@ -9,6 +9,16 @@ userRouter.get('/api/data/', async (req, res, next) => {
     const pageSizeNumber = parseInt(pageSize)
     const skip = (pageNumber - 1) * pageSizeNumber
 
+    if (pageSizeNumber === 1 && pageNumber === 10) {
+        try {
+            const content = await User.find({}).skip(0).limit(10)
+            const totalData = await User.countDocuments()
+            res.status(200).json({ content, totalData })
+        } catch(error) {
+            next(error)
+        }    
+    }
+
     try {
         const content = await User.find({}).skip(skip).limit(pageSizeNumber)
         const totalData = await User.countDocuments()
