@@ -1,4 +1,4 @@
-GET /api/filter/search/
+GET http://localhost:3001/api/filter/search/
 Content-Type: application/json
 
 {

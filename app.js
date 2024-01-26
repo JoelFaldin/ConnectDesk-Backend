@@ -7,6 +7,7 @@ const {errorHandler, endpointTypo} = require('./middleware/errorHandler')
 
 const userRouter = require('./controllers/users')
 const filterRouter = require('./controllers/filterData')
+const loginRouter = require('./controllers/login')
 
 mongoose.set('strictQuery', false)
 
@@ -23,6 +24,7 @@ app.use(express.json())
 // Routers:
 app.use('', userRouter)
 app.use('', filterRouter)
+app.use('', loginRouter)
 
 // Error handlers:
 app.use(errorHandler)

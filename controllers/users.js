@@ -1,6 +1,15 @@
 const userRouter = require('express').Router()
 const User = require('../models/user')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+
+const getToken = res => {
+    const authorization = res.get('authorization')
+    if (authorization && authorization.startsWith('Bearer ')) {
+        return authorization.replace('Bearer ', '') 
+    }
+    return null
+}
 
 // Obtener la data para la tabla:
 userRouter.get('/api/data/', async (req, res, next) => {
@@ -28,33 +37,15 @@ userRouter.get('/api/data/', async (req, res, next) => {
     }
 })
 
-// Verificación del login:
-userRouter.post('/api/verify', async (req, res, next) => {
-    const { rut, password } = req.body
-    
-    try {
-        const user = await User.findOne({ rut: rut })
-        if (user) {
-            if (bcrypt.compareSync(password, user.passHash)) {
-                console.log('Credenciales correctas!!!')
-                res.status(200).json(user.rol === 'superAdmin' ? { access: 'superAdmin', user } : user.rol === 'admin' ? { access: 'admin', user } : { access: 'user', user })
-            } else if (!bcrypt.compareSync(password, user.passHash)) {
-                console.log('Credenciales incorrectas.')
-                res.status(401).json({ message: 'La contraseña es incorrecta D:' })
-            }
-        } else {
-            console.log('El usuario no existe en la base de datos.')
-            throw new Error('Usuario no encontrado.')
-        }   
-    } catch(error) {
-        next(error)
-    }
-})
-
 // Crear un nuevo usuario:
 userRouter.post('/api/newUser', async (req, res, next) => {
-    try {
-        // Revisando que el rut ingresado no exista:
+    const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
+
+    if (!decodedToken.rut) {
+        return res.status(401).json({ error: 'Token Inválido' })
+    }
+    const user = await User.findOne({ rut: decodedToken.rut })
+    if (user.rol === 'superAdmin') {
         const checkUser = await User.findOne({ rut: req.body.rut })
         if (!checkUser) {
             const { rut, nombres, apellidos, email, passHash, rol, dependencias, direcciones, numMunicipal, anexoMunicipal } = req.body
@@ -73,16 +64,16 @@ userRouter.post('/api/newUser', async (req, res, next) => {
                 numMunicipal,
                 anexoMunicipal
             })
-
+    
             await user.save()
             console.log('Usuario creado!')
             res.status(201).json({ message: 'Usuario creado!' })
         } else {
-            throw new Error('El usuario ya existe en la base de datos.')
+            res.status(409).json({ message: 'El usuario ya existe en la base de datos.' })
         }
-    } catch(error) {
-        next(error)
-    }   
+    } else {
+        res.status(401).json({ message: 'Este usuario no puede crear nuevos usuarios!' })
+    }
 })
 
 // Actualizar un usuario:
