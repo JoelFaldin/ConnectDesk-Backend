@@ -30,11 +30,11 @@ dependencyRouter.post('/api/newDependency', async (req, res, next) => {
     const body = req.body
     const user = await User.findOne({ rut: decodedToken.rut })
 
-    const existingDependency = Dependency.findOne({ nombre: body.nombre })
+    const existingDependency = await Dependency.findOne({ nombre: body.nombre })
+
     if (existingDependency) {
         return res.status(409).json({ error: 'Esta dependencia ya existe!' })
     }
-
 
     if (user.rol === 'superAdmin') {
         const newDependency = new Dependency({
@@ -47,6 +47,27 @@ dependencyRouter.post('/api/newDependency', async (req, res, next) => {
         res.status(201).json({ message: 'Dependencia creada!' })
     } else {
         res.status(401).json({ error: 'No tienes los permisos necesarios para crear una dependencia.' })
+    }
+})
+
+dependencyRouter.delete('/api/deleteDependency/:index', async (req, res) => {
+    const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
+
+    if (!decodedToken.rut) {
+        res.status(401).json({ error: 'Token inválido' })
+    }
+    
+    const user = await User.findOne({ rut: decodedToken.rut })
+
+    if (user.rol === 'superAdmin') {
+        try {
+            const allDependencies = await Dependency.find({})
+            const deleteDep = allDependencies[req.params.index]
+            await Dependency.findByIdAndDelete(deleteDep._id)
+            res.status(204).json({ message: 'Dependencia eliminada.' })
+        } catch(error) {
+            next(error)
+        }   
     }
 })
 
