@@ -44,7 +44,9 @@ userRouter.post('/api/newUser', async (req, res, next) => {
     if (!decodedToken.rut) {
         return res.status(401).json({ error: 'Token Inválido' })
     }
+
     const user = await User.findOne({ rut: decodedToken.rut })
+
     if (user.rol === 'superAdmin') {
         const checkUser = await User.findOne({ rut: req.body.rut })
         if (!checkUser) {
@@ -78,14 +80,28 @@ userRouter.post('/api/newUser', async (req, res, next) => {
 
 // Actualizar un usuario:
 userRouter.put('/api/update/:rut', async (req, res, next) => {
-    try {
-        const user = await User.findOne({ rut: req.params.rut })
-        const update = await User.findByIdAndUpdate(user._id, { [req.body.column]: req.body.value }, { new: true, runValidators: true, context: 'query' })
-        console.log('Usuario actualizado!')
-        res.status(200).json({ message: 'Se actualizó el usuario!', update })
-    } catch(error) {
-        next(error)
-    }   
+    const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
+
+    if (!decodedToken.rut) {
+        return res.status(401).json({ error: 'Token Inválido' })
+    }
+
+    const user = await User.findOne({ rut: decodedToken.rut })
+    const updateUser = await User.findOne({ rut: req.params.rut })
+    const body = req.body
+
+    if (user.rol === 'superAdmin' || user.rol === 'admin') {
+        try {
+            const update = await User.findByIdAndUpdate(updateUser._id, { [body.column]: req.body.value }, { new: true, runValidators: true, context: 'query' })
+            console.log('Usuario actualizado!')
+            res.status(200).json({ message: 'Se actualizó el usuario!', update })
+        } catch(error) {
+            console.log(error)
+            next(error)
+        }
+    } else {
+        res.status(401).json({ error: 'No tienes los permisos necesarios para editar a un usuario.' })
+    }
 })
 
 // Eliminar un usuario:
