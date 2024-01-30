@@ -71,4 +71,34 @@ dependencyRouter.delete('/api/deleteDependency/:index', async (req, res) => {
     }
 })
 
+dependencyRouter.put('/api/updateDependency/:index', async (req, res) => {
+    const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
+
+    if (!decodedToken.rut) {
+        res.status(401).json({ error: 'Token inválido' })
+    }
+    
+    const user = await User.findOne({ rut: decodedToken.rut })
+
+    if (user.rol === 'superAdmin') {
+        const body = req.body
+
+        try {
+            const allDependencies = await Dependency.find({})
+            const updateDep = allDependencies[req.params.index]
+            if (body.newName !== null) {
+                await Dependency.findByIdAndUpdate(updateDep._id, { nombre: body.newName })
+            } else if (body.newDirection !== null) {
+                await Dependency.findByIdAndUpdate(updateDep._id, { direccion: body.newDirection })
+            } else {
+                await Dependency.findByIdAndUpdate(updateDep._id, { nombre: body.newName, direccion: body.newDirection })
+            }
+        } catch(error) {
+            res.status(404).json({ message: 'Hubo un error al actualizar! D:' })
+        }
+    } else {
+        res.status(401).json({ error: 'No tienes los permisos suficientes para editar una dependencia!' })
+    }
+})
+
 module.exports = dependencyRouter

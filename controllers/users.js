@@ -25,7 +25,7 @@ userRouter.get('/api/data/', async (req, res, next) => {
             res.status(200).json({ content, totalData })
         } catch(error) {
             next(error)
-        }    
+        }
     }
 
     try {
@@ -79,7 +79,7 @@ userRouter.post('/api/newUser', async (req, res, next) => {
 })
 
 // Actualizar un usuario:
-userRouter.put('/api/update/:rut', async (req, res, next) => {
+userRouter.put('/api/update/', async (req, res, next) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
 
     if (!decodedToken.rut) {
@@ -87,20 +87,30 @@ userRouter.put('/api/update/:rut', async (req, res, next) => {
     }
 
     const user = await User.findOne({ rut: decodedToken.rut })
-    const updateUser = await User.findOne({ rut: req.params.rut })
-    const body = req.body
+    const { values, pageSize, page } = req.body
+
+    const pageNumber = parseInt(page)
+    const pageSizeNumber = parseInt(pageSize)
+    const skip = (pageNumber - 1) * pageSizeNumber
+
 
     if (user.rol === 'superAdmin' || user.rol === 'admin') {
         try {
-            const update = await User.findByIdAndUpdate(updateUser._id, { [body.column]: req.body.value }, { new: true, runValidators: true, context: 'query' })
-            console.log('Usuario actualizado!')
-            res.status(200).json({ message: 'Se actualizó el usuario!', update })
+            const content = await User.find({}).skip(skip).limit(pageSizeNumber)
+            const updateUser = content[values[0].rowIndex]
+
+            const newUser = {}
+            values.forEach(({ columnId, value }) => {
+                newUser[columnId] = value
+            })
+
+            await User.findByIdAndUpdate(updateUser._id, newUser, { new: true, runValidators: true, context: 'query' })
+            console.log('Usuario actualizado! (porfin)')
+            res.status(200).json({ message: 'Se actualizó el usuario!' })
         } catch(error) {
             console.log(error)
             next(error)
         }
-    } else {
-        res.status(401).json({ error: 'No tienes los permisos necesarios para editar a un usuario.' })
     }
 })
 
