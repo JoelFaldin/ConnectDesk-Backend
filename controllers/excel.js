@@ -35,13 +35,13 @@ excelRouter.get('/api/download/', async (req, res) => {
     worksheet.columns = [
         { header: 'rut', key: 'rut' },
         { header: 'nombres', key: 'nombres' },
-        { header: 'apellidos', key: 'apellidost' },
+        { header: 'apellidos', key: 'apellidos' },
         { header: 'email', key: 'email' },
         { header: 'rol', key: 'rol' },
         { header: 'dependencias', key: 'dependencias' },
         { header: 'direcciones', key: 'direcciones' },
         { header: 'numMunicipal', key: 'numMunicipal' },
-        { header: 'anexo', key: 'anexo' }
+        { header: 'anexo', key: 'anexoMunicipal' }
     ]
 
     const projection = {
@@ -56,8 +56,9 @@ excelRouter.get('/api/download/', async (req, res) => {
         anexoMunicipal: 1,
     }
 
-    if (users === 'total') {
+    if (users === 'todo') {
         const data = await User.find({}, projection).toArray()
+        console.log(data)
         data.forEach(row => {
             worksheet.addRow(row)
         })
