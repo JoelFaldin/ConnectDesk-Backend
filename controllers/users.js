@@ -105,7 +105,7 @@ userRouter.put('/api/update/', async (req, res, next) => {
             })
 
             await User.findByIdAndUpdate(updateUser._id, newUser, { new: true, runValidators: true, context: 'query' })
-            console.log('Usuario actualizado! (porfin)')
+            console.log('Usuario actualizado!')
             res.status(200).json({ message: 'Se actualizó el usuario!' })
         } catch(error) {
             console.log(error)

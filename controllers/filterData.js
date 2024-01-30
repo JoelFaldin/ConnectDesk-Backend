@@ -53,6 +53,7 @@ filterRouter.get('/api/filter/', async (req, res) => {
     }
 })
 
+// Buscando datos en la tabla que coincidan con el término de búsqueda:
 filterRouter.get('/api/filter/search', async (req, res) => {
     const { column, value, pageSize, page } = req.query
 

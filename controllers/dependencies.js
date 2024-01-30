@@ -11,6 +11,7 @@ const getToken = res => {
     return null
 }
 
+// Obteniendo las dependencias:
 dependencyRouter.get('/api/dependencies', async (req, res, next) => {
     try {
         const request = await Dependency.find({})
@@ -20,6 +21,7 @@ dependencyRouter.get('/api/dependencies', async (req, res, next) => {
     }
 })
 
+// Creando una nueva dependencia:
 dependencyRouter.post('/api/newDependency', async (req, res, next) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
 
@@ -50,6 +52,7 @@ dependencyRouter.post('/api/newDependency', async (req, res, next) => {
     }
 })
 
+// Eliminando una dependencia:
 dependencyRouter.delete('/api/deleteDependency/:index', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
 
@@ -71,6 +74,7 @@ dependencyRouter.delete('/api/deleteDependency/:index', async (req, res) => {
     }
 })
 
+// Actualizando una dependencia:
 dependencyRouter.put('/api/updateDependency/:index', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
 
