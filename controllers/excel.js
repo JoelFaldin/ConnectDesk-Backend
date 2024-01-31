@@ -77,7 +77,6 @@ excelRouter.get('/api/download/', async (req, res) => {
 
         await workbook.xlsx.writeFile('output.xlsx')
     }
-    console.log('im here')
     res.redirect('/api/ExcelDownload/')
 })
 

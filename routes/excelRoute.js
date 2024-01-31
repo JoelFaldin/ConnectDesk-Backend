@@ -3,8 +3,7 @@ const router = express.Router()
 const path = require('path')
 
 router.get('/api/ExcelDownload/', (req, res) => {
-    console.log('then i get here')
-    const newFilePath = path.join(__dirname, 'output.xlsx')
+    const newFilePath = path.join(__dirname, '../output.xlsx')
     res.download(newFilePath, 'output.xlsx')
 })
 
