@@ -10,7 +10,6 @@ const filterRouter = require('./controllers/filterData')
 const loginRouter = require('./controllers/login')
 const dependencyRouter = require('./controllers/dependencies')
 const excelRouter = require('./controllers/excel') // Aquí se craftea el excel
-const excelRoute = require('./routes/excelRoute')
 
 mongoose.set('strictQuery', false)
 
@@ -30,7 +29,6 @@ app.use('', filterRouter)
 app.use('', loginRouter)
 app.use('', dependencyRouter)
 app.use('', excelRouter)
-app.use('', excelRoute)
 
 // Error handlers:
 app.use(errorHandler)
