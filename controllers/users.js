@@ -23,20 +23,53 @@ userRouter.get('/api/data/', async (req, res, next) => {
             const content = await User.find({}).skip(0).limit(10)
             const totalData = await User.countDocuments()
             res.status(200).json({ content, totalData })
-            return
         } catch(error) {
             next(error)
         }
+        return
     }
 
     try {
         const content = await User.find({}).skip(skip).limit(pageSizeNumber)
         const totalData = await User.countDocuments()
         res.status(200).json({ content, totalData })
-        return
     } catch(error) {
         next(error)
     }
+})
+
+// Obtener data para la tabla filtrada (botones de navegación):
+userRouter.get('/api/filterUsers', async (req, res) => {
+    const { column, sendOrder, searchValue, searchColumn, pageSize, page } = req.query
+    console.log(column, sendOrder, searchValue)
+
+    const pageNumber = parseInt(page)
+    const pageSizeNumber = parseInt(pageSize)
+    const skip = (pageNumber - 1) * pageSizeNumber
+
+    console.log(skip, pageSizeNumber)
+
+    if (searchValue === '') {
+        const content = await User.find({}).sort({ [column]: sendOrder }).skip(skip).limit(pageSizeNumber)
+        const totalData = await User.find({}).sort({ [column]: sendOrder }).countDocuments()
+        res.status(200).json({ content, totalData })
+    } else {
+        res.status(400).json({ message: 'feature under construction!' })
+    }
+
+    try {
+        let query = {}
+        if (searchValue !== '') {
+            query[searchColumn] = { $regex: new RegExp(searchValue, 'i') }
+        }
+    
+        const content = await User.find(query).sort({ [column]: sendOrder }).skip(skip).limit(pageSizeNumber)
+        const totalData = await User.countDocuments()
+        res.status(200).json({ content, totalData })
+    } catch(error) {
+        console.log(error)
+    }
+
 })
 
 // Crear un nuevo usuario:

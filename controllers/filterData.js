@@ -16,13 +16,15 @@ filterRouter.get('/api/filter/', async (req, res) => {
             if (filterOrder !== 0) {
                 const filteredData = await User.find({}).sort({ [column]: filterOrder }).skip(skip).limit(pageSizeNumber)
                 const totalData = await User.find({}).sort({ [column]: filterOrder }).countDocuments()
+                const content = filteredData
 
-                res.status(200).json({ filteredData, totalData })
+                res.status(200).json({ content, totalData })
             } else  if (filterOrder === 0) {
                 const filteredData = await User.find({}).skip(skip).limit(pageSizeNumber)
                 const totalData = await User.find({}).countDocuments()
+                const content = filteredData
 
-                res.status(200).json({ filteredData, totalData })
+                res.status(200).json({ content, totalData })
             } else {
                 res.status(400).json({ error: 'Orden inválido.' })
             }
@@ -44,8 +46,9 @@ filterRouter.get('/api/filter/', async (req, res) => {
                         { [searchColumn]: { $regex: regex } }
                     ]
                 }).sort({ [column]: filterOrder }).skip(skip).limit(pageSizeNumber)
+                const content = filteredData
 
-                res.status(200).json({ filteredData, totalData })
+                res.status(200).json({ content, totalData })
             }
         } catch(error) {
             res.status(404).json({ error: 'Hubo otro error D:' })
@@ -75,8 +78,9 @@ filterRouter.get('/api/filter/search', async (req, res) => {
                 { [column]: { $regex: regexPattern } }
             ]
         }).skip(skip).limit(pageSizeNumber)
+        const content = filteredData
 
-        res.status(200).json({ filteredData, totalData })
+        res.status(200).json({ content, totalData })
     } catch(error) {
         res.status(404).json({ message: 'Hubo un problema :c', error })
     }
