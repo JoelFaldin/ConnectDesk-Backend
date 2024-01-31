@@ -6,6 +6,8 @@ const errorHandler = (error, req, res, next) => {
         return res.status(404).json({ message: 'El usuario no existe en la base de datos.' })
     } else if (alreadyExists.test(error)) {
         return res.status(400).json({ error: 'Ya existe un usuario con ese rut registrado.' })
+    } else {
+        console.log(error)
     }
 }
 

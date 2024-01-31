@@ -3,6 +3,11 @@ const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 const ExcelJS = require('exceljs')
 
+const multer = require('multer')
+const path = require('path')
+const fs = require('fs').promises
+const xlsx = require('xlsx')
+
 const getToken = res => {
     const authorization = res.get('authorization')
     if (authorization && authorization.startsWith('Bearer ')) {
@@ -10,6 +15,91 @@ const getToken = res => {
     }
     return null
 }
+
+const storage = multer.memoryStorage()
+const upload = multer({ storage: storage })
+
+excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res) => {
+    const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
+
+    if (!decodedToken.rut) {
+        return res.status(401).json({ error: 'Token Inválido' })
+    }
+
+    try {
+        const excelBuffer = req.file.buffer
+
+        // Creando el archivo excel
+        const workbook = xlsx.read(excelBuffer, { type: 'buffer' })
+        const sheetName = workbook.SheetNames[0]
+        const sheet = workbook.Sheets[sheetName]
+
+        const excelObject = xlsx.utils.sheet_to_json(sheet, { header: 'A' })
+        const excelValues = excelObject.shift()
+
+        let excelArray = []
+        for (let i = 0; i < excelObject.length; i++) {
+            excelArray.push(Object.values(excelObject[i]))
+        }
+
+        let headers = Object.values(excelValues)
+
+        const finalArray = excelArray.map(row => {
+            const obj = {}
+            headers.forEach((header, index) => {
+                obj[header] = row[index]
+            })
+            return obj
+        })
+
+        // Objeto para transformar las keys del archivo excel en field names de mongodb:
+        const fieldNamesMongo = {
+            'Rut': 'rut',
+            'Nombres': 'nombres',
+            'Apellidos': 'apellidos',
+            'Correo electrónico': 'email',
+            'Rol': 'rol',
+            'Dependencias': 'dependencias',
+            'Direcciones': 'direcciones',
+            'Número Municipal': 'numMunicipal',
+            'Anexo': 'anexoMunicipal'
+
+        }
+
+        const newArray = finalArray.map(original => {
+            const modifiedObj = {}
+            for (const key in original) {
+                const modifiedKey = fieldNamesMongo[key] || key;
+                modifiedObj[modifiedKey] = original[key];
+            }
+            return modifiedObj
+        })
+
+        for (let i = 0; i < newArray.length; i++) {
+            const newUser = new User({
+                rut: newArray[i].rut,
+                nombres: newArray[i].nombres,
+                apellidos: newArray[i].apellidos,
+                email: newArray[i].email,
+                passHash: null,
+                rol: newArray[i].rol,
+                dependencias: newArray[i].dependencias,
+                direcciones: newArray[i].direcciones,
+                numMunicipal: newArray[i].numMunicipal,
+                anexoMunicipal: newArray[i].anexoMunicipal
+            })
+
+            await newUser.save()
+            console.log('Usuario guardado!')
+        }
+        
+        res.status(201).json({ message: 'Usuarios agregados a la base de datos!' })
+
+    } catch(error) {
+        console.log('Error al subir el archivo', error)
+        res.status(500).json({ error: 'Error interno del sistema' })
+    }
+})
 
 // Creación del archivo excel:
 excelRouter.get('/api/download/', async (req, res) => {
@@ -88,8 +178,7 @@ excelRouter.get('/api/download/', async (req, res) => {
     }
 
     if (users === 'todo') {
-        const data = await User.find({}, projection).toArray()
-        console.log(data)
+        const data = await User.find({}, projection)
         data.forEach(row => {
             worksheet.addRow(row)
         })

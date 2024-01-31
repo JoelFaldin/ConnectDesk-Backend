@@ -23,6 +23,7 @@ userRouter.get('/api/data/', async (req, res, next) => {
             const content = await User.find({}).skip(0).limit(10)
             const totalData = await User.countDocuments()
             res.status(200).json({ content, totalData })
+            return
         } catch(error) {
             next(error)
         }
@@ -32,6 +33,7 @@ userRouter.get('/api/data/', async (req, res, next) => {
         const content = await User.find({}).skip(skip).limit(pageSizeNumber)
         const totalData = await User.countDocuments()
         res.status(200).json({ content, totalData })
+        return
     } catch(error) {
         next(error)
     }
