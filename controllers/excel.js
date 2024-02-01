@@ -47,6 +47,16 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
             return res.status(400).json({ message: 'Un header tiene un error!', typos })
         }
 
+        // Revisando si hay una columna extra o una menos:
+        const extra = trueHeaders.filter(header => !idealHeaders.includes(header))
+        if (extra.length > 0) {
+            console.warn('Extra column detected.')
+        }
+        const less = idealHeaders.filter(header => !trueHeaders.includes(header))
+        if (less.length > 0) {
+            return res.status(400).json({ message: 'Hay una columna menos. Asegúrse que todas las columnas existen!' })
+        }
+
         let excelArray = []
         for (let i = 0; i < excelObject.length; i++) {
             excelArray.push(Object.values(excelObject[i]))
