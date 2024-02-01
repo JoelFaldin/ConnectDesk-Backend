@@ -12,17 +12,17 @@ const getToken = res => {
 }
 
 // Obteniendo las dependencias:
-dependencyRouter.get('/api/dependencies', async (req, res, next) => {
+dependencyRouter.get('/api/getDependencies', async (req, res) => {
     try {
         const request = await Dependency.find({})
-        res.status(200).json(request)
+        res.status(200).json({ message: 'Dependencias obtenidas!', request })
     } catch(error) {
-        next(error)
+        res.status(404).json({ error: 'No se encontraron dependencias.' })
     }
 })
 
 // Creando una nueva dependencia:
-dependencyRouter.post('/api/newDependency', async (req, res, next) => {
+dependencyRouter.post('/api/newDependency', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
 
     if (!decodedToken.rut) {
@@ -69,7 +69,7 @@ dependencyRouter.delete('/api/deleteDependency/:index', async (req, res) => {
             await Dependency.findByIdAndDelete(deleteDep._id)
             res.status(204).json({ message: 'Dependencia eliminada.' })
         } catch(error) {
-            next(error)
+            res.status(404).json({ error: 'Dependencia no encontrada.' })
         }   
     }
 })
@@ -97,8 +97,9 @@ dependencyRouter.put('/api/updateDependency/:index', async (req, res) => {
             } else {
                 await Dependency.findByIdAndUpdate(updateDep._id, { nombre: body.newName, direccion: body.newDirection })
             }
+            res.status(200).json({ message: 'Dependencia actualizada!' })
         } catch(error) {
-            res.status(404).json({ message: 'Hubo un error al actualizar! D:' })
+            res.status(404).json({ error: 'Hubo un error al actualizar! D:' })
         }
     } else {
         res.status(401).json({ error: 'No tienes los permisos suficientes para editar una dependencia!' })

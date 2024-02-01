@@ -12,8 +12,8 @@ const getToken = res => {
 }
 
 // Obtener la data para la tabla:
-userRouter.get('/api/data/', async (req, res, next) => {
-    const { pageSize, page } = req.query
+userRouter.get('/api/newData/', async (req, res) => {
+    const { searchValue, searchColumn, page, pageSize } = req.query
     const pageNumber = parseInt(page)
     const pageSizeNumber = parseInt(pageSize)
     const skip = (pageNumber - 1) * pageSizeNumber
@@ -22,32 +22,31 @@ userRouter.get('/api/data/', async (req, res, next) => {
         try {
             const content = await User.find({}).skip(0).limit(10)
             const totalData = await User.countDocuments()
-            res.status(200).json({ content, totalData })
+            res.status(200).json({ message: 'Datos actualizados', content, totalData })
         } catch(error) {
-            next(error)
+            res.status(404).json({ error: 'Usuario no encontrado' })
         }
         return
     }
-
+    
     try {
         const content = await User.find({}).skip(skip).limit(pageSizeNumber)
         const totalData = await User.countDocuments()
-        res.status(200).json({ content, totalData })
+        res.status(200).json({ message: 'Datos actualizados!', content, totalData })
     } catch(error) {
-        next(error)
+        res.status(404).json({ error: 'Usuario no encontrado' })
     }
 })
 
 // Obtener info del usuario para mostrar:
-userRouter.get('/api/getUserInfo', async (req, res) => {
+userRouter.get('/api/getUserData', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
-    // console.log(decodedToken)
 
     try {
         const user = await User.findOne({ rut: decodedToken.rut })
         const name = user.nombres.split(' ')[0]
 
-        res.status(200).json({ nombres: name })
+        res.status(200).json({ message: 'Usuario encontrado!', nombres: name })
     } catch(error) {
         console.log('No se pudo encontrar el usuario!')
         res.status(404).json({ error: 'Usuario no encontrado.' })
@@ -68,9 +67,9 @@ userRouter.get('/api/filterUsers', async (req, res) => {
     if (searchValue === '') {
         const content = await User.find({}).sort({ [column]: sendOrder }).skip(skip).limit(pageSizeNumber)
         const totalData = await User.find({}).sort({ [column]: sendOrder }).countDocuments()
-        res.status(200).json({ content, totalData })
+        res.status(200).json({ message: 'Datos filtrados!', content, totalData })
     } else {
-        res.status(400).json({ message: 'feature under construction!' })
+        res.status(400).json({ error: 'feature under construction!' })
     }
 
     try {
@@ -89,7 +88,7 @@ userRouter.get('/api/filterUsers', async (req, res) => {
 })
 
 // Crear un nuevo usuario:
-userRouter.post('/api/newUser', async (req, res, next) => {
+userRouter.post('/api/newUser', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
 
     if (!decodedToken.rut) {
@@ -130,7 +129,7 @@ userRouter.post('/api/newUser', async (req, res, next) => {
 })
 
 // Actualizar un usuario:
-userRouter.put('/api/update/', async (req, res, next) => {
+userRouter.put('/api/update/', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
 
     if (!decodedToken.rut) {
@@ -159,21 +158,19 @@ userRouter.put('/api/update/', async (req, res, next) => {
             console.log('Usuario actualizado!')
             res.status(200).json({ message: 'Se actualizó el usuario!' })
         } catch(error) {
-            console.log(error)
-            next(error)
+            res.status(404).json({ error: 'Usuario no encontrado' })
         }
     }
 })
 
 // Eliminar un usuario:
-userRouter.delete('/api/delete/:rut', async (req, res, next) => {
+userRouter.delete('/api/delete/:rut', async (req, res) => {
     try {
         const user = await User.findOne({rut: req.params.rut})
         await User.findByIdAndDelete(user._id)
-        console.log('Usuario eliminado.')
         res.status(204).json({ message: 'Usuario eliminado.' })
     } catch(error) {
-        next(error)
+        res.status(404).json({ error: 'Usuario no encontrado.' })
     }
 })
 
@@ -186,7 +183,7 @@ userRouter.put('/api/newAdmin/:rut', async (req, res, next) => {
             ? res.status(200).json({ message: 'Este usuario es ahora un admin!' })
             : res.status(200).json({ message: 'Este usuario ha dejado de ser un admin' })
     } catch(error) {
-        next(error)
+        res.status(401).json({ error: 'No se encontró al usuario!' })
     }
 })
 

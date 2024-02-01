@@ -23,7 +23,7 @@ loginRouter.post('/api/verifyLogin/', async (req, res, next) => {
 
     const token = jwt.sign(userToken, process.env.SECRET)
 
-    res.status(200).send({ token, nombres: user.nombres, rut: user.rut, access: user.rol })
+    res.status(200).send({ message: 'Verificación exitosa!', token, nombres: user.nombres, rut: user.rut, access: user.rol })
 })
 
 module.exports = loginRouter

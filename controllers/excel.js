@@ -4,8 +4,6 @@ const jwt = require('jsonwebtoken')
 const ExcelJS = require('exceljs')
 
 const multer = require('multer')
-const path = require('path')
-const fs = require('fs').promises
 const xlsx = require('xlsx')
 
 const getToken = res => {

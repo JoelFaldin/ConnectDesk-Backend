@@ -24,9 +24,9 @@ app.use(cors())
 app.use(express.json())
 
 // Routers:
+app.use('', loginRouter)
 app.use('', userRouter)
 app.use('', filterRouter)
-app.use('', loginRouter)
 app.use('', dependencyRouter)
 app.use('', excelRouter)
 
