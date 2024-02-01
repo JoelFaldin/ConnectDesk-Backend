@@ -36,6 +36,16 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
 
         const excelObject = xlsx.utils.sheet_to_json(sheet, { header: 'A' })
         const excelValues = excelObject.shift()
+        
+        const idealHeaders = ['Rut', 'Nombres', 'Apellidos', 'Correo electrónico', 'Rol', 'Dependencias', 'Direcciones', 'Número Municipal', 'Anexo']
+        
+        // Revisando si hay algún typo en los headers del excel subido:
+        const trueHeaders = Object.values(excelValues)
+        const typos = trueHeaders.filter(header => !idealHeaders.includes(header))
+
+        if (typos.length > 0) {
+            return res.status(400).json({ message: 'Un header tiene un error!', typos })
+        }
 
         let excelArray = []
         for (let i = 0; i < excelObject.length; i++) {
@@ -63,7 +73,6 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
             'Direcciones': 'direcciones',
             'Número Municipal': 'numMunicipal',
             'Anexo': 'anexoMunicipal'
-
         }
 
         const newArray = finalArray.map(original => {
