@@ -213,4 +213,55 @@ excelRouter.get('/api/download/', async (req, res) => {
     console.log('Excel creado!')
 })
 
+excelRouter.get('/api/template', async (req, res) => {
+    // Nuevo archivo excel
+    const workbook = new ExcelJS.Workbook()
+
+    workbook.creator = 'System'
+    workbook.lastModifiedBy = 'Backend System'
+    workbook.created = new Date()
+
+    // Añadiendo una página:
+    const worksheet = workbook.addWorksheet('Plantilla')
+
+    // Añadiendo columnas:
+    worksheet.columns = [
+        { header: 'Rut', key: 'rut', width: 10 },
+        { header: 'Nombres', key: 'nombres', width: 20 },
+        { header: 'Apellidos', key: 'apellidos', width: 20 },
+        { header: 'Correo electrónico', key: 'email', width: 30 },
+        { header: 'Rol', key: 'rol', width: 10 },
+        { header: 'Dependencias', key: 'dependencias', width: 20 },
+        { header: 'Direcciones', key: 'direcciones', width: 20 },
+        { header: 'Número Municipal', key: 'numMunicipal', width: 20 },
+        { header: 'Anexo', key: 'anexoMunicipal', width: 20 }
+    ]
+
+    const headers = worksheet.getRow(1)
+    headers.eachCell(cell => {
+        cell.style.font = { bold: true }
+        cell.style.border = {
+            top: { style: 'thin' },
+            right: { style: 'thin' },
+            bottom: { style: 'thin' },
+            left: { style: 'thin' }
+        }
+        cell.style.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: {
+                argb: 'e0e0e0'
+            }
+        }
+    })
+
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    res.header('Content-Type', 'application/octet-stream')
+    res.header("Content-Disposition", "attachment; filename=template.xlsx")
+
+    res.end(buffer, 'binary')
+    console.log('Modelo creado!')
+})
+
 module.exports = excelRouter
