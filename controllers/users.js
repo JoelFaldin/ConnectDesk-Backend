@@ -38,6 +38,22 @@ userRouter.get('/api/data/', async (req, res, next) => {
     }
 })
 
+// Obtener info del usuario para mostrar:
+userRouter.get('/api/getUserInfo', async (req, res) => {
+    const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
+    // console.log(decodedToken)
+
+    try {
+        const user = await User.findOne({ rut: decodedToken.rut })
+        const name = user.nombres.split(' ')[0]
+
+        res.status(200).json({ nombres: name })
+    } catch(error) {
+        console.log('No se pudo encontrar el usuario!')
+        res.status(404).json({ error: 'Usuario no encontrado.' })
+    }
+})
+
 // Obtener data para la tabla filtrada (botones de navegación):
 userRouter.get('/api/filterUsers', async (req, res) => {
     const { column, sendOrder, searchValue, searchColumn, pageSize, page } = req.query
