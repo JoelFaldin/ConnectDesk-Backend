@@ -43,4 +43,22 @@ loginRouter.post('/api/logout', async (req, res) => {
     return res.status(401).json({ error: 'Token inexistente' })
 })
 
+loginRouter.post('/getPassword', async (req, res) => {
+    const { rut, email } = req.body
+
+    try {
+        const user = await User.findOne({ rut: rut })
+    
+        if (user && user.email === email) {
+            res.status(200).json({ message: 'Credenciales correctas.' })
+            return
+        }
+        res.status(404).json({ error: 'Usuario no encontrado.' })
+        return
+    } catch (error) {
+        res.status(500).json({ error: 'Error interno del servidor.' })
+        return
+    }
+})
+
 module.exports = loginRouter
