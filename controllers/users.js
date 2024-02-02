@@ -11,7 +11,7 @@ const getToken = res => {
     return null
 }
 
-// Obtener la data para la tabla:
+// Obtener la data para la tabla (también maneja valores de búsqueda):
 userRouter.get('/api/newData/', async (req, res) => {
     const { searchValue, searchColumn, page, pageSize } = req.query
     const pageNumber = parseInt(page == 0 ? 1 : page)

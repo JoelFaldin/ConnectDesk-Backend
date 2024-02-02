@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 mongoose.set('strictQuery', false)
 
+// Modelo de una dependencia:
 const dependencySchema = mongoose.Schema ({
     nombre: {
         required: true,

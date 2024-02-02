@@ -9,6 +9,7 @@ const xlsx = require('xlsx')
 const storage = multer.memoryStorage()
 const upload = multer({ storage: storage })
 
+// Leyendo data de un excel y subiéndola a la base de datos:
 excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res) => {
     try {
         const excelBuffer = req.file.buffer
@@ -210,6 +211,7 @@ excelRouter.get('/api/download/', async (req, res) => {
     console.log('Excel creado!')
 })
 
+// Creando una template:
 excelRouter.get('/api/template', async (req, res) => {
     // Nuevo archivo excel
     const workbook = new ExcelJS.Workbook()
@@ -258,7 +260,6 @@ excelRouter.get('/api/template', async (req, res) => {
     res.header("Content-Disposition", "attachment; filename=template.xlsx")
 
     res.end(buffer, 'binary')
-    console.log('Modelo creado!')
 })
 
 module.exports = excelRouter

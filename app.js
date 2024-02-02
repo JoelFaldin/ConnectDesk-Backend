@@ -1,20 +1,21 @@
-const config = require('./utils/config')
-const express = require('express')
-const app = express()
-const cors = require('cors')
-const mongoose = require('mongoose')
 const {errorHandler, endpointTypo} = require('./middleware/errorHandler')
+const config = require('./utils/config')
+const mongoose = require('mongoose')
+const express = require('express')
+const cors = require('cors')
+const app = express()
 
-const userRouter = require('./controllers/users')
-const filterRouter = require('./controllers/filterData')
 const loginRouter = require('./controllers/login')
-const dependencyRouter = require('./controllers/dependencies')
-const excelRouter = require('./controllers/excel') // Aquí se craftea el excel
 const blackListMiddleware = require('./middleware/blackList')
 const tokenMiddleware = require('./middleware/tokenAuth')
+const userRouter = require('./controllers/users')
+const filterRouter = require('./controllers/filterData')
+const dependencyRouter = require('./controllers/dependencies')
+const excelRouter = require('./controllers/excel') // Aquí se craftea el excel!
 
 mongoose.set('strictQuery', false)
 
+// Conexión a la base de datos:
 mongoose.connect(config.MONGO_URI)
     .then(() => {
         console.log('Conectado a la base de datos! 🌿 🌳')

@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 mongoose.set('strictQuery', false)
 const bcrypt = require('bcrypt')
 
+// Modelo de un usuario:
 const userSchema = mongoose.Schema({
     rut: String,
     nombres: String,
