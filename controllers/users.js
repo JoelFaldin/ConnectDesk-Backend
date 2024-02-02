@@ -13,33 +13,35 @@ const getToken = res => {
 
 // Obtener la data para la tabla:
 userRouter.get('/api/newData/', async (req, res) => {
+    console.log('its going here')
     const { searchValue, searchColumn, page, pageSize } = req.query
     const pageNumber = parseInt(page)
     const pageSizeNumber = parseInt(pageSize)
     const skip = (pageNumber - 1) * pageSizeNumber
 
-    if (pageSizeNumber === 1 && pageNumber === 10) {
-        try {
-            const content = await User.find({}).skip(0).limit(10)
-            const totalData = await User.countDocuments()
-            res.status(200).json({ message: 'Datos actualizados', content, totalData })
-        } catch(error) {
-            res.status(404).json({ error: 'Usuario no encontrado' })
-        }
-        return
-    }
-    
     try {
-        const content = await User.find({}).skip(skip).limit(pageSizeNumber)
-        const totalData = await User.countDocuments()
-        res.status(200).json({ message: 'Datos actualizados!', content, totalData })
-    } catch(error) {
+        let query = {}
+
+        if (searchValue) {
+            query[searchColumn] = { $regex: new RegExp(searchValue, 'i') }
+        }
+
+        let contentQuery = User.find(query).skip(skip).limit(pageSizeNumber)
+
+        const [content, totalData] = await Promise.all([
+            contentQuery.exec(),
+            User.countDocuments(query),
+        ])
+
+        res.status(200).json({ message: 'Datos actualizados', content, totalData })
+    } catch (error) {
         res.status(404).json({ error: 'Usuario no encontrado' })
     }
 })
 
 // Obtener info del usuario para mostrar:
 userRouter.get('/api/getUserData', async (req, res) => {
+    console.log('its going here')
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
 
     try {
@@ -55,36 +57,34 @@ userRouter.get('/api/getUserData', async (req, res) => {
 
 // Obtener data para la tabla filtrada (botones de navegación):
 userRouter.get('/api/filterUsers', async (req, res) => {
-    const { column, sendOrder, searchValue, searchColumn, pageSize, page } = req.query
-    console.log(column, sendOrder, searchValue)
+    const { column, sendOrder, pageSize, page } = req.query
 
-    const pageNumber = parseInt(page)
-    const pageSizeNumber = parseInt(pageSize)
-    const skip = (pageNumber - 1) * pageSizeNumber
-
-    console.log(skip, pageSizeNumber)
-
-    if (searchValue === '') {
-        const content = await User.find({}).sort({ [column]: sendOrder }).skip(skip).limit(pageSizeNumber)
-        const totalData = await User.find({}).sort({ [column]: sendOrder }).countDocuments()
-        res.status(200).json({ message: 'Datos filtrados!', content, totalData })
-    } else {
-        res.status(400).json({ error: 'feature under construction!' })
-    }
+    const pageNumber = parseInt(page);
+    const pageSizeNumber = parseInt(pageSize);
+    const skip = (pageNumber - 1) * pageSizeNumber;
 
     try {
         let query = {}
-        if (searchValue !== '') {
-            query[searchColumn] = { $regex: new RegExp(searchValue, 'i') }
-        }
-    
-        const content = await User.find(query).sort({ [column]: sendOrder }).skip(skip).limit(pageSizeNumber)
-        const totalData = await User.countDocuments()
-        res.status(200).json({ content, totalData })
-    } catch(error) {
-        console.log(error)
-    }
 
+        if (column !== '' && sendOrder !== 0) {
+            const sort = {}
+            sort[column] = parseInt(sendOrder)
+
+            query = User.find({}).sort(sendOrder === 0 || sendOrder === '0' ? {} : sort).skip(skip).limit(pageSizeNumber)
+        } else {
+            query = User.find({}).skip(skip).limit(pageSizeNumber)
+        }
+
+        const [content, totalData] = await Promise.all([
+            query.exec(),
+            User.countDocuments(),
+        ])
+
+        return res.status(200).json({ message: 'Data filtered!', content, totalData })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: 'Internal Server Error' })
+    }
 })
 
 // Crear un nuevo usuario:
