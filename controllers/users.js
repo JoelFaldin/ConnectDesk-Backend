@@ -89,10 +89,6 @@ userRouter.get('/api/filterUsers', async (req, res) => {
 userRouter.post('/api/newUser', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
 
-    if (!decodedToken.rut) {
-        return res.status(401).json({ error: 'Token Inválido' })
-    }
-
     const user = await User.findOne({ rut: decodedToken.rut })
 
     if (user.rol === 'superAdmin') {
@@ -100,24 +96,30 @@ userRouter.post('/api/newUser', async (req, res) => {
         if (!checkUser) {
             const { rut, nombres, apellidos, email, passHash, rol, dependencias, direcciones, numMunicipal, anexoMunicipal } = req.body
             
-            const salt = 10
-            const hash = await bcrypt.hash(passHash, salt)
-            const user = new User({
-                rut,
-                nombres,
-                apellidos,
-                email,
-                passHash: hash,
-                rol,
-                dependencias,
-                direcciones,
-                numMunicipal,
-                anexoMunicipal
-            })
+            try {
+                const salt = 10
+                const hash = await bcrypt.hash(passHash, salt)
+                const user = new User({
+                    rut,
+                    nombres,
+                    apellidos,
+                    email,
+                    passHash: hash,
+                    rol,
+                    dependencias,
+                    direcciones,
+                    numMunicipal,
+                    anexoMunicipal
+                })
     
-            await user.save()
-            console.log('Usuario creado!')
-            res.status(201).json({ message: 'Usuario creado!' })
+                await user.save()
+                console.log('Usuario creado!')
+                res.status(201).json({ message: 'Usuario creado!' })
+            } catch (error) {
+                res.status(500).json({ error: 'Error al crear el usuario.' })
+            }
+
+            
         } else {
             res.status(409).json({ message: 'El usuario ya existe en la base de datos.' })
         }
@@ -129,10 +131,6 @@ userRouter.post('/api/newUser', async (req, res) => {
 // Actualizar un usuario:
 userRouter.put('/api/update/', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
-
-    if (!decodedToken.rut) {
-        return res.status(401).json({ error: 'Token Inválido' })
-    }
 
     const user = await User.findOne({ rut: decodedToken.rut })
     const { values, pageSize, page } = req.body

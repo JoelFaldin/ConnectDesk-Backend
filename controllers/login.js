@@ -13,8 +13,10 @@ loginRouter.post('/api/verifyLogin/', async (req, res) => {
         ? false
         : await bcrypt.compare(password, user.passHash)
 
-    if (!(user && goodPassword)) {
-        return res.status(401).json({ error: 'Rut o contraseña incorrectos!' })
+    if (user === null) {
+        return res.status(404).json({ rut: 'Rut incorrecto, ingrese uno nuevo...' })
+    } else if (!goodPassword) {
+        return res.status(401).json({ password: 'Contraseña incorrecta.' })
     }
 
     const userToken = {
@@ -43,6 +45,7 @@ loginRouter.post('/api/logout', async (req, res) => {
     return res.status(401).json({ error: 'Token inexistente' })
 })
 
+// Ruta para recuperar la contraseña (sin usar):
 loginRouter.post('/getPassword', async (req, res) => {
     const { rut, email } = req.body
 

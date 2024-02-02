@@ -25,10 +25,6 @@ dependencyRouter.get('/api/getDependencies', async (req, res) => {
 dependencyRouter.post('/api/newDependency', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
 
-    if (!decodedToken.rut) {
-        res.status(401).json({ error: 'Token inválido' })
-    }
-
     const body = req.body
     const user = await User.findOne({ rut: decodedToken.rut })
 
@@ -55,10 +51,6 @@ dependencyRouter.post('/api/newDependency', async (req, res) => {
 // Eliminando una dependencia:
 dependencyRouter.delete('/api/deleteDependency/:index', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
-
-    if (!decodedToken.rut) {
-        res.status(401).json({ error: 'Token inválido' })
-    }
     
     const user = await User.findOne({ rut: decodedToken.rut })
 
@@ -77,10 +69,6 @@ dependencyRouter.delete('/api/deleteDependency/:index', async (req, res) => {
 // Actualizando una dependencia:
 dependencyRouter.put('/api/updateDependency/:index', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
-
-    if (!decodedToken.rut) {
-        res.status(401).json({ error: 'Token inválido' })
-    }
     
     const user = await User.findOne({ rut: decodedToken.rut })
 

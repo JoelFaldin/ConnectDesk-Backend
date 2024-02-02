@@ -6,24 +6,10 @@ const ExcelJS = require('exceljs')
 const multer = require('multer')
 const xlsx = require('xlsx')
 
-const getToken = res => {
-    const authorization = res.get('authorization')
-    if (authorization && authorization.startsWith('Bearer ')) {
-        return authorization.replace('Bearer ', '') 
-    }
-    return null
-}
-
 const storage = multer.memoryStorage()
 const upload = multer({ storage: storage })
 
 excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res) => {
-    const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
-
-    if (!decodedToken.rut) {
-        return res.status(401).json({ error: 'Token Inválido' })
-    }
-
     try {
         const excelBuffer = req.file.buffer
 
@@ -119,13 +105,7 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
 })
 
 // Creación del archivo excel:
-excelRouter.get('/api/download/', async (req, res) => {
-    const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
-
-    if (!decodedToken.rut) {
-        return res.status(401).json({ error: 'Token Inválido' })
-    }
-    
+excelRouter.get('/api/download/', async (req, res) => {    
     const { users, page } = req.query
 
     // Creando el archivo excel:

@@ -11,6 +11,7 @@ const loginRouter = require('./controllers/login')
 const dependencyRouter = require('./controllers/dependencies')
 const excelRouter = require('./controllers/excel') // Aquí se craftea el excel
 const blackListMiddleware = require('./middleware/blackList')
+const tokenMiddleware = require('./middleware/tokenAuth')
 
 mongoose.set('strictQuery', false)
 
@@ -28,6 +29,7 @@ app.use(express.json())
 app.use('', loginRouter)
 
 app.use('', blackListMiddleware)
+app.use('', tokenMiddleware)
 
 app.use('', userRouter, blackListMiddleware)
 app.use('', filterRouter, blackListMiddleware)
