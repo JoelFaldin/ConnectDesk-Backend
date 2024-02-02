@@ -13,9 +13,8 @@ const getToken = res => {
 
 // Obtener la data para la tabla:
 userRouter.get('/api/newData/', async (req, res) => {
-    console.log('its going here')
     const { searchValue, searchColumn, page, pageSize } = req.query
-    const pageNumber = parseInt(page)
+    const pageNumber = parseInt(page == 0 ? 1 : page)
     const pageSizeNumber = parseInt(pageSize)
     const skip = (pageNumber - 1) * pageSizeNumber
 
@@ -41,7 +40,6 @@ userRouter.get('/api/newData/', async (req, res) => {
 
 // Obtener info del usuario para mostrar:
 userRouter.get('/api/getUserData', async (req, res) => {
-    console.log('its going here')
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
 
     try {

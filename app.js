@@ -10,6 +10,7 @@ const filterRouter = require('./controllers/filterData')
 const loginRouter = require('./controllers/login')
 const dependencyRouter = require('./controllers/dependencies')
 const excelRouter = require('./controllers/excel') // Aquí se craftea el excel
+const blackListMiddleware = require('./middleware/blackList')
 
 mongoose.set('strictQuery', false)
 
@@ -25,10 +26,13 @@ app.use(express.json())
 
 // Routers:
 app.use('', loginRouter)
-app.use('', userRouter)
-app.use('', filterRouter)
-app.use('', dependencyRouter)
-app.use('', excelRouter)
+
+app.use('', blackListMiddleware)
+
+app.use('', userRouter, blackListMiddleware)
+app.use('', filterRouter, blackListMiddleware)
+app.use('', dependencyRouter, blackListMiddleware)
+app.use('', excelRouter, blackListMiddleware)
 
 // Error handlers:
 app.use(errorHandler)
