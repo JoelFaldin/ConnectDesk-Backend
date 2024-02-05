@@ -4,16 +4,43 @@ const bcrypt = require('bcrypt')
 
 // Modelo de un usuario:
 const userSchema = mongoose.Schema({
-    rut: String,
-    nombres: String,
-    apellidos: String,
-    email: String,
-    passHash: String,
+    rut: {
+        type: String,
+        required: true
+    },
+    nombres: {
+        type: String,
+        required: true
+    },
+    apellidos: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true
+    },
+    passHash: {
+        type: String,
+        required: true
+    },
     rol: String || 'user',
-    dependencias: String,
-    direcciones: String,
-    numMunicipal: String,
-    anexoMunicipal: String
+    dependencias: {
+        type: String,
+        required: true
+    },
+    direcciones: {
+        type: String,
+        required: true
+    },
+    numMunicipal: {
+        type: String,
+        required: true
+    },
+    anexoMunicipal: {
+        type: String,
+        required: true
+    },
 })
 
 userSchema.methods.verifyPass = (password) => {
