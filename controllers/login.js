@@ -68,7 +68,7 @@ loginRouter.post('/api/verifyToken', async (req, res) => {
     const { token } = req.body
     
     try {
-        const decode = jwt.verify(token, process.env.SECRET)
+        jwt.verify(token, process.env.SECRET)
         res.status(200).json({ valid: true })
     } catch(error) {
         res.status(401).json({ valid: false, error: 'Token inválido.' })
