@@ -37,7 +37,7 @@ mongoose.set('strictQuery', false)
 
 // asyncFunction()
 
-User.find({}).then(res => console.log(res))
+// User.find({}).then(res => console.log(res))
 
 const port = config.PORT
 app.listen(port, '0.0.0.0', () => {
