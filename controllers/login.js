@@ -6,6 +6,11 @@ const blackList = require('../models/blackList')
 const recoverPassword = require('../models/recoverPassword')
 const newEmail = require('../utils/email')
 
+// Endpoint de prueba:
+loginRouter.get('/api/test', (req, res) => {
+    res.json({ message: "hello world" })
+})
+
 // Verificación del login:
 loginRouter.post('/api/verifyLogin/', async (req, res) => {
     const { rut, password } = req.body
