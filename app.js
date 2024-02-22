@@ -22,7 +22,13 @@ mongoose.connect(config.MONGO_URI)
     })
     .catch(error => console.error('Error al conectarse a la db.', error))
 
-app.use(cors())
+const corsOptions = {
+    origin: 'http://localhost:5173',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: false
+}
+
+app.use(cors(corsOptions))
 // app.use(express.static('dist'))
 app.use(express.json())
 
