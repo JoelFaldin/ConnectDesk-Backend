@@ -23,7 +23,7 @@ mongoose.connect(config.MONGO_URI)
     .catch(error => console.error('Error al conectarse a la db.', error))
 
 const corsOptions = {
-    origin: ['https://tabla-de-datos-rlqbwiyb4-joelfaldins-projects.vercel.app', 'http://localhost:5173'],
+    origin: ['https://muni-datos.vercel.app', 'http://localhost:5173'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: false
 }
