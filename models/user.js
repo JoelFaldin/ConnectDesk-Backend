@@ -22,7 +22,6 @@ const userSchema = mongoose.Schema({
     },
     passHash: {
         type: String,
-        required: true
     },
     rol: String || 'user',
     dependencias: {

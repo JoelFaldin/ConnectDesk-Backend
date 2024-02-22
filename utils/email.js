@@ -14,7 +14,7 @@ const sendEmail = async (to, subject, text) => {
       to,
       subject,
       text,
-    }
+    }   
 
     try {
       const info = await send.sendMail(mailOptions)
