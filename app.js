@@ -22,13 +22,7 @@ mongoose.connect(config.MONGO_URI)
     })
     .catch(error => console.error('Error al conectarse a la db.', error))
 
-const corsOptions = {
-    origin: ['https://muni-datos.vercel.app', 'http://localhost:5173'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: false
-}
-
-app.use(cors(corsOptions))
+app.use(cors())
 // app.use(express.static('dist'))
 app.use(express.json())
 
