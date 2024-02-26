@@ -48,7 +48,6 @@ userRouter.get('/api/getUserData', async (req, res) => {
 
         res.status(200).json({ message: 'Usuario encontrado!', nombres: name })
     } catch(error) {
-        console.log('No se pudo encontrar el usuario!')
         res.status(404).json({ error: 'Usuario no encontrado.' })
     }
 })
@@ -80,7 +79,6 @@ userRouter.get('/api/filterUsers', async (req, res) => {
 
         return res.status(200).json({ message: 'Data filtered!', content, totalData })
     } catch (error) {
-        console.log(error)
         res.status(500).json({ error: 'Internal Server Error' })
     }
 })
@@ -113,7 +111,6 @@ userRouter.post('/api/newUser', async (req, res) => {
                 })
     
                 await user.save()
-                console.log('Usuario creado!')
                 res.status(201).json({ message: 'Usuario creado!' })
             } catch (error) {
                 res.status(500).json({ error: 'Error al crear el usuario.' })
@@ -121,10 +118,10 @@ userRouter.post('/api/newUser', async (req, res) => {
 
             
         } else {
-            res.status(409).json({ message: 'El usuario ya existe en la base de datos.' })
+            res.status(409).json({ error: 'El usuario ya existe en la base de datos.' })
         }
     } else {
-        res.status(401).json({ message: 'Este usuario no puede crear nuevos usuarios!' })
+        res.status(401).json({ error: 'Este usuario no puede crear nuevos usuarios!' })
     }
 })
 
@@ -151,7 +148,6 @@ userRouter.put('/api/update/', async (req, res) => {
             })
 
             await User.findByIdAndUpdate(updateUser._id, newUser, { new: true, runValidators: true, context: 'query' })
-            console.log('Usuario actualizado!')
             res.status(200).json({ message: 'Se actualizó el usuario!' })
         } catch(error) {
             res.status(404).json({ error: 'Usuario no encontrado' })

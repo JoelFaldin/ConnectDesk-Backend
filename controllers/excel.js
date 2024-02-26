@@ -23,24 +23,26 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
         const excelValues = excelObject.shift()
         
         const idealHeaders = ['Rut', 'Nombres', 'Apellidos', 'Correo electrónico', 'Rol', 'Dependencias', 'Direcciones', 'Número Municipal', 'Anexo']
-        
+
         // Revisando si hay algún typo en los headers del excel subido:
-        const trueHeaders = Object.values(excelValues)
-        const typos = trueHeaders.filter(header => !idealHeaders.includes(header))
+        const trueHeaders = Object.values(excelValues);
+        const typos = trueHeaders.filter(header => !idealHeaders.includes(header));
 
         if (typos.length > 0) {
-            return res.status(400).json({ message: 'Un header tiene un error!', typos })
+            return res.status(400).json({ message: `Un header tiene un error! "${typos}"` });
         }
 
         // Revisando si hay una columna extra o una menos:
-        const extra = trueHeaders.filter(header => !idealHeaders.includes(header))
+        const extra = idealHeaders.filter(header => !idealHeaders.includes(header));
         if (extra.length > 0) {
-            console.warn('Extra column detected.')
+            return res.status(400).json({ message: 'Hay una columna extra. Asegúrese de que solo existan los encabezados indicados.' })
         }
-        const less = idealHeaders.filter(header => !trueHeaders.includes(header))
+
+        const less = idealHeaders.filter(header => !trueHeaders.includes(header));
         if (less.length > 0) {
-            return res.status(400).json({ message: 'Hay una columna menos. Asegúrse que todas las columnas existen!' })
+            return res.status(400).json({ message: 'Hay una columna menos. Asegúrse que todas las columnas existen!' });
         }
+
 
         let excelArray = []
         for (let i = 0; i < excelObject.length; i++) {
