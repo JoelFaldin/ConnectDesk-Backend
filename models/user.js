@@ -34,7 +34,7 @@ const userSchema = mongoose.Schema({
     },
     numMunicipal: {
         type: String,
-        required: true
+        required: false
     },
     anexoMunicipal: {
         type: String,

@@ -20,8 +20,26 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
         const sheet = workbook.Sheets[sheetName]
 
         const excelObject = xlsx.utils.sheet_to_json(sheet, { header: 'A' })
-        const excelValues = excelObject.shift()
-        
+        const fixedValues = excelObject.map(item => {
+            if (!item.H) {
+                const newItem = {
+                    A: item.A,
+                    B: item.B,
+                    C: item.C,
+                    D: item.D,
+                    E: item.E,
+                    F: item.F,
+                    G: item.G,
+                    H: '',
+                    I: item.I
+                }
+                return newItem
+            } else {
+                return item
+            }
+        })
+        const excelValues = fixedValues.shift()
+
         const idealHeaders = ['Rut', 'Nombres', 'Apellidos', 'Correo electrónico', 'Rol', 'Dependencias', 'Direcciones', 'Número Municipal', 'Anexo']
 
         // Revisando si hay algún typo en los headers del excel subido:
@@ -45,8 +63,8 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
 
 
         let excelArray = []
-        for (let i = 0; i < excelObject.length; i++) {
-            excelArray.push(Object.values(excelObject[i]))
+        for (let i = 0; i < fixedValues.length; i++) {
+            excelArray.push(Object.values(fixedValues[i]))
         }
 
         let headers = Object.values(excelValues)
@@ -82,27 +100,27 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
         })
 
         for (let i = 0; i < newArray.length; i++) {
-            const newUser = new User({
-                rut: newArray[i].rut,
-                nombres: newArray[i].nombres,
-                apellidos: newArray[i].apellidos,
-                email: newArray[i].email,
-                passHash: null,
-                rol: newArray[i].rol,
-                dependencias: newArray[i].dependencias,
-                direcciones: newArray[i].direcciones,
-                numMunicipal: newArray[i].numMunicipal,
-                anexoMunicipal: newArray[i].anexoMunicipal
-            })
-
-            await newUser.save()
-            console.log('Usuario guardado!')
+            try {
+                const newUser = new User({
+                    rut: newArray[i].rut,
+                    nombres: newArray[i].nombres,
+                    apellidos: newArray[i].apellidos,
+                    email: newArray[i].email,
+                    passHash: null,
+                    rol: newArray[i].rol,
+                    dependencias: newArray[i].dependencias,
+                    direcciones: newArray[i].direcciones,
+                    numMunicipal: newArray[i].numMunicipal,
+                    anexoMunicipal: newArray[i].anexoMunicipal
+                })
+                await newUser.save()
+            } catch(error) {
+                res.status(400).json({ error: "No se pudieron agregar los datos. Probablemente hay alguna celda sin valor." })
+            }
         }
-        
-        res.status(201).json({ message: 'Usuarios agregados a la base de datos!' })
 
+        res.status(201).json({ message: 'Usuarios agregados a la base de datos!' })
     } catch(error) {
-        console.log('Error al subir el archivo', error)
         res.status(500).json({ error: 'Error interno del sistema' })
     }
 })
@@ -210,7 +228,6 @@ excelRouter.get('/api/download/', async (req, res) => {
     res.header("Content-Disposition", "attachment; filename=userdata.xlsx")
 
     res.end(buffer, 'binary')
-    console.log('Excel creado!')
 })
 
 // Creando una template:
