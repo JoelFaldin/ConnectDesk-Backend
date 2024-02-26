@@ -7,7 +7,7 @@ const errorHandler = (error, req, res, next) => {
     } else if (alreadyExists.test(error)) {
         return res.status(400).json({ error: 'Ya existe un usuario con ese rut registrado.' })
     } else {
-        console.log(error)
+        return res.status(400).json(error)
     }
 }
 
