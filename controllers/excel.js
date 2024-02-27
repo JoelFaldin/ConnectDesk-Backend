@@ -20,6 +20,36 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
         const sheet = workbook.Sheets[sheetName]
 
         const excelObject = xlsx.utils.sheet_to_json(sheet, { header: 'A' })
+
+        for (let k = 0; k < excelObject.length; k++) {
+            const excelCompleteData = excelObject
+            excelCompleteData.shift()
+            const item = excelCompleteData[k]
+            
+            if (item.A === undefined) {
+                res.status(400).json({ message: 'Existe un rut vacío, revise la columna rut.' })
+                return
+            } else if (item.B === undefined) {
+                res.status(400).json({ message: 'Hay una celda de nombres vacía. Revise la columna de nombres.' })
+                return
+            } else if (item.C === undefined) {
+                res.status(400).json({ message: 'Hay una celda de apellidos vacía. Revise la columna de apellidos.' })
+                return
+            } else if (item.D === undefined) {
+                res.status(400).json({ message: 'Hay una email sin datos. Revise los emails.' })
+                return
+            } else if (item.F === undefined) {
+                res.status(400).json({ message: 'Hay una celda con dependencias vacías. Revise la columna de dependencias.' })
+                return
+            } else if (item.G === undefined) {
+                res.status(400).json({ message: 'Hay una celda de direcciones vacía. Revise la columna de direcciones.' })
+                return
+            } else if (item.I === undefined) {
+                res.status(400).json({ message: 'Hay uno o más anexos vacíos. Revise los anexos.' })
+                return
+            }
+        }
+
         const fixedValues = excelObject.map(item => {
             if (!item.H) {
                 const newItem = {
@@ -27,7 +57,7 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
                     B: item.B,
                     C: item.C,
                     D: item.D,
-                    E: item.E,
+                    E: item.E === undefined ? 'user' : item.E,
                     F: item.F,
                     G: item.G,
                     H: '',
@@ -38,28 +68,30 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
                 return item
             }
         })
+        console.log(fixedValues)
 
         const excelValues = fixedValues.shift()
 
         const idealHeaders = ['Rut', 'Nombres', 'Apellidos', 'Correo electrónico', 'Rol', 'Dependencias', 'Direcciones', 'Número Municipal', 'Anexo']
 
         // Revisando si hay algún typo en los headers del excel subido:
-        const trueHeaders = Object.values(excelValues);
-        const typos = trueHeaders.filter(header => !idealHeaders.includes(header));
+        const trueHeaders = Object.values(excelValues)
+        const typos = trueHeaders.filter(header => !idealHeaders.includes(header))
 
         if (typos.length > 0) {
-            return res.status(400).json({ message: `Un header tiene un error! "${typos}"` });
+            console.log(typos)
+            return res.status(400).json({ message: `Un header tiene un error! "${typos}"` })
         }
 
         // Revisando si hay una columna extra o una menos:
-        const extra = idealHeaders.filter(header => !idealHeaders.includes(header));
+        const extra = idealHeaders.filter(header => !idealHeaders.includes(header))
         if (extra.length > 0) {
             return res.status(400).json({ message: 'Hay una columna extra. Asegúrese de que solo existan los encabezados indicados.' })
         }
 
-        const less = idealHeaders.filter(header => !trueHeaders.includes(header));
+        const less = idealHeaders.filter(header => !trueHeaders.includes(header))
         if (less.length > 0) {
-            return res.status(400).json({ message: 'Hay una columna menos. Asegúrse que todas las columnas existen!' });
+            return res.status(400).json({ message: 'Hay una columna menos. Asegúrse que todas las columnas existen!' })
         }
 
 
@@ -94,8 +126,8 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
         const newArray = finalArray.map(original => {
             const modifiedObj = {}
             for (const key in original) {
-                const modifiedKey = fieldNamesMongo[key] || key;
-                modifiedObj[modifiedKey] = original[key];
+                const modifiedKey = fieldNamesMongo[key] || key
+                modifiedObj[modifiedKey] = original[key]
             }
             return modifiedObj
         })
@@ -220,7 +252,7 @@ excelRouter.get('/api/download/', async (req, res) => {
         })
     })
 
-    const buffer = await workbook.xlsx.writeBuffer();
+    const buffer = await workbook.xlsx.writeBuffer()
 
     res.header('Content-Type', 'application/octet-stream')
     res.header("Content-Disposition", "attachment; filename=userdata.xlsx")
@@ -242,11 +274,11 @@ excelRouter.get('/api/template', async (req, res) => {
 
     // Añadiendo columnas:
     worksheet.columns = [
-        { header: 'Rut', key: 'rut', width: 10 },
+        { header: 'Rut', key: 'rut', width: 20 },
         { header: 'Nombres', key: 'nombres', width: 20 },
         { header: 'Apellidos', key: 'apellidos', width: 20 },
         { header: 'Correo electrónico', key: 'email', width: 30 },
-        { header: 'Rol', key: 'rol', width: 10 },
+        { header: 'Rol', key: 'rol', width: 15 },
         { header: 'Dependencias', key: 'dependencias', width: 20 },
         { header: 'Direcciones', key: 'direcciones', width: 20 },
         { header: 'Número Municipal', key: 'numMunicipal', width: 20 },
@@ -271,7 +303,7 @@ excelRouter.get('/api/template', async (req, res) => {
         }
     })
 
-    const buffer = await workbook.xlsx.writeBuffer();
+    const buffer = await workbook.xlsx.writeBuffer()
 
     res.header('Content-Type', 'application/octet-stream')
     res.header("Content-Disposition", "attachment; filename=template.xlsx")
