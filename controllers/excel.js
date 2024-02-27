@@ -21,9 +21,8 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
 
         const excelObject = xlsx.utils.sheet_to_json(sheet, { header: 'A' })
 
-        for (let k = 0; k < excelObject.length; k++) {
+        for (let k = 1; k < excelObject.length; k++) {
             const excelCompleteData = excelObject
-            excelCompleteData.shift()
             const item = excelCompleteData[k]
             
             if (item.A === undefined) {
@@ -38,6 +37,9 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
             } else if (item.D === undefined) {
                 res.status(400).json({ message: 'Hay una email sin datos. Revise los emails.' })
                 return
+            } else if (item.E === undefined) {
+                res.status(400).json({ message: 'Hay una o más celdas de rol vacías. Revise la columna de rol.' })
+                return
             } else if (item.F === undefined) {
                 res.status(400).json({ message: 'Hay una celda con dependencias vacías. Revise la columna de dependencias.' })
                 return
@@ -48,8 +50,13 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
                 res.status(400).json({ message: 'Hay uno o más anexos vacíos. Revise los anexos.' })
                 return
             }
-        }
 
+            if (item.E !== 'user') {
+                res.status(400).json({ message: 'El rol de un usuario solo puede ser "user"!' })
+                return
+            }
+        }
+        
         const fixedValues = excelObject.map(item => {
             if (!item.H) {
                 const newItem = {
@@ -68,7 +75,6 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
                 return item
             }
         })
-        console.log(fixedValues)
 
         const excelValues = fixedValues.shift()
 
@@ -79,7 +85,6 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
         const typos = trueHeaders.filter(header => !idealHeaders.includes(header))
 
         if (typos.length > 0) {
-            console.log(typos)
             return res.status(400).json({ message: `Un header tiene un error! "${typos}"` })
         }
 
@@ -93,7 +98,6 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
         if (less.length > 0) {
             return res.status(400).json({ message: 'Hay una columna menos. Asegúrse que todas las columnas existen!' })
         }
-
 
         let excelArray = []
         for (let i = 0; i < fixedValues.length; i++) {
@@ -155,7 +159,7 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
     }
 })
 
-// Creación del archivo excel:
+// Creación de un archivo excel con datos de la base de datos:
 excelRouter.get('/api/download/', async (req, res) => {    
     const { users, page } = req.query
 

@@ -43,7 +43,7 @@ loginRouter.post('/api/getPassword', async (req, res) => {
             const token = jwt.sign({ rut }, process.env.SECRET, { expiresIn: expiration })
 
             recoverPassword.create({ rut, token })
-            const link = `${req.protocol}://192.168.1.100:5173/newPassword?token=${token}`
+            const link = `${req.protocol}://192.168.61.250:5173/newPassword?token=${token}`
             const subject = 'Cambio de contraseña'
             const text = `Haga click aquí para cambiar la contraseña: ${link}`
             

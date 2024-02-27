@@ -14,13 +14,13 @@ mongoose.set('strictQuery', false)
 // Añadir un usuario:
 // const asyncFunction = async() => {
 //     const salt = 10
-//     const hash = await bcrypt.hash('newestAdming2374', salt)
+//     const hash = await bcrypt.hash('tempPass123', salt)
     
 //     const user = new User({
 //         rut: '11.111.111-1',
-//         nombres: 'SuperAdmin',
-//         apellidos: 'admin',
-//         email: 'firstadmin@gmail.com',
+//         nombres: 'Joel',
+//         apellidos: 'F',
+//         email: 'joelfaldin@gmail.com',
 //         passHash: hash,
 //         rol: 'superAdmin',
 //         dependencias: 'Municipalidad norte',
