@@ -38,6 +38,7 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
                 return item
             }
         })
+
         const excelValues = fixedValues.shift()
 
         const idealHeaders = ['Rut', 'Nombres', 'Apellidos', 'Correo electrónico', 'Rol', 'Dependencias', 'Direcciones', 'Número Municipal', 'Anexo']
@@ -100,23 +101,20 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
         })
 
         for (let i = 0; i < newArray.length; i++) {
-            try {
-                const newUser = new User({
-                    rut: newArray[i].rut,
-                    nombres: newArray[i].nombres,
-                    apellidos: newArray[i].apellidos,
-                    email: newArray[i].email,
-                    passHash: null,
-                    rol: newArray[i].rol,
-                    dependencias: newArray[i].dependencias,
-                    direcciones: newArray[i].direcciones,
-                    numMunicipal: newArray[i].numMunicipal,
-                    anexoMunicipal: newArray[i].anexoMunicipal
-                })
-                await newUser.save()
-            } catch(error) {
-                res.status(400).json({ error: "No se pudieron agregar los datos. Probablemente hay alguna celda sin valor." })
-            }
+            const newUser = new User({
+                rut: newArray[i].rut,
+                nombres: newArray[i].nombres,
+                apellidos: newArray[i].apellidos,
+                email: newArray[i].email,
+                passHash: null,
+                rol: newArray[i].rol,
+                dependencias: newArray[i].dependencias,
+                direcciones: newArray[i].direcciones,
+                numMunicipal: newArray[i].numMunicipal,
+                anexoMunicipal: newArray[i].anexoMunicipal
+            })
+            
+            await newUser.save()
         }
 
         res.status(201).json({ message: 'Usuarios agregados a la base de datos!' })
