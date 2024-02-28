@@ -106,10 +106,19 @@ loginRouter.patch('/api/restorePassword', async (req, res) => {
 // Proceso de logout:
 loginRouter.post('/api/logout', async (req, res) => {
     const token = req.get('authorization')?.replace('Bearer ', '')
+    const date = new Date()
+    const expiration = new Date(date)
+    expiration.setDate(date.getDate() + 1)
+    expiration.setHours(11, 15, 0, 0)
 
     if (token) {
         try {
-            await blackList.create({ token })
+            const blackListItem = new blackList({
+                token,
+                expiration
+            })
+
+            await blackListItem.save()
             return res.status(200).json({ message: 'Sesión cerrada con éxito!' })
         } catch(error) {
             return res.status(500).json({ error: 'Hubo un error al cerrar sesión.' })

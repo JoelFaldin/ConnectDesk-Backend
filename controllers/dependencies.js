@@ -41,7 +41,6 @@ dependencyRouter.post('/api/newDependency', async (req, res) => {
         })
 
         await newDependency.save()
-        console.log('Dependencia creada!')
         res.status(201).json({ message: 'Dependencia creada!' })
     } else {
         res.status(401).json({ error: 'No tienes los permisos necesarios para crear una dependencia.' })

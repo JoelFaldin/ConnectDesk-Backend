@@ -1,9 +1,11 @@
-const {errorHandler, endpointTypo} = require('./middleware/errorHandler')
+const { errorHandler, endpointTypo } = require('./middleware/errorHandler')
 const config = require('./utils/config')
 const mongoose = require('mongoose')
 const express = require('express')
 const cors = require('cors')
 const app = express()
+const cron = require('node-cron')
+const BlackList = require('./models/blackList')
 
 const loginRouter = require('./controllers/login')
 const blackListMiddleware = require('./middleware/blackList')
@@ -40,5 +42,14 @@ app.use('', excelRouter, blackListMiddleware)
 // Error handlers:
 app.use(errorHandler)
 app.use(endpointTypo)
+
+// Eliminar los tokens de la blacklist cada día a las 14:20am:
+cron.schedule('0 20 14 * * * ', async () => {
+    try {
+        await BlackList.deleteMany({ expiration: { $lt: new Date() } })
+    } catch(error) {
+        console.log('Hubo un error al eliminar tokens expirados.', error)
+    }
+} )
 
 module.exports = app

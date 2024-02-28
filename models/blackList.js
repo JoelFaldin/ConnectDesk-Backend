@@ -5,6 +5,10 @@ const blackListSchema = moongose.Schema({
     token: {
         type: String,
         required: true
+    },
+    expiration: {
+        type: Date,
+        required: true
     }
 })
 
