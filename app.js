@@ -14,6 +14,7 @@ const userRouter = require('./controllers/users')
 const filterRouter = require('./controllers/filterData')
 const dependencyRouter = require('./controllers/dependencies')
 const excelRouter = require('./controllers/excel') // Aquí se craftea el excel!
+const directionRouter = require('./controllers/directions')
 
 mongoose.set('strictQuery', false)
 
@@ -38,6 +39,7 @@ app.use('', userRouter, blackListMiddleware)
 app.use('', filterRouter, blackListMiddleware)
 app.use('', dependencyRouter, blackListMiddleware)
 app.use('', excelRouter, blackListMiddleware)
+app.use('', directionRouter, blackListMiddleware)
 
 // Error handlers:
 app.use(errorHandler)

@@ -57,11 +57,14 @@ dependencyRouter.delete('/api/deleteDependency/:index', async (req, res) => {
         try {
             const allDependencies = await Dependency.find({})
             const deleteDep = allDependencies[req.params.index]
+
             await Dependency.findByIdAndDelete(deleteDep._id)
             res.status(204).json({ message: 'Dependencia eliminada.' })
         } catch(error) {
             res.status(404).json({ error: 'Dependencia no encontrada.' })
         }   
+    } else {
+        res.status(401).json({ error: 'No tienes los permisos para eliminar una dependencia.' })
     }
 })
 
@@ -77,6 +80,7 @@ dependencyRouter.put('/api/updateDependency/:index', async (req, res) => {
         try {
             const allDependencies = await Dependency.find({})
             const updateDep = allDependencies[req.params.index]
+            
             if (body.newName !== null) {
                 await Dependency.findByIdAndUpdate(updateDep._id, { nombre: body.newName })
             } else if (body.newDirection !== null) {
