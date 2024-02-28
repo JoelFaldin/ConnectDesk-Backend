@@ -28,7 +28,7 @@ directionRouter.post('/api/newDirection', async (req, res) => {
     const body = req.body
     const user = await User.findOne({ rut: decodedToken.rut })
 
-    const existsDirection = await Direction.findOne({ direction: body.direction })
+    const existsDirection = await Direction.findOne({ direccion: body.newDirection })
 
     if (existsDirection) {
         return res.status(409).json({ error: 'La dirección ingresada ya existe en la base de datos.' })
@@ -46,7 +46,7 @@ directionRouter.post('/api/newDirection', async (req, res) => {
 })
 
 // Eliminando una dirección:
-directionRouter.delete('/api/deleteDirection', async (req, res) => {
+directionRouter.delete('/api/deleteDirection/:index', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
 
     const user = await User.findOne({ rut: decodedToken.rut })
@@ -67,7 +67,7 @@ directionRouter.delete('/api/deleteDirection', async (req, res) => {
 })
 
 // Actualizando una dirección:
-directionRouter.put('/api/updateDirection', async (req, res) => {
+directionRouter.put('/api/updateDirection/:index', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
     
     const user = await User.findOne({ rut: decodedToken.rut })
@@ -78,12 +78,15 @@ directionRouter.put('/api/updateDirection', async (req, res) => {
         try {
             const allDirections = await Direction.find({})
             const updateDir = allDirections[req.params.index]
+            const contains = allDirections.some(obj => obj.direccion === body.editDirection)
 
-            if (body.direction !== null) {
-                await Direction.findByIdAndUpdate(updateDir._id, { direccion: body.direccion })
+            if (body.editDirection !== null && !contains) {
+                await Direction.findByIdAndUpdate(updateDir._id, { direccion: body.editDirection })
                 res.status(200).json({ message: 'Dirección actualizada!' })
-            } else {
+            } else if (body.editDirection === null) {
                 res.status(400).json({ error: 'No puedes ingresar una dirección vacía!' })
+            } else if (contains) {
+                res.status(409).json({ error: 'Esta dirección ya existe en la base de datos!' })
             }
         } catch(error) {
             res.status(404).json({ error: 'Hubo un error al actualizar la dependencia D:' })
