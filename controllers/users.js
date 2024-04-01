@@ -136,7 +136,7 @@ userRouter.put('/api/update/', async (req, res) => {
     const skip = (pageNumber - 1) * pageSizeNumber
 
 
-    if (user.rol === 'superAdmin' || user.rol === 'admin') {
+    if (user.role === 'superAdmin' || user.role === 'admin') {
         try {
             const content = await User.find({}).skip(skip).limit(pageSizeNumber)
             const updateUser = content[values[0].rowIndex]

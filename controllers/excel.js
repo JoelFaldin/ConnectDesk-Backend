@@ -78,7 +78,7 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
 
         const excelValues = fixedValues.shift()
 
-        const idealHeaders = ['Identifier', 'Names', 'Lastnames', 'Email', 'Role', 'Dependencies', 'Directions', 'Job Number', 'Contact Number']
+        const idealHeaders = ['Identifier', 'Names', 'Lastnames', 'Email', 'Role', 'Departments', 'Directions', 'Job Number', 'Contact Number']
 
         // Checking if theres any typo in the excel headers:
         const trueHeaders = Object.values(excelValues)
@@ -116,15 +116,15 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
 
         // Object to turn the keys in the excel file in field names of mongodb:
         const fieldNamesMongo = {
-            'Identifier': 'rut',
-            'Names': 'nombres',
-            'Lastnames': 'apellidos',
+            'Identifier': 'identifier',
+            'Names': 'names',
+            'Lastnames': 'lastnames',
             'Email': 'email',
-            'Role': 'rol',
-            'Dependencies': 'dependencias',
-            'Directions': 'direcciones',
-            'Job Number': 'numMunicipal',
-            'Contact Number': 'anexoMunicipal'
+            'Role': 'role',
+            'departments': 'departments',
+            'Directions': 'directions',
+            'Job Number': 'jobNumber',
+            'Contact Number': 'contactNumber'
         }
 
         const newArray = finalArray.map(original => {
@@ -138,16 +138,16 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
 
         for (let i = 0; i < newArray.length; i++) {
             const newUser = new User({
-                rut: newArray[i].rut,
-                nombres: newArray[i].nombres,
-                apellidos: newArray[i].apellidos,
+                identifier: newArray[i].identifier,
+                names: newArray[i].names,
+                lastNames: newArray[i].lastnames,
                 email: newArray[i].email,
                 passHash: null,
-                rol: newArray[i].rol,
-                dependencias: newArray[i].dependencias,
-                direcciones: newArray[i].direcciones,
-                numMunicipal: newArray[i].numMunicipal,
-                anexoMunicipal: newArray[i].anexoMunicipal
+                role: newArray[i].role,
+                departments: newArray[i].Departments,
+                directions: newArray[i].directions,
+                jobNumber: newArray[i].jobNumber,
+                contactNumber: newArray[i].contactNumber
             })
             
             await newUser.save()
@@ -171,19 +171,19 @@ excelRouter.get('/api/download/', async (req, res) => {
     workbook.created = new Date()
 
     // Creating a sheet:
-    const worksheet = workbook.addWorksheet('Tabla de usuarios')
+    const worksheet = workbook.addWorksheet('User table')
 
     // Creating columns:
     worksheet.columns = [
-        { header: 'Identifier', key: 'rut' },
-        { header: 'Names', key: 'nombres' },
-        { header: 'Lastnames', key: 'apellidos' },
+        { header: 'Identifier', key: 'identifier' },
+        { header: 'Names', key: 'names' },
+        { header: 'Lastnames', key: 'lastNames' },
         { header: 'Email', key: 'email' },
-        { header: 'Role', key: 'rol' },
-        { header: 'Dependencies', key: 'dependencias' },
-        { header: 'Directions', key: 'direcciones' },
-        { header: 'Job Number', key: 'numMunicipal' },
-        { header: 'Contact Mumber', key: 'anexoMunicipal' }
+        { header: 'Role', key: 'role' },
+        { header: 'Department', key: 'departments' },
+        { header: 'Directions', key: 'directions' },
+        { header: 'Job Number', key: 'jobNumber' },
+        { header: 'Contact Mumber', key: 'contactNumber' }
     ]
 
     const headers = worksheet.getRow(1)
@@ -218,15 +218,15 @@ excelRouter.get('/api/download/', async (req, res) => {
     })
 
     const projection = {
-        rut: 1,
-        nombres: 1,
-        apellidos: 1,
+        identifier: 1,
+        names: 1,
+        lastNames: 1,
         email: 1,
-        rol: 1,
-        dependencias: 1,
-        direcciones: 1,
-        numMunicipal: 1,
-        anexoMunicipal: 1,
+        role: 1,
+        departments: 1,
+        directions: 1,
+        jobNumber: 1,
+        contactNumber: 1,
     }
 
     if (users === 'todo') {
@@ -274,19 +274,19 @@ excelRouter.get('/api/template', async (req, res) => {
     workbook.created = new Date()
 
     // Adding a page:
-    const worksheet = workbook.addWorksheet('Plantilla')
+    const worksheet = workbook.addWorksheet('Template')
 
     // Adding column:
     worksheet.columns = [
-        { header: 'Identifier', key: 'rut', width: 20 },
-        { header: 'Names', key: 'nombres', width: 20 },
-        { header: 'Lastnames', key: 'apellidos', width: 20 },
+        { header: 'Identifier', key: 'identifier', width: 20 },
+        { header: 'Names', key: 'names', width: 20 },
+        { header: 'Lastnames', key: 'lastnames', width: 20 },
         { header: 'Email', key: 'email', width: 30 },
-        { header: 'Role', key: 'rol', width: 15 },
-        { header: 'Dependencies', key: 'dependencias', width: 20 },
-        { header: 'Directions', key: 'direcciones', width: 20 },
-        { header: 'Job Number', key: 'numMunicipal', width: 20 },
-        { header: 'Contact Number', key: 'anexoMunicipal', width: 20 }
+        { header: 'Role', key: 'role', width: 15 },
+        { header: 'Departments', key: 'department', width: 20 },
+        { header: 'Directions', key: 'directions', width: 20 },
+        { header: 'Job Number', key: 'jobNumber', width: 20 },
+        { header: 'Contact Number', key: 'contactNumber', width: 20 }
     ]
 
     const headers = worksheet.getRow(1)
