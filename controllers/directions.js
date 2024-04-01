@@ -26,9 +26,9 @@ directionRouter.post('/api/newDirection', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
     
     const body = req.body
-    const user = await User.findOne({ rut: decodedToken.rut })
+    const user = await User.findOne({ identifier: decodedToken.identifier })
 
-    const existsDirection = await Direction.findOne({ direccion: body.newDirection })
+    const existsDirection = await Direction.findOne({ name: body.newDirection })
 
     if (existsDirection) {
         return res.status(409).json({ error: 'That direction already exists in the database!' })
@@ -36,7 +36,8 @@ directionRouter.post('/api/newDirection', async (req, res) => {
 
     if (user.role === 'superAdmin') {
         const newDirection = new Direction({
-            direccion: body.newDirection
+            name: body.newDirection,
+            address: body.address
         })
         await newDirection.save()
         res.status(201).json({ message: 'Direction successfully created!' })
@@ -49,7 +50,7 @@ directionRouter.post('/api/newDirection', async (req, res) => {
 directionRouter.delete('/api/deleteDirection/:index', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
 
-    const user = await User.findOne({ rut: decodedToken.rut })
+    const user = await User.findOne({ identifier: decodedToken.identifier })
 
     if (user.role === 'superAdmin') {
         try {
@@ -70,7 +71,7 @@ directionRouter.delete('/api/deleteDirection/:index', async (req, res) => {
 directionRouter.put('/api/updateDirection/:index', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
     
-    const user = await User.findOne({ rut: decodedToken.rut })
+    const user = await User.findOne({ identifier: decodedToken.identifier })
 
     if (user.role === 'superAdmin') {
         const body = req.body
@@ -89,7 +90,7 @@ directionRouter.put('/api/updateDirection/:index', async (req, res) => {
                 res.status(409).json({ error: 'This direction already exists in the database!' })
             }
         } catch(error) {
-            res.status(404).json({ error: 'There was an error while updating the dependency. Try again later.' }) 
+            res.status(404).json({ error: 'There was an error while updating the direction. Try again later.' }) 
         }
     } else {
         res.status(401).json({ error: 'You cant update directions.' })

@@ -3,7 +3,7 @@ mongoose.set('strictQuery', false)
 
 // Direction model:
 const directionSchema = new mongoose.Schema ({
-    direccion: {
+    name: {
         type: String,
         required: true
     },
