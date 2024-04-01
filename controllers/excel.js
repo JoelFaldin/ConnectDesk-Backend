@@ -9,12 +9,12 @@ const xlsx = require('xlsx')
 const storage = multer.memoryStorage()
 const upload = multer({ storage: storage })
 
-// Leyendo data de un excel y subiéndola a la base de datos:
+// Reading data from an excel file and uploading it to the database:
 excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res) => {
     try {
         const excelBuffer = req.file.buffer
 
-        // Creando el archivo excel
+        // Creating the excel file:
         const workbook = xlsx.read(excelBuffer, { type: 'buffer' })
         const sheetName = workbook.SheetNames[0]
         const sheet = workbook.Sheets[sheetName]
@@ -26,33 +26,33 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
             const item = excelCompleteData[k]
             
             if (item.A === undefined) {
-                res.status(400).json({ message: 'Existe un rut vacío, revise la columna rut.' })
+                res.status(400).json({ message: 'Theres an empty identifier, check that column.' })
                 return
             } else if (item.B === undefined) {
-                res.status(400).json({ message: 'Hay una celda de nombres vacía. Revise la columna de nombres.' })
+                res.status(400).json({ message: 'Theres an empty name cell. Go check the names column.' })
                 return
             } else if (item.C === undefined) {
-                res.status(400).json({ message: 'Hay una celda de apellidos vacía. Revise la columna de apellidos.' })
+                res.status(400).json({ message: 'Theres an empty lastname cell. Check that column.' })
                 return
             } else if (item.D === undefined) {
-                res.status(400).json({ message: 'Hay una email sin datos. Revise los emails.' })
+                res.status(400).json({ message: 'Theres an empty email cell. Please check that column.' })
                 return
             } else if (item.E === undefined) {
-                res.status(400).json({ message: 'Hay una o más celdas de rol vacías. Revise la columna de rol.' })
+                res.status(400).json({ message: 'Theres one or more empty role columns. Check that column before proceeding.' })
                 return
             } else if (item.F === undefined) {
-                res.status(400).json({ message: 'Hay una celda con dependencias vacías. Revise la columna de dependencias.' })
+                res.status(400).json({ message: 'Theres a cell with empty dependencies. Check the column NOW.' })
                 return
             } else if (item.G === undefined) {
-                res.status(400).json({ message: 'Hay una celda de direcciones vacía. Revise la columna de direcciones.' })
+                res.status(400).json({ message: 'Theres an empty directions cell. Please check that column.' })
                 return
             } else if (item.I === undefined) {
-                res.status(400).json({ message: 'Hay uno o más anexos vacíos. Revise los anexos.' })
+                res.status(400).json({ message: 'Theres one or more empty contact numbers. Go check that.' })
                 return
             }
 
             if (item.E !== 'user') {
-                res.status(400).json({ message: 'El rol de un usuario solo puede ser "user"!' })
+                res.status(400).json({ message: 'An user can only have "user" as a role!' })
                 return
             }
         }
@@ -78,25 +78,25 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
 
         const excelValues = fixedValues.shift()
 
-        const idealHeaders = ['Rut', 'Nombres', 'Apellidos', 'Correo electrónico', 'Rol', 'Dependencias', 'Direcciones', 'Número Municipal', 'Anexo']
+        const idealHeaders = ['Identifier', 'Names', 'Lastnames', 'Email', 'Role', 'Dependencies', 'Directions', 'Job Number', 'Contact Number']
 
-        // Revisando si hay algún typo en los headers del excel subido:
+        // Checking if theres any typo in the excel headers:
         const trueHeaders = Object.values(excelValues)
         const typos = trueHeaders.filter(header => !idealHeaders.includes(header))
 
         if (typos.length > 0) {
-            return res.status(400).json({ message: `Un header tiene un error! "${typos}"` })
+            return res.status(400).json({ message: `One of the headers has an error! "${typos}"` })
         }
 
-        // Revisando si hay una columna extra o una menos:
+        // Checking if theres an extra column or if its lacking one:
         const extra = idealHeaders.filter(header => !idealHeaders.includes(header))
         if (extra.length > 0) {
-            return res.status(400).json({ message: 'Hay una columna extra. Asegúrese de que solo existan los encabezados indicados.' })
+            return res.status(400).json({ message: 'Theres an extra column. Make sure only the indicated headers exist.' })
         }
 
         const less = idealHeaders.filter(header => !trueHeaders.includes(header))
         if (less.length > 0) {
-            return res.status(400).json({ message: 'Hay una columna menos. Asegúrse que todas las columnas existen!' })
+            return res.status(400).json({ message: 'Theres one less column. Make sure all of the indicated columns exist!' })
         }
 
         let excelArray = []
@@ -114,17 +114,17 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
             return obj
         })
 
-        // Objeto para transformar las keys del archivo excel en field names de mongodb:
+        // Object to turn the keys in the excel file in field names of mongodb:
         const fieldNamesMongo = {
-            'Rut': 'rut',
-            'Nombres': 'nombres',
-            'Apellidos': 'apellidos',
-            'Correo electrónico': 'email',
-            'Rol': 'rol',
-            'Dependencias': 'dependencias',
-            'Direcciones': 'direcciones',
-            'Número Municipal': 'numMunicipal',
-            'Anexo': 'anexoMunicipal'
+            'Identifier': 'rut',
+            'Names': 'nombres',
+            'Lastnames': 'apellidos',
+            'Email': 'email',
+            'Role': 'rol',
+            'Dependencies': 'dependencias',
+            'Directions': 'direcciones',
+            'Job Number': 'numMunicipal',
+            'Contact Number': 'anexoMunicipal'
         }
 
         const newArray = finalArray.map(original => {
@@ -153,37 +153,37 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
             await newUser.save()
         }
 
-        res.status(201).json({ message: 'Usuarios agregados a la base de datos!' })
+        res.status(201).json({ message: 'Users added to the database!' })
     } catch(error) {
-        res.status(500).json({ error: 'Error interno del sistema' })
+        res.status(500).json({ error: 'Internal server error.' })
     }
 })
 
-// Creación de un archivo excel con datos de la base de datos:
+// Creating an excel file to download:
 excelRouter.get('/api/download/', async (req, res) => {    
     const { users, page } = req.query
 
-    // Creando el archivo excel:
+    // Creating the file:
     const workbook = new ExcelJS.Workbook()
 
     workbook.creator = 'System'
     workbook.lastModifiedBy = 'Backend Server'
     workbook.created = new Date()
 
-    // Creando una página:
+    // Creating a sheet:
     const worksheet = workbook.addWorksheet('Tabla de usuarios')
 
-    // Creando columnas:
+    // Creating columns:
     worksheet.columns = [
-        { header: 'Rut', key: 'rut' },
-        { header: 'Nombres', key: 'nombres' },
-        { header: 'Apellidos', key: 'apellidos' },
-        { header: 'Correo electrónico', key: 'email' },
-        { header: 'Rol', key: 'rol' },
-        { header: 'Dependencias', key: 'dependencias' },
-        { header: 'Direcciones', key: 'direcciones' },
-        { header: 'Número Municipal', key: 'numMunicipal' },
-        { header: 'Anexo', key: 'anexoMunicipal' }
+        { header: 'Identifier', key: 'rut' },
+        { header: 'Names', key: 'nombres' },
+        { header: 'Lastnames', key: 'apellidos' },
+        { header: 'Email', key: 'email' },
+        { header: 'Role', key: 'rol' },
+        { header: 'Dependencies', key: 'dependencias' },
+        { header: 'Directions', key: 'direcciones' },
+        { header: 'Job Number', key: 'numMunicipal' },
+        { header: 'Contact Mumber', key: 'anexoMunicipal' }
     ]
 
     const headers = worksheet.getRow(1)
@@ -264,29 +264,29 @@ excelRouter.get('/api/download/', async (req, res) => {
     res.end(buffer, 'binary')
 })
 
-// Creando una template:
+// Creating a template file:
 excelRouter.get('/api/template', async (req, res) => {
-    // Nuevo archivo excel
+    // New excel file:
     const workbook = new ExcelJS.Workbook()
 
     workbook.creator = 'System'
     workbook.lastModifiedBy = 'Backend System'
     workbook.created = new Date()
 
-    // Añadiendo una página:
+    // Adding a page:
     const worksheet = workbook.addWorksheet('Plantilla')
 
-    // Añadiendo columnas:
+    // Adding column:
     worksheet.columns = [
-        { header: 'Rut', key: 'rut', width: 20 },
-        { header: 'Nombres', key: 'nombres', width: 20 },
-        { header: 'Apellidos', key: 'apellidos', width: 20 },
-        { header: 'Correo electrónico', key: 'email', width: 30 },
-        { header: 'Rol', key: 'rol', width: 15 },
-        { header: 'Dependencias', key: 'dependencias', width: 20 },
-        { header: 'Direcciones', key: 'direcciones', width: 20 },
-        { header: 'Número Municipal', key: 'numMunicipal', width: 20 },
-        { header: 'Anexo', key: 'anexoMunicipal', width: 20 }
+        { header: 'Identifier', key: 'rut', width: 20 },
+        { header: 'Names', key: 'nombres', width: 20 },
+        { header: 'Lastnames', key: 'apellidos', width: 20 },
+        { header: 'Email', key: 'email', width: 30 },
+        { header: 'Role', key: 'rol', width: 15 },
+        { header: 'Dependencies', key: 'dependencias', width: 20 },
+        { header: 'Directions', key: 'direcciones', width: 20 },
+        { header: 'Job Number', key: 'numMunicipal', width: 20 },
+        { header: 'Contact Number', key: 'anexoMunicipal', width: 20 }
     ]
 
     const headers = worksheet.getRow(1)

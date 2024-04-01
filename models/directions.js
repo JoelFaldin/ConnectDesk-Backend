@@ -1,12 +1,16 @@
 const mongoose = require('mongoose')
 mongoose.set('strictQuery', false)
 
-// Modelo de una direacción:
+// Direction model:
 const directionSchema = new mongoose.Schema ({
     direccion: {
         type: String,
         required: true
-    }
+    },
+    address: {
+        required: true,
+        type: String
+    },
 })
 
 directionSchema.set('toJSON',  {

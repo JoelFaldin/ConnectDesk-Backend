@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-// Modelo para guardar un token con el rut:
+// Model to save a token with the rut:
 const recoverPasswordSchema = mongoose.Schema({
     rut: {
         type: String,

@@ -3,6 +3,6 @@ POST http://localhost:3001/api/verifyLogin
 Content-Type: application/json
 
 {
-    "rut": "11.111.111-1",
+    "identifier": "11.111.111-1",
     "password": "newestAdming2374"
 }

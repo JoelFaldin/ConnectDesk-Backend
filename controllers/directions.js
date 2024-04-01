@@ -11,17 +11,17 @@ const getToken = res => {
     return null
 }
 
-// Obteniendo las direcciones:
+// Getting directions:
 directionRouter.get('/api/getDirections', async (req, res) => {
     try {
         const directions = await Direction.find({})
-        res.status(200).json({ message: 'Direcciones encontradas', directions })
+        res.status(200).json({ message: 'Directions found!', directions })
     } catch(error) {
-        res.status(404).json({ error: 'No hay direcciones guardadas.' })
+        res.status(404).json({ error: 'There are no directions found.' })
     }
 })
 
-// Creando una nueva dirección:
+// Creating a new direction:
 directionRouter.post('/api/newDirection', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
     
@@ -31,48 +31,48 @@ directionRouter.post('/api/newDirection', async (req, res) => {
     const existsDirection = await Direction.findOne({ direccion: body.newDirection })
 
     if (existsDirection) {
-        return res.status(409).json({ error: 'La dirección ingresada ya existe en la base de datos.' })
+        return res.status(409).json({ error: 'That direction already exists in the database!' })
     }
 
-    if (user.rol === 'superAdmin') {
+    if (user.role === 'superAdmin') {
         const newDirection = new Direction({
             direccion: body.newDirection
         })
         await newDirection.save()
-        res.status(201).json({ message: 'Dirección creada!' })
+        res.status(201).json({ message: 'Direction successfully created!' })
     } else {
-        res.status(401).json({ error: 'No tienes los permisos para crear direcciones.' })
+        res.status(401).json({ error: 'You cant create directions.' })
     }
 })
 
-// Eliminando una dirección:
+// Removing a direction:
 directionRouter.delete('/api/deleteDirection/:index', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
 
     const user = await User.findOne({ rut: decodedToken.rut })
 
-    if (user.rol === 'superAdmin') {
+    if (user.role === 'superAdmin') {
         try {
             const allDirections = await Direction.find({})
             const deleteDir = allDirections[req.params.index]
 
             await Direction.findByIdAndDelete(deleteDir._id)
-            res.status(204).json({ message: 'Dirección eliminada.' })
+            res.status(204).json({ message: 'Direction removed.' })
         } catch(error) {
-            res.status(404).json({ error: 'Dirección no encontrada.' })
+            res.status(404).json({ error: 'Direction not found.' })
         }
     } else {
-        res.status(401).json({ error: 'No tienes los permisos para eliminar una dirección.' })
+        res.status(401).json({ error: 'You cant remove a direction.' })
     }
 })
 
-// Actualizando una dirección:
+// Updating a direction:
 directionRouter.put('/api/updateDirection/:index', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
     
     const user = await User.findOne({ rut: decodedToken.rut })
 
-    if (user.rol === 'superAdmin') {
+    if (user.role === 'superAdmin') {
         const body = req.body
 
         try {
@@ -82,17 +82,17 @@ directionRouter.put('/api/updateDirection/:index', async (req, res) => {
 
             if (body.editDirection !== null && !contains) {
                 await Direction.findByIdAndUpdate(updateDir._id, { direccion: body.editDirection })
-                res.status(200).json({ message: 'Dirección actualizada!' })
+                res.status(200).json({ message: 'Direction updated!' })
             } else if (body.editDirection === null) {
-                res.status(400).json({ error: 'No puedes ingresar una dirección vacía!' })
+                res.status(400).json({ error: 'You cant enter an empty direction!' })
             } else if (contains) {
-                res.status(409).json({ error: 'Esta dirección ya existe en la base de datos!' })
+                res.status(409).json({ error: 'This direction already exists in the database!' })
             }
         } catch(error) {
-            res.status(404).json({ error: 'Hubo un error al actualizar la dependencia D:' })
+            res.status(404).json({ error: 'There was an error while updating the dependency. Try again later.' }) 
         }
     } else {
-        res.status(401).json({ error: 'No tienes los permisos para actualizar direcciones.' })
+        res.status(401).json({ error: 'You cant update directions.' })
     }
 })
 

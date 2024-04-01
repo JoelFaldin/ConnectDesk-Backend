@@ -11,7 +11,7 @@ const getToken = res => {
     return null
 }
 
-// Obtener la data para la tabla (también maneja valores de búsqueda):
+// Getting table data (it also handles search values):
 userRouter.get('/api/newData/', async (req, res) => {
     const { searchValue, searchColumn, page, pageSize } = req.query
     const pageNumber = parseInt(page == 0 ? 1 : page)
@@ -31,28 +31,27 @@ userRouter.get('/api/newData/', async (req, res) => {
             contentQuery.exec(),
             User.countDocuments(query),
         ])
-
-        res.status(200).json({ message: 'Datos actualizados', content, totalData })
+        res.status(200).json({ message: 'Data sent!', content, totalData })
     } catch (error) {
-        res.status(404).json({ error: 'Usuario no encontrado' })
+        res.status(404).json({ error: 'User not found.' })
     }
 })
 
-// Obtener info del usuario para mostrar:
+// Getting user information:
 userRouter.get('/api/getUserData', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
 
     try {
-        const user = await User.findOne({ rut: decodedToken.rut })
-        const name = user.nombres.split(' ')[0]
+        const user = await User.findOne({ identifier: decodedToken.identifier })
+        const name = user.names.split(' ')[0]
 
-        res.status(200).json({ message: 'Usuario encontrado!', nombres: name })
+        res.status(200).json({ message: 'User found!', names: name })
     } catch(error) {
-        res.status(404).json({ error: 'Usuario no encontrado.' })
+        res.status(404).json({ error: 'User not found.' })
     }
 })
 
-// Obtener data para la tabla filtrada (botones de navegación):
+// Getting data for the filtered table (navigation buttons):
 userRouter.get('/api/filterUsers', async (req, res) => {
     const { column, sendOrder, pageSize, page } = req.query
 
@@ -83,53 +82,53 @@ userRouter.get('/api/filterUsers', async (req, res) => {
     }
 })
 
-// Crear un nuevo usuario:
+// Creating a new user:
 userRouter.post('/api/newUser', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
 
-    const user = await User.findOne({ rut: decodedToken.rut })
+    const user = await User.findOne({ identifier: decodedToken.identifier })
 
-    if (user.rol === 'superAdmin') {
-        const checkUser = await User.findOne({ rut: req.body.rut })
+    if (user.role === 'superAdmin') {
+        const checkUser = await User.findOne({ identifier: req.body.identifier })
         if (!checkUser) {
-            const { rut, nombres, apellidos, email, passHash, rol, dependencias, direcciones, numMunicipal, anexoMunicipal } = req.body
-            
+            const { identifier, names, lastNames, email, passHash, role, departments, directions, jobNumber, contactNumber } = req.body
+
             try {
                 const salt = 10
                 const hash = await bcrypt.hash(passHash, salt)
                 const user = new User({
-                    rut,
-                    nombres,
-                    apellidos,
+                    identifier,
+                    names,
+                    lastNames,
                     email,
                     passHash: hash,
-                    rol,
-                    dependencias,
-                    direcciones,
-                    numMunicipal,
-                    anexoMunicipal
+                    role,
+                    departments,
+                    directions,
+                    jobNumber,
+                    contactNumber
                 })
     
                 await user.save()
-                res.status(201).json({ message: 'Usuario creado!' })
+                res.status(201).json({ message: 'User created!' })
             } catch (error) {
-                res.status(500).json({ error: 'Error al crear el usuario.' })
+                res.status(500).json({ error: 'There was an error trying to create the user.' })
             }
 
             
         } else {
-            res.status(409).json({ error: 'El usuario ya existe en la base de datos.' })
+            res.status(409).json({ error: 'The user already exists in the database.' })
         }
     } else {
-        res.status(401).json({ error: 'Este usuario no puede crear nuevos usuarios!' })
+        res.status(401).json({ error: "You can't create new users!" })
     }
 })
 
-// Actualizar un usuario:
+// Updating an user:
 userRouter.put('/api/update/', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
 
-    const user = await User.findOne({ rut: decodedToken.rut })
+    const user = await User.findOne({ identifier: decodedToken.identifier })
     const { values, pageSize, page } = req.body
 
     const pageNumber = parseInt(page)
@@ -148,32 +147,32 @@ userRouter.put('/api/update/', async (req, res) => {
             })
 
             await User.findByIdAndUpdate(updateUser._id, newUser, { new: true, runValidators: true, context: 'query' })
-            res.status(200).json({ message: 'Se actualizó el usuario!' })
+            res.status(200).json({ message: 'User updated!' })
         } catch(error) {
-            res.status(404).json({ error: 'Usuario no encontrado' })
+            res.status(404).json({ error: 'User not found' })
         }
     }
 })
 
-// Eliminar un usuario:
-userRouter.delete('/api/delete/:rut', async (req, res) => {
+// Deleting an user:
+userRouter.delete('/api/delete/:identifier', async (req, res) => {
     try {
-        const user = await User.findOne({rut: req.params.rut})
+        const user = await User.findOne({identifier: req.params.identifier})
         await User.findByIdAndDelete(user._id)
-        res.status(204).json({ message: 'Usuario eliminado.' })
+        res.status(204).json({ message: 'User removed.' })
     } catch(error) {
-        res.status(404).json({ error: 'Usuario no encontrado.' })
+        res.status(404).json({ error: 'User not found.' })
     }
 })
 
-// Crear un nuevo admin
-userRouter.put('/api/newAdmin/:rut', async (req, res, next) => {
+// Turning an existing user into an admin:
+userRouter.put('/api/newAdmin/:identifier', async (req, res) => {
     try {
-        const user = await User.findOne({ rut: req.params.rut })
-        const newUser = await User.findByIdAndUpdate(user._id, { rol: user.rol === 'admin' ? 'user' : 'admin' }, { new: true, runValidators: true, context: 'query' })
-        newUser.rol === 'admin'
-            ? res.status(200).json({ message: 'Este usuario es ahora un admin!' })
-            : res.status(200).json({ message: 'Este usuario ha dejado de ser un admin' })
+        const user = await User.findOne({ identifier: req.params.identifier })
+        const newUser = await User.findByIdAndUpdate(user._id, { role: user.role === 'admin' ? 'user' : 'admin' }, { new: true, runValidators: true, context: 'query' })
+        newUser.role === 'admin'
+            ? res.status(200).json({ message: 'This user is now an admin!' })
+            : res.status(200).json({ message: 'This user is no longer an administrator.' })
     } catch(error) {
         res.status(401).json({ error: 'No se encontró al usuario!' })
     }

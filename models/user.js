@@ -2,17 +2,17 @@ const mongoose = require('mongoose')
 mongoose.set('strictQuery', false)
 const bcrypt = require('bcrypt')
 
-// Modelo de un usuario:
+// User model:
 const userSchema = mongoose.Schema({
-    rut: {
+    identifier: {
         type: String,
         required: true
     },
-    nombres: {
+    names: {
         type: String,
         required: true
     },
-    apellidos: {
+    lastNames: {
         type: String,
         required: true
     },
@@ -23,20 +23,23 @@ const userSchema = mongoose.Schema({
     passHash: {
         type: String,
     },
-    rol: String || 'user',
-    dependencias: {
+    role: {
+        type: String,
+        default: 'user'
+    },
+    departments: {
         type: String,
         required: true
     },
-    direcciones: {
+    directions: {
         type: String,
         required: true
     },
-    numMunicipal: {
+    jobNumber: {
         type: String,
         required: false
     },
-    anexoMunicipal: {
+    contactNumber: {
         type: String,
         required: true
     },

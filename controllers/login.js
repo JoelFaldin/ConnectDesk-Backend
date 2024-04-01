@@ -6,64 +6,64 @@ const blackList = require('../models/blackList')
 const recoverPassword = require('../models/recoverPassword')
 const newEmail = require('../utils/email')
 
-// Verificación del login:
+// Login verification:
 loginRouter.post('/api/verifyLogin/', async (req, res) => {
-    const { rut, password } = req.body
+    const { identifier, password } = req.body
     
-    const user = await User.findOne({ rut })
+    const user = await User.findOne({ identifier })
     const goodPassword = user === null
         ? false
         : await bcrypt.compare(password, user.passHash)
 
     if (user === null) {
-        return res.status(404).json({ rut: 'Rut incorrecto, ingrese uno nuevo...' })
+        return res.status(404).json({ identifier: 'Wrong identifier, try another one...' })
     } else if (!goodPassword) {
-        return res.status(401).json({ password: 'Contraseña incorrecta.' })
+        return res.status(401).json({ password: 'Wrong password.' })
     }
 
     const userToken = {
-        nombres: user.nombres,
-        rut: user.rut
+        names: user.names,
+        identifier: user.identifier
     }
 
     const token = jwt.sign(userToken, process.env.SECRET)
 
-    res.status(200).send({ message: 'Verificación exitosa!', token, nombres: user.nombres, rut: user.rut, access: user.rol })
+    res.status(200).send({ message: 'Successful verification!', token, nombres: user.names, identifier: user.identifier, access: user.role })
 })
 
-// Ruta para recuperar la contraseña (sin usar):
+// Route to recover the password:
 loginRouter.post('/api/getPassword', async (req, res) => {
-    const { rut, email } = req.body
+    const { identifier, email } = req.body
     
     try {
-        const user = await User.findOne({ rut: rut })
+        const user = await User.findOne({ identifier: identifier })
     
         if (user && user.email === email) {
             const expiration = '5m'
-            const token = jwt.sign({ rut }, process.env.SECRET, { expiresIn: expiration })
+            const token = jwt.sign({ identifier }, process.env.SECRET, { expiresIn: expiration })
 
-            recoverPassword.create({ rut, token })
+            recoverPassword.create({ identifier, token })
             const link = `${req.protocol}://192.168.61.250:5173/newPassword?token=${token}`
-            const subject = 'Cambio de contraseña'
-            const text = `Haga click aquí para cambiar la contraseña: ${link}`
+            const subject = 'Password change'
+            const text = `Click here to change the password: ${link}`
             
             newEmail(user.email, subject, text)
 
-            res.status(200).json({ message: 'Credenciales correctas. Revise su correo.' })
+            res.status(200).json({ message: 'Message sent. Go check your email!' })
             return
         } else if (!user) {
-            res.status(404).json({ error: 'Usuario no encontrado.' })
+            res.status(404).json({ error: 'User not found.' })
         } else if (user.email !== email) {
-            res.status(401).json({ error: 'Correo incorrecto!' })
+            res.status(401).json({ error: 'Wrong email!' })
         }
         return
     } catch (error) {
-        res.status(500).json({ error: 'Error interno del servidor.', error })
+        res.status(500).json({ error: 'Internal server error.', error })
         return
     }
 })
 
-// Revisando el token del componente NewPassword:
+// Checking the NewPassword token:
 loginRouter.post('/api/verifyToken', async (req, res) => {
     const { token } = req.body
     
@@ -71,39 +71,39 @@ loginRouter.post('/api/verifyToken', async (req, res) => {
         jwt.verify(token, process.env.SECRET)
         res.status(200).json({ valid: true })
     } catch(error) {
-        res.status(401).json({ valid: false, error: 'Token inválido.' })
+        res.status(401).json({ valid: false, error: 'Invalid token. Go back.' })
     }
 })
 
-// Actualizando la contraseña:
+// Updating the password:
 loginRouter.patch('/api/restorePassword', async (req, res) => {
     const { newPassword, token } = req.body
 
     try {
         const decode = jwt.verify(token, process.env.SECRET)
-        const user = await User.findOne({ rut: decode.rut })
+        const user = await User.findOne({ identifier: decode.identifier })
 
         if (user) {
             const salt = 10
             const hash = await bcrypt.hash(newPassword, salt)
     
             await User.findByIdAndUpdate(user._id, { passHash: hash })
-            res.status(200).json({ message: 'Contraseña actualizada!' })
+            res.status(200).json({ message: 'Passwor updated!' })
         } else {
-            res.status(404).json({ error: 'Usuario no encontrado.' })
+            res.status(404).json({ error: 'User not found.' })
         }
     } catch (error) {
         if (error.name === 'TokenExpiredError') {
-            res.status(401).json({ error: 'Token expirado.' })
+            res.status(401).json({ error: 'Token expired.' })
         } else if (error.name === 'JsonWebTokenError') {
-            res.status(401).json({ error: 'Token inválido.' })
+            res.status(401).json({ error: 'Invalid token.' })
         } else {
-            res.status(500).json({ error: 'Error interno del servidor.' })
+            res.status(500).json({ error: 'Internal server error.' })
         }
     }
 })
 
-// Proceso de logout:
+// Processing the logout:
 loginRouter.post('/api/logout', async (req, res) => {
     const token = req.get('authorization')?.replace('Bearer ', '')
     const date = new Date()
@@ -119,13 +119,13 @@ loginRouter.post('/api/logout', async (req, res) => {
             })
 
             await blackListItem.save()
-            return res.status(200).json({ message: 'Sesión cerrada con éxito!' })
+            return res.status(200).json({ message: 'Successfully logged out!' })
         } catch(error) {
-            return res.status(500).json({ error: 'Hubo un error al cerrar sesión.' })
+            return res.status(500).json({ error: 'Someting happened when logging out.' })
         }
     }
 
-    return res.status(401).json({ error: 'Token inexistente' })
+    return res.status(401).json({ error: 'Unexisting token.' })
 })
 
 

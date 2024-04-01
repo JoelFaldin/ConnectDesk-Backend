@@ -15,9 +15,8 @@ const blackListMiddleware = async (req, res, next) => {
         }
     }
     if (token === 'null' || token === null) {
-        return res.status(401).json({ error: 'Invalid Token' })
+        return res.status(401).json({ error: 'Invalid Token.' })
     }
-
     
     next();
 }

@@ -1,4 +1,4 @@
-const { errorHandler, endpointTypo } = require('./middleware/errorHandler')
+const { endpointTypo } = require('./middleware/errorHandler')
 const config = require('./utils/config')
 const mongoose = require('mongoose')
 const express = require('express')
@@ -12,7 +12,7 @@ const blackListMiddleware = require('./middleware/blackList')
 const tokenMiddleware = require('./middleware/tokenAuth')
 const userRouter = require('./controllers/users')
 const filterRouter = require('./controllers/filterData')
-const dependencyRouter = require('./controllers/dependencies')
+const departmentRouter = require('./controllers/departments')
 const excelRouter = require('./controllers/excel') // Aquí se craftea el excel!
 const directionRouter = require('./controllers/directions')
 
@@ -21,9 +21,9 @@ mongoose.set('strictQuery', false)
 // Conexión a la base de datos:
 mongoose.connect(config.MONGO_URI)
     .then(() => {
-        console.log('Conectado a la base de datos! 🌿 🌳')
+        console.log('Database connected! 🌿 🌳')
     })
-    .catch(error => console.error('Error al conectarse a la db.', error))
+    .catch(error => console.error('Couldnt connect to the database.', error))
 
 app.use(cors())
 // app.use(express.static('dist'))
@@ -37,12 +37,11 @@ app.use('', tokenMiddleware)
 
 app.use('', userRouter, blackListMiddleware)
 app.use('', filterRouter, blackListMiddleware)
-app.use('', dependencyRouter, blackListMiddleware)
+app.use('', departmentRouter, blackListMiddleware)
 app.use('', excelRouter, blackListMiddleware)
 app.use('', directionRouter, blackListMiddleware)
 
 // Error handlers:
-app.use(errorHandler)
 app.use(endpointTypo)
 
 // Eliminar los tokens de la blacklist cada día a las 14:20am:

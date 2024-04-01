@@ -13,10 +13,9 @@ const getToken = res => {
 const tokenMiddleware = async (req, res, next) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
     
-    if (!decodedToken.rut) {
-        return res.status(401).json({ error: 'Token Inválido' })
+    if (!decodedToken.identifier) {
+        return res.status(401).json({ error: 'Invalid token.' })
     }
-
     next()
 }
 

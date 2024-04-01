@@ -1,6 +1,6 @@
 const moongose = require('mongoose')
 
-// Modelo de la BlackList:
+// Blacklist model:
 const blackListSchema = moongose.Schema({
     token: {
         type: String,

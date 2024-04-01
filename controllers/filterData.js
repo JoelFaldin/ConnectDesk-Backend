@@ -1,7 +1,7 @@
 const filterRouter = require('express').Router()
 const User = require('../models/user')
 
-// Filtrando datos de la tabla:
+// Filtering table data:
 filterRouter.get('/api/filter/', async (req, res) => {
     const { column, order, searchValue, searchColumn, pageSize, page } = req.query
 
@@ -26,10 +26,10 @@ filterRouter.get('/api/filter/', async (req, res) => {
 
                 res.status(200).json({ content, totalData })
             } else {
-                res.status(400).json({ error: 'Orden inválido.' })
+                res.status(400).json({ error: 'Invalid order.' })
             }
         } catch(error) {
-            res.status(404).json({ message: 'Hubo un problema :c', error })
+            res.status(500).json({ message: 'Internal server error', error })
         }
     } else {
         try {
@@ -51,12 +51,12 @@ filterRouter.get('/api/filter/', async (req, res) => {
                 res.status(200).json({ content, totalData })
             }
         } catch(error) {
-            res.status(404).json({ error: 'Hubo otro error D:' })
+            res.status(500).json({ error: 'Internal server error.' })
         }
     }
 })
 
-// Buscando datos en la tabla que coincidan con el término de búsqueda:
+// Searching data that mathces with the search value:
 filterRouter.get('/api/filter/search', async (req, res) => {
     const { column, value, pageSize, page } = req.query
 
@@ -82,7 +82,7 @@ filterRouter.get('/api/filter/search', async (req, res) => {
 
         res.status(200).json({ content, totalData })
     } catch(error) {
-        res.status(404).json({ message: 'Hubo un problema :c', error })
+        res.status(404).json({ message: 'Internal server error.', error })
     }
 })
 
