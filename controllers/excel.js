@@ -212,7 +212,7 @@ excelRouter.get('/api/download/', async (req, res) => {
         col.width = maxLength + 10
 
         const header = worksheet.getRow(1).getCell(index + 1).value
-        if (header === 'email') {
+        if (header === 'Email') {
             col.width = maxLength + 20
         }
     })
