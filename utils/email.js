@@ -14,10 +14,10 @@ const sendEmail = async (to, subject, text) => {
       to,
       subject,
       text,
-    }   
+    }
 
     try {
-      const info = await send.sendMail(mailOptions)
+      await send.sendMail(mailOptions)
       // console.log('Correo enviado: ' + info.response)
     } catch (error) {
       console.error('Error enviando el correo de recuperación de contraseña: ', error)

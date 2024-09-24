@@ -44,13 +44,13 @@ app.use('', directionRouter, blackListMiddleware)
 // Error handlers:
 app.use(endpointTypo)
 
-// Eliminar los tokens de la blacklist cada día a las 14:20am:
+// Eliminar los tokens de la blacklist cada día a las 14:20pm:
 cron.schedule('0 20 14 * * * ', async () => {
     try {
         await BlackList.deleteMany({ expiration: { $lt: new Date() } })
     } catch(error) {
         console.log('Hubo un error al eliminar tokens expirados.', error)
     }
-} )
+})
 
 module.exports = app

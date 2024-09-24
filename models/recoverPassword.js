@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 // Model to save a token with the rut:
 const recoverPasswordSchema = mongoose.Schema({
-    rut: {
+    identifier: {
         type: String,
         required: true
     },

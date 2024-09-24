@@ -3,8 +3,8 @@ const User = require('../models/user')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
-const getToken = res => {
-    const authorization = res.get('authorization')
+const getToken = req => {
+    const authorization = req.headers.authorization
     if (authorization && authorization.startsWith('Bearer ')) {
         return authorization.replace('Bearer ', '') 
     }
@@ -85,7 +85,7 @@ userRouter.get('/api/filterUsers', async (req, res) => {
 // Creating a new user:
 userRouter.post('/api/newUser', async (req, res) => {
     const decodedToken = jwt.verify(getToken(req), process.env.SECRET)
-
+    
     const user = await User.findOne({ identifier: decodedToken.identifier })
 
     if (user.role === 'superAdmin') {
@@ -157,7 +157,7 @@ userRouter.put('/api/update/', async (req, res) => {
 // Deleting an user:
 userRouter.delete('/api/delete/:identifier', async (req, res) => {
     try {
-        const user = await User.findOne({identifier: req.params.identifier})
+        const user = await User.findOne({ identifier: req.params.identifier })
         await User.findByIdAndDelete(user._id)
         res.status(204).json({ message: 'User removed.' })
     } catch(error) {
