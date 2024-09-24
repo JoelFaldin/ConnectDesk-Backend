@@ -56,7 +56,7 @@ filterRouter.get('/api/filter/', async (req, res) => {
     }
 })
 
-// Searching data that mathces with the search value:
+// Searching data that matches with the search value:
 filterRouter.get('/api/filter/search', async (req, res) => {
     const { column, value, pageSize, page } = req.query
 

@@ -237,7 +237,7 @@ excelRouter.get('/api/download/', async (req, res) => {
 
     worksheet.eachRow((row) => {
         row.eachCell((cell) => {
-          cell.style.border = {
+        cell.style.border = {
             top: { style: 'thin' },
             right: { style: 'thin' },
             bottom: { style: 'thin' },
