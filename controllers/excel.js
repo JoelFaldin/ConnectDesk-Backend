@@ -1,6 +1,5 @@
 const excelRouter = require('express').Router()
 const User = require('../models/user')
-const jwt = require('jsonwebtoken')
 const ExcelJS = require('exceljs')
 
 const multer = require('multer')
@@ -26,34 +25,25 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
             const item = excelCompleteData[k]
             
             if (item.A === undefined) {
-                res.status(400).json({ message: 'Theres an empty identifier, check that column.' })
-                return
+                return res.status(400).json({ message: 'Theres an empty identifier, check that column.' })
             } else if (item.B === undefined) {
-                res.status(400).json({ message: 'Theres an empty name cell. Go check the names column.' })
-                return
+                return res.status(400).json({ message: 'Theres an empty name cell. Go check the names column.' })
             } else if (item.C === undefined) {
-                res.status(400).json({ message: 'Theres an empty lastname cell. Check that column.' })
-                return
+                return res.status(400).json({ message: 'Theres an empty lastname cell. Check that column.' })
             } else if (item.D === undefined) {
-                res.status(400).json({ message: 'Theres an empty email cell. Please check that column.' })
-                return
+                return res.status(400).json({ message: 'Theres an empty email cell. Please check that column.' })
             } else if (item.E === undefined) {
-                res.status(400).json({ message: 'Theres one or more empty role columns. Check that column before proceeding.' })
-                return
+                return res.status(400).json({ message: 'Theres one or more empty role columns. Check that column before proceeding.' })
             } else if (item.F === undefined) {
-                res.status(400).json({ message: 'Theres a cell with empty dependencies. Check the column NOW.' })
-                return
+                return res.status(400).json({ message: 'Theres a cell with empty dependencies. Check the column NOW.' })
             } else if (item.G === undefined) {
-                res.status(400).json({ message: 'Theres an empty directions cell. Please check that column.' })
-                return
+                return res.status(400).json({ message: 'Theres an empty directions cell. Please check that column.' })
             } else if (item.I === undefined) {
-                res.status(400).json({ message: 'Theres one or more empty contact numbers. Go check that.' })
-                return
+                return res.status(400).json({ message: 'Theres one or more empty contact numbers. Go check that.' })
             }
 
             if (item.E !== 'user') {
-                res.status(400).json({ message: 'An user can only have "user" as a role!' })
-                return
+                return res.status(400).json({ message: 'An user can only have "user" as a role!' })
             }
         }
         
@@ -153,9 +143,9 @@ excelRouter.post('/api/uploadExcel', upload.single('excelFile'), async (req, res
             await newUser.save()
         }
 
-        res.status(201).json({ message: 'Users added to the database!' })
+        return res.status(201).json({ message: 'Users added to the database!' })
     } catch(error) {
-        res.status(500).json({ error: 'Internal server error.' })
+        return res.status(500).json({ error: 'Internal server error.' })
     }
 })
 
@@ -261,7 +251,7 @@ excelRouter.get('/api/download/', async (req, res) => {
     res.header('Content-Type', 'application/octet-stream')
     res.header("Content-Disposition", "attachment; filename=userdata.xlsx")
 
-    res.end(buffer, 'binary')
+    return res.end(buffer, 'binary')
 })
 
 // Creating a template file:
@@ -312,7 +302,7 @@ excelRouter.get('/api/template', async (req, res) => {
     res.header('Content-Type', 'application/octet-stream')
     res.header("Content-Disposition", "attachment; filename=template.xlsx")
 
-    res.end(buffer, 'binary')
+    return res.end(buffer, 'binary')
 })
 
 module.exports = excelRouter

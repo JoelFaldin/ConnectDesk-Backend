@@ -15,9 +15,9 @@ const getToken = res => {
 directionRouter.get('/api/getDirections', async (req, res) => {
     try {
         const directions = await Direction.find({})
-        res.status(200).json({ message: 'Directions found!', directions })
+        return res.status(200).json({ message: 'Directions found!', directions })
     } catch(error) {
-        res.status(404).json({ error: 'There are no directions found.' })
+        return res.status(404).json({ error: 'There are no directions found.' })
     }
 })
 
@@ -40,9 +40,9 @@ directionRouter.post('/api/newDirection', async (req, res) => {
             address: body.address
         })
         await newDirection.save()
-        res.status(201).json({ message: 'Direction successfully created!' })
+        return res.status(201).json({ message: 'Direction successfully created!' })
     } else {
-        res.status(401).json({ error: 'You cant create directions.' })
+        return res.status(401).json({ error: 'You cant create directions.' })
     }
 })
 
@@ -58,12 +58,12 @@ directionRouter.delete('/api/deleteDirection/:index', async (req, res) => {
             const deleteDir = allDirections[req.params.index]
 
             await Direction.findByIdAndDelete(deleteDir._id)
-            res.status(204).json({ message: 'Direction removed.' })
+            return res.status(204).json({ message: 'Direction removed.' })
         } catch(error) {
-            res.status(404).json({ error: 'Direction not found.' })
+            return res.status(404).json({ error: 'Direction not found.' })
         }
     } else {
-        res.status(401).json({ error: 'You cant remove a direction.' })
+        return res.status(401).json({ error: 'You cant remove a direction.' })
     }
 })
 
@@ -83,17 +83,17 @@ directionRouter.put('/api/updateDirection/:index', async (req, res) => {
 
             if (body.editDirection !== null && !contains) {
                 await Direction.findByIdAndUpdate(updateDir._id, { direccion: body.editDirection })
-                res.status(200).json({ message: 'Direction updated!' })
+                return res.status(200).json({ message: 'Direction updated!' })
             } else if (body.editDirection === null) {
-                res.status(400).json({ error: 'You cant enter an empty direction!' })
+                return res.status(400).json({ error: 'You cant enter an empty direction!' })
             } else if (contains) {
-                res.status(409).json({ error: 'This direction already exists in the database!' })
+                return res.status(409).json({ error: 'This direction already exists in the database!' })
             }
         } catch(error) {
-            res.status(404).json({ error: 'There was an error while updating the direction. Try again later.' }) 
+            return res.status(404).json({ error: 'There was an error while updating the direction. Try again later.' }) 
         }
     } else {
-        res.status(401).json({ error: 'You cant update directions.' })
+        return res.status(401).json({ error: 'You cant update directions.' })
     }
 })
 

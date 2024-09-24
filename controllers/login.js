@@ -28,7 +28,7 @@ loginRouter.post('/api/verifyLogin/', async (req, res) => {
 
     const token = jwt.sign(userToken, process.env.SECRET)
 
-    res.status(200).send({ message: 'Successful verification!', token, nombres: user.names, identifier: user.identifier, access: user.role })
+    return res.status(200).send({ message: 'Successful verification!', token, nombres: user.names, identifier: user.identifier, access: user.role })
 })
 
 // Route to recover the password:
@@ -49,16 +49,16 @@ loginRouter.post('/api/getPassword', async (req, res) => {
             
             newEmail(user.email, subject, text)
 
-            res.status(200).json({ message: 'Message sent. Go check your email!' })
+            return res.status(200).json({ message: 'Message sent. Go check your email!' })
             return
         } else if (!user) {
-            res.status(404).json({ error: 'User not found.' })
+            return res.status(404).json({ error: 'User not found.' })
         } else if (user.email !== email) {
-            res.status(401).json({ error: 'Wrong email!' })
+            return res.status(401).json({ error: 'Wrong email!' })
         }
         return
     } catch (error) {
-        res.status(500).json({ error: 'Internal server error.', error })
+        return res.status(500).json({ error: 'Internal server error.', error })
         return
     }
 })
@@ -69,9 +69,9 @@ loginRouter.post('/api/verifyToken', async (req, res) => {
     
     try {
         jwt.verify(token, process.env.SECRET)
-        res.status(200).json({ valid: true })
+        return res.status(200).json({ valid: true })
     } catch(error) {
-        res.status(401).json({ valid: false, error: 'Invalid token. Go back.' })
+        return res.status(401).json({ valid: false, error: 'Invalid token. Go back.' })
     }
 })
 
@@ -88,17 +88,17 @@ loginRouter.patch('/api/restorePassword', async (req, res) => {
             const hash = await bcrypt.hash(newPassword, salt)
     
             await User.findByIdAndUpdate(user._id, { passHash: hash })
-            res.status(200).json({ message: 'Passwor updated!' })
+            return res.status(200).json({ message: 'Passwor updated!' })
         } else {
-            res.status(404).json({ error: 'User not found.' })
+            return res.status(404).json({ error: 'User not found.' })
         }
     } catch (error) {
         if (error.name === 'TokenExpiredError') {
-            res.status(401).json({ error: 'Token expired.' })
+            return res.status(401).json({ error: 'Token expired.' })
         } else if (error.name === 'JsonWebTokenError') {
-            res.status(401).json({ error: 'Invalid token.' })
+            return res.status(401).json({ error: 'Invalid token.' })
         } else {
-            res.status(500).json({ error: 'Internal server error.' })
+            return res.status(500).json({ error: 'Internal server error.' })
         }
     }
 })

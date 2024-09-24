@@ -31,9 +31,9 @@ userRouter.get('/api/newData/', async (req, res) => {
             contentQuery.exec(),
             User.countDocuments(query),
         ])
-        res.status(200).json({ message: 'Data sent!', content, totalData })
+        return res.status(200).json({ message: 'Data sent!', content, totalData })
     } catch (error) {
-        res.status(404).json({ error: 'User not found.' })
+        return res.status(404).json({ error: 'User not found.' })
     }
 })
 
@@ -45,9 +45,9 @@ userRouter.get('/api/getUserData', async (req, res) => {
         const user = await User.findOne({ identifier: decodedToken.identifier })
         const name = user.names.split(' ')[0]
 
-        res.status(200).json({ message: 'User found!', names: name })
+        return res.status(200).json({ message: 'User found!', names: name })
     } catch(error) {
-        res.status(404).json({ error: 'User not found.' })
+        return res.status(404).json({ error: 'User not found.' })
     }
 })
 
@@ -78,7 +78,7 @@ userRouter.get('/api/filterUsers', async (req, res) => {
 
         return res.status(200).json({ message: 'Data filtered!', content, totalData })
     } catch (error) {
-        res.status(500).json({ error: 'Internal Server Error' })
+        return res.status(500).json({ error: 'Internal Server Error' })
     }
 })
 
@@ -110,17 +110,17 @@ userRouter.post('/api/newUser', async (req, res) => {
                 })
     
                 await user.save()
-                res.status(201).json({ message: 'User created!' })
+                return res.status(201).json({ message: 'User created!' })
             } catch (error) {
-                res.status(500).json({ error: 'There was an error trying to create the user.' })
+                return res.status(500).json({ error: 'There was an error trying to create the user.' })
             }
 
             
         } else {
-            res.status(409).json({ error: 'The user already exists in the database.' })
+            return res.status(409).json({ error: 'The user already exists in the database.' })
         }
     } else {
-        res.status(401).json({ error: "You can't create new users!" })
+        return res.status(401).json({ error: "You can't create new users!" })
     }
 })
 
@@ -147,9 +147,9 @@ userRouter.put('/api/update/', async (req, res) => {
             })
 
             await User.findByIdAndUpdate(updateUser._id, newUser, { new: true, runValidators: true, context: 'query' })
-            res.status(200).json({ message: 'User updated!' })
+            return res.status(200).json({ message: 'User updated!' })
         } catch(error) {
-            res.status(404).json({ error: 'User not found' })
+            return res.status(404).json({ error: 'User not found' })
         }
     }
 })
@@ -159,9 +159,9 @@ userRouter.delete('/api/delete/:identifier', async (req, res) => {
     try {
         const user = await User.findOne({ identifier: req.params.identifier })
         await User.findByIdAndDelete(user._id)
-        res.status(204).json({ message: 'User removed.' })
+        return res.status(204).json({ message: 'User removed.' })
     } catch(error) {
-        res.status(404).json({ error: 'User not found.' })
+        return res.status(404).json({ error: 'User not found.' })
     }
 })
 
@@ -170,11 +170,11 @@ userRouter.put('/api/newAdmin/:identifier', async (req, res) => {
     try {
         const user = await User.findOne({ identifier: req.params.identifier })
         const newUser = await User.findByIdAndUpdate(user._id, { role: user.role === 'admin' ? 'user' : 'admin' }, { new: true, runValidators: true, context: 'query' })
-        newUser.role === 'admin'
+        return newUser.role === 'admin'
             ? res.status(200).json({ message: 'This user is now an admin!' })
             : res.status(200).json({ message: 'This user is no longer an administrator.' })
     } catch(error) {
-        res.status(401).json({ error: 'No se encontró al usuario!' })
+        return res.status(401).json({ error: 'No se encontró al usuario!' })
     }
 })
 

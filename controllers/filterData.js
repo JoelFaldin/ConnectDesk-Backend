@@ -18,18 +18,18 @@ filterRouter.get('/api/filter/', async (req, res) => {
                 const totalData = await User.find({}).sort({ [column]: filterOrder }).countDocuments()
                 const content = filteredData
 
-                res.status(200).json({ content, totalData })
+                return res.status(200).json({ content, totalData })
             } else  if (filterOrder === 0) {
                 const filteredData = await User.find({}).skip(skip).limit(pageSizeNumber)
                 const totalData = await User.find({}).countDocuments()
                 const content = filteredData
 
-                res.status(200).json({ content, totalData })
+                return res.status(200).json({ content, totalData })
             } else {
-                res.status(400).json({ error: 'Invalid order.' })
+                return res.status(400).json({ error: 'Invalid order.' })
             }
         } catch(error) {
-            res.status(500).json({ message: 'Internal server error', error })
+            return res.status(500).json({ message: 'Internal server error', error })
         }
     } else {
         try {
@@ -48,10 +48,10 @@ filterRouter.get('/api/filter/', async (req, res) => {
                 }).sort({ [column]: filterOrder }).skip(skip).limit(pageSizeNumber)
                 const content = filteredData
 
-                res.status(200).json({ content, totalData })
+                return res.status(200).json({ content, totalData })
             }
         } catch(error) {
-            res.status(500).json({ error: 'Internal server error.' })
+            return res.status(500).json({ error: 'Internal server error.' })
         }
     }
 })
@@ -80,9 +80,9 @@ filterRouter.get('/api/filter/search', async (req, res) => {
         }).skip(skip).limit(pageSizeNumber)
         const content = filteredData
 
-        res.status(200).json({ content, totalData })
+        return res.status(200).json({ content, totalData })
     } catch(error) {
-        res.status(404).json({ message: 'Internal server error.', error })
+        return res.status(404).json({ message: 'Internal server error.', error })
     }
 })
 
