@@ -3,8 +3,8 @@ import { Prisma } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import * as bcrypt from 'bcrypt';
 
-import { PrismaService } from '../prisma/prisma.service';
 import { createUserDTO, updateUserDTO } from './dto/user.dto';
+import { PrismaService } from '../prisma/prisma.service';
 import { User, Role, SafeUser } from './user.entity';
 
 @Injectable()
@@ -129,6 +129,39 @@ export class UsersService {
         error.response ??
           'There was a problem trying to remove the user, try again later.',
         error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async updateUserRole(id: string) {
+    try {
+      const searchUser = await this.prisma.user.findUnique({
+        where: {
+          id,
+        },
+      });
+
+      if (!searchUser) {
+        throw new HttpException('User not found D:', HttpStatus.BAD_REQUEST);
+      }
+
+      const updatedUser = await this.prisma.user.update({
+        where: {
+          id,
+        },
+        data: {
+          role: searchUser.role === 'ADMIN' ? 'USER' : 'ADMIN',
+        },
+      });
+
+      return updatedUser.role === 'ADMIN'
+        ? { message: 'This user is now an admin!' }
+        : { message: 'This user is no longer an admin!' };
+    } catch (error) {
+      // console.log(error);
+      throw new HttpException(
+        'There was an error trying to update the users role, try again later.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }

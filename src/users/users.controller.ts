@@ -8,8 +8,8 @@ import {
   Post,
 } from '@nestjs/common';
 
-import { UsersService } from './users.service';
 import { createUserDTO, updateUserDTO } from './dto/user.dto';
+import { UsersService } from './users.service';
 import { SafeUser } from './user.entity';
 
 @Controller('users')
@@ -39,5 +39,10 @@ export class UsersController {
   @Delete(':id')
   deleteUser(@Param('id') id: string) {
     return this.userService.deleteUser(id);
+  }
+
+  @Patch('/role/:id')
+  updateUserRole(@Param('id') id: string) {
+    return this.userService.updateUserRole(id);
   }
 }
