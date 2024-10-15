@@ -234,4 +234,38 @@ describe('UserService', () => {
       );
     }
   });
+
+  it('should update user role', async () => {
+    const user = {
+      id: '1',
+      names: 'Test',
+      lastNames: 'test',
+      email: 'newtest@gmail.com',
+      password: 'testpass',
+      role: 'USER',
+      departments: 'Test department',
+      directions: 'Test building',
+      jobNumber: '9 0000 0000',
+      contact: '9 0000 0000',
+    };
+
+    jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(user);
+    jest.spyOn(prisma.user, 'update').mockResolvedValue({
+      ...user,
+      role: 'ADMIN',
+    });
+
+    expect(await service.updateUserRole('1')).toEqual({
+      message: 'This user is now an admin!',
+    });
+
+    expect(prisma.user.update).toHaveBeenCalledWith({
+      where: {
+        id: '1',
+      },
+      data: {
+        role: 'ADMIN',
+      },
+    });
+  });
 });
