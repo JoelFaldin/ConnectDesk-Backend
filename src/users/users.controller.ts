@@ -10,7 +10,7 @@ import {
 
 import { createUserDTO, updateUserDTO } from './dto/user.dto';
 import { UsersService } from './users.service';
-import { SafeUser } from './user.entity';
+import { SafeUser, User } from './entities/user.entity';
 
 @Controller('users')
 export class UsersController {
@@ -27,12 +27,15 @@ export class UsersController {
   }
 
   @Post()
-  createUser(@Body() newUser: createUserDTO) {
+  createUser(@Body() newUser: createUserDTO): Promise<User> {
     return this.userService.createUser(newUser);
   }
 
   @Patch(':id')
-  updateUser(@Param('id') id: string, @Body() updatedUser: updateUserDTO) {
+  updateUser(
+    @Param('id') id: string,
+    @Body() updatedUser: updateUserDTO,
+  ): Promise<User> {
     return this.userService.updateUser(id, updatedUser);
   }
 

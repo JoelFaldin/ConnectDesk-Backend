@@ -4,8 +4,8 @@ import { randomUUID } from 'crypto';
 import * as bcrypt from 'bcrypt';
 
 import { createUserDTO, updateUserDTO } from './dto/user.dto';
+import { User, Role, SafeUser } from './entities/user.entity';
 import { PrismaService } from '../prisma/prisma.service';
-import { User, Role, SafeUser } from './user.entity';
 
 @Injectable()
 export class UsersService {
@@ -99,7 +99,10 @@ export class UsersService {
         data: updatedUser,
       });
 
-      return newUser;
+      return {
+        ...newUser,
+        role: Role[newUser.role as keyof typeof Role],
+      };
     } catch (error) {
       // console.log(error);
       throw new HttpException(
@@ -170,8 +173,9 @@ export class UsersService {
     } catch (error) {
       // console.log(error);
       throw new HttpException(
-        'There was an error trying to update the users role, try again later.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        error.response ??
+          'There was an error trying to update the users role, try again later.',
+        error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
