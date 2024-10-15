@@ -268,4 +268,16 @@ describe('UserService', () => {
       },
     });
   });
+
+  it('shouldnt update user role if its not found', async () => {
+    jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null);
+
+    try {
+      await service.updateUserRole('1');
+    } catch (error) {
+      expect(error.status).toEqual(400);
+      expect((error as HttpException).getStatus()).toBe(HttpStatus.BAD_REQUEST);
+      expect((error as HttpException).getResponse()).toBe('User not found D:');
+    }
+  });
 });
