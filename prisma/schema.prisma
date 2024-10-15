@@ -22,3 +22,9 @@ model User {
   jobNumber String
   contact String
 }
+
+model Directions {
+  id String @id @unique
+  name String
+  address String
+}

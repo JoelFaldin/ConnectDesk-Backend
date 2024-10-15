@@ -1,15 +1,13 @@
 import { Module } from '@nestjs/common';
+
 import { UsersController } from './users/users.controller';
-import { ConfigModule } from '@nestjs/config';
-import { UsersService } from './users/users.service';
 import { PrismaService } from './prisma/prisma.service';
+import { UsersService } from './users/users.service';
+import { UsersModule } from './users/users.module';
+import { DirectionsModule } from './directions/directions.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      envFilePath: ['.env', '.env.locals'],
-    }),
-  ],
+  imports: [UsersModule, DirectionsModule],
   controllers: [UsersController],
   providers: [UsersService, PrismaService],
 })

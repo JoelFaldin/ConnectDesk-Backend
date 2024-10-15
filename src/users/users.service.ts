@@ -14,14 +14,22 @@ export class UsersService {
   async getUser(
     userUniqueInput: Prisma.UserWhereUniqueInput,
   ): Promise<SafeUser | null> {
-    const user = await this.prisma.user.findUnique({
-      where: userUniqueInput,
-    });
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: userUniqueInput,
+      });
 
-    return {
-      ...user,
-      role: Role[user.role as keyof typeof Role],
-    };
+      return {
+        ...user,
+        role: Role[user.role as keyof typeof Role],
+      };
+    } catch (error) {
+      // console.log(error);
+      throw new HttpException(
+        'An error ocurred trying to get all users, try again later.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async getUsers(): Promise<User[] | object> {
@@ -122,7 +130,9 @@ export class UsersService {
           id,
         },
       });
-      return;
+      return {
+        message: 'User removed!',
+      };
     } catch (error) {
       // console.log(error);
       throw new HttpException(
