@@ -173,8 +173,9 @@ export class UsersService {
     } catch (error) {
       // console.log(error);
       throw new HttpException(
-        'There was an error trying to update the users role, try again later.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        error.response ??
+          'There was an error trying to update the users role, try again later.',
+        error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
