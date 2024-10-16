@@ -19,6 +19,7 @@ describe('DepartmentsService', () => {
               create: jest.fn(),
               findUnique: jest.fn(),
               update: jest.fn(),
+              delete: jest.fn(),
             },
           },
         },
@@ -124,9 +125,60 @@ describe('DepartmentsService', () => {
     });
   });
 
-  it('cant update department if it doesnt exists');
+  it('cant update department if it doesnt exists', async () => {
+    jest.spyOn(prisma.departments, 'findUnique').mockResolvedValue(null);
 
-  it('can delete department');
+    try {
+      await service.updateDepartment('1', {
+        name: 'IT DEPARTMENT',
+      });
+    } catch (error) {
+      expect(error.status).toEqual(400);
+      expect((error as HttpException).getStatus()).toEqual(
+        HttpStatus.BAD_REQUEST,
+      );
+      expect((error as HttpException).getResponse()).toEqual(
+        'Department not found, please try with a different one.',
+      );
+    }
+  });
 
-  it('cant delete department if it doesnt exists');
+  it('can delete department', async () => {
+    const existingDepartment = {
+      id: '1',
+      name: 'IT Department',
+    };
+
+    jest
+      .spyOn(prisma.departments, 'findUnique')
+      .mockResolvedValue(existingDepartment);
+
+    const result = await service.deleteDepartment('1');
+
+    expect(result).toEqual({
+      message: 'Department removed!',
+    });
+
+    expect(prisma.departments.delete).toHaveBeenCalledWith({
+      where: {
+        id: '1',
+      },
+    });
+  });
+
+  it('cant delete department if it doesnt exists', async () => {
+    jest.spyOn(prisma.departments, 'findUnique').mockResolvedValue(null);
+
+    try {
+      await service.deleteDepartment('1');
+    } catch (error) {
+      expect(error.status).toBe(400);
+      expect((error as HttpException).getStatus()).toEqual(
+        HttpStatus.BAD_REQUEST,
+      );
+      expect((error as HttpException).getResponse()).toEqual(
+        'Department not found, try with another one.',
+      );
+    }
+  });
 });
