@@ -6,10 +6,12 @@ import { UsersService } from './users/users.service';
 import { UsersModule } from './users/users.module';
 import { DirectionsModule } from './directions/directions.module';
 import { DepartmentsModule } from './departments/departments.module';
+import { ExcelController } from './excel/excel.controller';
+import { ExcelService } from './excel/excel.service';
 
 @Module({
   imports: [UsersModule, DirectionsModule, DepartmentsModule],
-  controllers: [UsersController],
-  providers: [UsersService, PrismaService],
+  controllers: [UsersController, ExcelController],
+  providers: [UsersService, PrismaService, ExcelService],
 })
 export class AppModule {}
