@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import exceljs from 'exceljs';
 
@@ -54,6 +54,28 @@ export class ExcelService {
       return buffer;
     } catch (error) {
       console.log('something went wrong bro');
+    }
+  }
+
+  async uploadFile(file: Express.Multer.File) {
+    try {
+      const book = new exceljs.Workbook();
+      await book.xlsx.load(file.buffer);
+
+      const sheet = book.getWorksheet(1);
+      sheet.eachRow((row, value) => {
+        console.log(`Row ${row} = ${value}`);
+      });
+
+      return {
+        message: 'Server can read the file!',
+      };
+    } catch (error) {
+      console.log('there was an error trying to read the file D:');
+      throw new HttpException(
+        'Server couldnt read the file corectly.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }
