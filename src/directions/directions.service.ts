@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateDirectionDTO, UpdateDirectionDTO } from './dto/direction.dto';
 import { randomUUID } from 'crypto';
 
@@ -53,14 +53,17 @@ export class DirectionsService {
         );
       }
 
-      const updated = await this.prisma.directions.update({
+      await this.prisma.directions.update({
         where: {
           id,
         },
         data: updateDirection,
       });
 
-      return updated;
+      return {
+        ...direction,
+        ...updateDirection,
+      };
     } catch (error) {
       // console.log(error);
       throw new HttpException(
