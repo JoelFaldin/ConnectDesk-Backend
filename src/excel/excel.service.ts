@@ -57,6 +57,49 @@ export class ExcelService {
     }
   }
 
+  async downloadTemplate() {
+    const book = new exceljs.Workbook();
+
+    book.creator = 'Server';
+    book.created = new Date();
+
+    const sheet = book.addWorksheet('template');
+
+    sheet.columns = [
+      { header: 'userId', key: 'id', width: 20 },
+      { header: 'names', key: 'names', width: 20 },
+      { header: 'lastNames', key: 'lastNames', width: 20 },
+      { header: 'email', key: 'email', width: 40 },
+      { header: 'role', key: 'role', width: 15 },
+      { header: 'departments', key: 'departments', width: 30 },
+      { header: 'directions', key: 'directions', width: 30 },
+      { header: 'jobNumber', key: 'jobNumber', width: 20 },
+      { header: 'contact', key: 'contact', width: 20 },
+    ];
+
+    const headers = sheet.getRow(1);
+    headers.eachCell((cell) => {
+      (cell.style.font = { bold: true }),
+        (cell.style.border = {
+          top: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+          left: { style: 'thin' },
+        });
+      cell.style.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: {
+          argb: 'e0e0e0',
+        },
+      };
+    });
+
+    const buffer = await book.xlsx.writeBuffer();
+
+    return buffer;
+  }
+
   async uploadFile(file: Express.Multer.File) {
     try {
       const book = new exceljs.Workbook();
