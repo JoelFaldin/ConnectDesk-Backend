@@ -1,6 +1,16 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 
 export class createUserDTO {
+  @IsString()
+  @IsNotEmpty()
+  rut: string;
+
   @IsString()
   @IsNotEmpty()
   names: string;
@@ -38,40 +48,31 @@ export class createUserDTO {
   contact: string;
 }
 
-export class updateUserDTO {
+class ValuesDTO {
   @IsString()
-  @IsOptional()
-  names: string;
+  @IsNotEmpty()
+  columnId: number;
+
+  @Transform(({ value }) => parseInt(value))
+  @IsNumber()
+  @IsNotEmpty()
+  rowIndex: number;
 
   @IsString()
-  @IsOptional()
-  lastNames: string;
+  @IsNotEmpty()
+  value: string;
+}
 
-  @IsString()
-  @IsOptional()
-  email: string;
+export class UpdateUserInfoDTO {
+  @ValidateNested({ each: true })
+  @Type(() => ValuesDTO)
+  values: ValuesDTO[];
 
-  @IsString()
-  @IsOptional()
-  password: string;
+  @Transform(({ value }) => parseInt(value))
+  @IsNumber()
+  pageSize: number;
 
-  @IsString()
-  @IsOptional()
-  role: string;
-
-  @IsString()
-  @IsOptional()
-  departments: string;
-
-  @IsString()
-  @IsOptional()
-  directions: string;
-
-  @IsString()
-  @IsOptional()
-  jobNumber: string;
-
-  @IsString()
-  @IsOptional()
-  contact: string;
+  @Transform(({ value }) => parseInt(value))
+  @IsNumber()
+  page: number;
 }

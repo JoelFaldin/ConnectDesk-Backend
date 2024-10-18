@@ -35,7 +35,7 @@ export class ExcelService {
     try {
       const userData = await this.prisma.user.findMany({
         select: {
-          id: true,
+          rut: true,
           names: true,
           lastNames: true,
           email: true,

@@ -6,24 +6,31 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 
-import { createUserDTO, updateUserDTO } from './dto/user.dto';
+import { createUserDTO, UpdateUserInfoDTO } from './dto/user.dto';
 import { UsersService } from './users.service';
 import { SafeUser, User } from './entities/user.entity';
+import { QueryFilterDto, QueryValuesDto } from './dto/queryValues.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private userService: UsersService) {}
 
   @Get()
-  getAllUsers() {
-    return this.userService.getUsers();
+  getAllUsers(@Query() queryValues: QueryValuesDto) {
+    return this.userService.getUsers(queryValues);
+  }
+
+  @Get('filters')
+  getFilteredUsers(@Query() queryFilter: QueryFilterDto) {
+    return this.userService.getFilteredUsers(queryFilter);
   }
 
   @Get(':id')
-  getUser(@Param('id') id: string): Promise<SafeUser | null> {
-    return this.userService.getUser({ id });
+  getUser(@Param('id') rut: string): Promise<SafeUser | null> {
+    return this.userService.getUser({ rut });
   }
 
   @Post()
@@ -31,12 +38,9 @@ export class UsersController {
     return this.userService.createUser(newUser);
   }
 
-  @Patch(':id')
-  updateUser(
-    @Param('id') id: string,
-    @Body() updatedUser: updateUserDTO,
-  ): Promise<User> {
-    return this.userService.updateUser(id, updatedUser);
+  @Patch()
+  updateUser(@Body() updatedUser: UpdateUserInfoDTO) {
+    return this.userService.updateUser(updatedUser);
   }
 
   @Delete(':id')
