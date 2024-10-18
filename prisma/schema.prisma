@@ -11,7 +11,7 @@ datasource db {
 }
 
 model User {
-  id String @id @unique
+  rut String @id @unique
   names String
   lastNames String
   email String @unique
@@ -26,10 +26,16 @@ model User {
 model Directions {
   id String @id @unique
   name String
-  address String
 }
 
 model Departments {
   id String @id @unique
   name String @unique
+  address String
+}
+
+model BlackList {
+  id String @id @unique
+  token String
+  expiration DateTime
 }

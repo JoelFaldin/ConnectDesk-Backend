@@ -8,9 +8,10 @@ import { DirectionsModule } from './directions/directions.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { ExcelController } from './excel/excel.controller';
 import { ExcelService } from './excel/excel.service';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [UsersModule, DirectionsModule, DepartmentsModule],
+  imports: [UsersModule, DirectionsModule, DepartmentsModule, AuthModule],
   controllers: [UsersController, ExcelController],
   providers: [UsersService, PrismaService, ExcelService],
 })
