@@ -2,6 +2,7 @@ import { Controller, Post, Body, Headers } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { GetPasswordDTO } from './dto/getPassword.dto';
+import { tokenDTO } from './dto/token.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -21,5 +22,10 @@ export class AuthController {
   @Post('password')
   getPassword(@Body() getPassword: GetPasswordDTO) {
     return this.authService.getPassword(getPassword);
+  }
+
+  @Post('validate')
+  validateToken(@Body() token: tokenDTO) {
+    return this.authService.validateToken(token);
   }
 }

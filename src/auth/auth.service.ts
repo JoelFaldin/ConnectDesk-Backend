@@ -9,11 +9,12 @@ import {
 import { LoginDto } from './dto/login.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { compare } from 'bcrypt';
-import { sign } from 'jsonwebtoken';
+import { sign, verify } from 'jsonwebtoken';
 import { envs } from 'src/config';
 import { randomUUID } from 'crypto';
 import { GetPasswordDTO } from './dto/getPassword.dto';
 import sendEmail from 'src/config/email';
+import { tokenDTO } from './dto/token.dto';
 
 @Injectable()
 export class AuthService {
@@ -141,6 +142,26 @@ export class AuthService {
         error.response ?? 'There was a problem in the server, try again later.',
         error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
       );
+    }
+  }
+
+  validateToken(clientToken: tokenDTO) {
+    const { token } = clientToken;
+
+    try {
+      if (!token) {
+        throw new NotFoundException('Token not found.');
+      }
+
+      verify(token, envs.secret);
+      return {
+        valid: true,
+      };
+    } catch (error) {
+      return {
+        valid: false,
+        error: 'Invalid token, try again later.',
+      };
     }
   }
 }
