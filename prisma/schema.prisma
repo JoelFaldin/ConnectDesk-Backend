@@ -39,3 +39,8 @@ model BlackList {
   token String
   expiration DateTime
 }
+
+model recoverPassword {
+  rut String @unique
+  token String
+}

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -11,6 +12,8 @@ import { compare } from 'bcrypt';
 import { sign } from 'jsonwebtoken';
 import { envs } from 'src/config';
 import { randomUUID } from 'crypto';
+import { GetPasswordDTO } from './dto/getPassword.dto';
+import sendEmail from 'src/config/email';
 
 @Injectable()
 export class AuthService {
@@ -91,11 +94,53 @@ export class AuthService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+  async getPassword(getPassword: GetPasswordDTO) {
+    const { rut, email } = getPassword;
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    try {
+      const searchUser = await this.prisma.user.findUnique({
+        where: {
+          rut,
+        },
+      });
+
+      if (!searchUser) {
+        throw new NotFoundException('User not found, try with another rut.');
+      } else if (searchUser.email != email) {
+        throw new BadRequestException(
+          'The email does not match, try again with another one.',
+        );
+      }
+
+      const expiration = '5m';
+      const token = sign({ rut }, envs.secret, { expiresIn: expiration });
+
+      await this.prisma.recoverPassword.create({
+        data: {
+          rut,
+          token,
+        },
+      });
+
+      const link = `http://localhost:5173/newPassword?token=${token}`;
+      const subject = 'Password reset';
+      const content = `
+        Hey, to continue with the password reset process,
+        you should click this link:
+        ${link}
+      `;
+
+      sendEmail(searchUser.email, subject, content);
+
+      return {
+        message: 'Email sent, check your email!',
+      };
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        error.response ?? 'There was a problem in the server, try again later.',
+        error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
