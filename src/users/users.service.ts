@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { randomUUID } from 'crypto';
 import * as bcrypt from 'bcrypt';
 
-import { createUserDTO, updateUserDTO } from './dto/user.dto';
+import { createUserDTO, UpdateUserInfoDTO } from './dto/user.dto';
 import { User, Role, SafeUser } from './entities/user.entity';
 import { PrismaService } from '../prisma/prisma.service';
+import { QueryFilterDto, QueryValuesDto } from './dto/queryValues.dto';
 
 @Injectable()
 export class UsersService {
@@ -24,17 +24,76 @@ export class UsersService {
         role: Role[user.role as keyof typeof Role],
       };
     } catch (error) {
-      // console.log(error);
       throw new HttpException(
-        'An error ocurred trying to get all users, try again later.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        error.response ??
+          'An error ocurred trying to get all users, try again later.',
+        error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
 
-  async getUsers(): Promise<User[] | object> {
-    const users = this.prisma.user.findMany({});
-    return users;
+  async getUsers(queryValues: QueryValuesDto): Promise<User[] | object> {
+    const { searchValue, searchColumn, page, pageSize } = queryValues;
+    const pageNumber = page ? Number(page) : 1;
+    const pageSizeNumber = pageSize ? Number(pageSize) : 10;
+
+    try {
+      let where = {};
+
+      if (searchValue) {
+        where = {
+          [searchColumn]: searchValue,
+        };
+      }
+
+      const searchUsers = await this.prisma.user.findMany({
+        where,
+        skip: (Number(pageNumber) - 1) * Number(pageSizeNumber),
+        take: Number(pageSizeNumber),
+      });
+
+      return {
+        message: 'Data sent!',
+        content: searchUsers,
+        totalData: searchUsers.length,
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getFilteredUsers(queryFilter: QueryFilterDto) {
+    const { column, sendOrder, page, pageSize } = queryFilter;
+
+    try {
+      let users = {};
+
+      if (column !== '' && Number(sendOrder) !== 0) {
+        const sort = {};
+        sort[column] = sendOrder;
+
+        users = await this.prisma.user.findMany({
+          orderBy: Number(sendOrder) == 0 ? {} : sort,
+          take: Number(pageSize),
+          skip: (Number(page) - 1) * Number(pageSize),
+        });
+      } else {
+        users = await this.prisma.user.findMany({
+          take: Number(pageSize),
+          skip: (Number(page) - 1) * Number(pageSize),
+        });
+      }
+
+      const count = await this.prisma.user.count();
+
+      return {
+        message: 'Data filtered!',
+        content: users,
+        totalData: count,
+      };
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async createUser(newUser: createUserDTO): Promise<User | null> {
@@ -57,7 +116,7 @@ export class UsersService {
       const hash = await bcrypt.hash(newUser.password, salt);
       const user = await this.prisma.user.create({
         data: {
-          id: randomUUID(),
+          rut: newUser.rut,
           ...newUser,
           password: hash,
         },
@@ -76,35 +135,32 @@ export class UsersService {
     }
   }
 
-  async updateUser(id: string, updatedUser: updateUserDTO) {
+  async updateUser(updatedUser: UpdateUserInfoDTO) {
     try {
-      const user = await this.prisma.user.findUnique({
-        where: {
-          id,
-        },
+      const { values, pageSize, page } = updatedUser;
+      const skip = (page - 1) * pageSize;
+
+      const userData = await this.prisma.user.findMany({
+        skip,
+        take: pageSize,
       });
 
-      if (!user) {
-        throw new HttpException(
-          'User not found, try with a different one.',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
+      const newUser = {};
+      values.forEach(({ columnId, value }) => {
+        newUser[columnId] = value;
+      });
 
-      // Update the user:
-      const newUser = await this.prisma.user.update({
+      await this.prisma.user.update({
         where: {
-          id: user.id,
+          rut: userData[values[0].rowIndex].rut,
         },
-        data: updatedUser,
+        data: newUser,
       });
 
       return {
-        ...newUser,
-        role: Role[newUser.role as keyof typeof Role],
+        message: 'User updated!',
       };
     } catch (error) {
-      // console.log(error);
       throw new HttpException(
         error.response ??
           'There was a problem in the server trying to update the user, try again later.',
@@ -113,11 +169,11 @@ export class UsersService {
     }
   }
 
-  async deleteUser(id: string) {
+  async deleteUser(rut: string) {
     try {
       const searchUser = await this.prisma.user.findUnique({
         where: {
-          id,
+          rut,
         },
       });
 
@@ -130,7 +186,7 @@ export class UsersService {
 
       await this.prisma.user.delete({
         where: {
-          id,
+          rut,
         },
       });
       return {
@@ -146,11 +202,11 @@ export class UsersService {
     }
   }
 
-  async updateUserRole(id: string) {
+  async updateUserRole(rut: string) {
     try {
       const searchUser = await this.prisma.user.findUnique({
         where: {
-          id,
+          rut,
         },
       });
 
@@ -160,7 +216,7 @@ export class UsersService {
 
       const updatedUser = await this.prisma.user.update({
         where: {
-          id,
+          rut,
         },
         data: {
           role: searchUser.role === 'ADMIN' ? 'USER' : 'ADMIN',
