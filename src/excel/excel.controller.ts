@@ -2,11 +2,12 @@ import {
   Controller,
   Get,
   Post,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Express } from 'express';
+import { Express, Response } from 'express';
 
 import { ExcelService } from './excel.service';
 
@@ -20,8 +21,8 @@ export class ExcelController {
   }
 
   @Get('template')
-  async downloadTemplate() {
-    return this.excelService.downloadTemplate();
+  async downloadTemplate(@Res() res: Response) {
+    return this.excelService.downloadTemplate(res);
   }
 
   @Post('update')

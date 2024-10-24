@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Response } from 'express';
 import exceljs from 'exceljs';
 
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -58,7 +59,7 @@ export class ExcelService {
     }
   }
 
-  async downloadTemplate() {
+  async downloadTemplate(res: Response) {
     const book = new exceljs.Workbook();
 
     book.creator = 'Server';
@@ -98,7 +99,10 @@ export class ExcelService {
 
     const buffer = await book.xlsx.writeBuffer();
 
-    return buffer;
+    res.setHeader('Content-Type', 'application/octet-stream');
+    res.setHeader('Content-Disposition', 'attachment; filename=template.xlsx');
+
+    return res.end(buffer, 'binary');
   }
 
   async uploadFile(file: Express.Multer.File) {
