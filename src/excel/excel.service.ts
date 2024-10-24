@@ -8,7 +8,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class ExcelService {
   constructor(private prisma: PrismaService) {}
 
-  async downloadFile() {
+  async downloadFile(users: string, page: number, res: Response) {
     const book = new exceljs.Workbook();
 
     book.creator = 'Server';
@@ -19,7 +19,7 @@ export class ExcelService {
     });
 
     sheet.columns = [
-      { header: 'userId', key: 'id', width: 20 },
+      { header: 'rut', key: 'rut', width: 20 },
       { header: 'names', key: 'names', width: 20 },
       { header: 'lastNames', key: 'lastNames', width: 20 },
       { header: 'email', key: 'email', width: 40 },
@@ -30,12 +30,55 @@ export class ExcelService {
       { header: 'contact', key: 'contact', width: 20 },
     ];
 
-    // Styling first row:
-    // ...
+    const headers = sheet.getRow(1);
+    headers.eachCell((cell) => {
+      cell.style.font = {
+        bold: true,
+      };
+      cell.style.border = {
+        top: { style: 'thin' },
+        right: { style: 'thin' },
+        bottom: { style: 'thin' },
+        left: { style: 'thin' },
+      };
+      cell.style.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: {
+          argb: 'e0e0e0',
+        },
+      };
+    });
 
-    // Getting all user data and saving it into the excel file:
-    try {
-      const userData = await this.prisma.user.findMany({
+    if (users === 'all') {
+      // Getting all user data and saving it into the excel file:
+      try {
+        const userData = await this.prisma.user.findMany({
+          select: {
+            rut: true,
+            names: true,
+            lastNames: true,
+            email: true,
+            role: true,
+            departments: true,
+            directions: true,
+            jobNumber: true,
+            contact: true,
+          },
+        });
+
+        sheet.addRows(userData);
+      } catch (error) {
+        throw new HttpException(
+          'There was a problem in the server trying to generate the file, try again later.',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    } else {
+      const userNumber = parseInt(users);
+      const skip = (page - 1) * userNumber;
+
+      const data = await this.prisma.user.findMany({
         select: {
           rut: true,
           names: true,
@@ -47,16 +90,21 @@ export class ExcelService {
           jobNumber: true,
           contact: true,
         },
+        skip,
+        take: userNumber,
       });
 
-      sheet.addRows(userData);
-
-      const buffer = await book.xlsx.writeBuffer();
-
-      return buffer;
-    } catch (error) {
-      console.log('something went wrong bro');
+      data.forEach((user) => {
+        sheet.addRow(user);
+      });
     }
+
+    const buffer = await book.xlsx.writeBuffer();
+
+    res.setHeader('Content-Type', 'application/octet-stream');
+    res.setHeader('Content-Disposition', 'attachment; filename=userdata.xlsx');
+
+    return res.end(buffer, 'binary');
   }
 
   async downloadTemplate(res: Response) {

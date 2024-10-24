@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   Res,
   UploadedFile,
   UseInterceptors,
@@ -16,8 +17,12 @@ export class ExcelController {
   constructor(private excelService: ExcelService) {}
 
   @Get('download')
-  async downloadFile() {
-    return this.excelService.downloadFile();
+  async downloadFile(
+    @Query('users') users: string,
+    @Query('page') page: number,
+    @Res() res: Response,
+  ) {
+    return this.excelService.downloadFile(users, page, res);
   }
 
   @Get('template')
