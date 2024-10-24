@@ -11,7 +11,6 @@ export class DirectionsService {
     try {
       return this.prisma.directions.findMany();
     } catch (error) {
-      // console.log(error);
       throw new HttpException(
         'There was an error trying to get all the directions, try again later.',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -30,7 +29,6 @@ export class DirectionsService {
 
       return direction;
     } catch (error) {
-      // console.log(error);
       throw new HttpException(
         'There was a problem trying to create the direction, try again later.',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -65,7 +63,6 @@ export class DirectionsService {
         ...updateDirection,
       };
     } catch (error) {
-      // console.log(error);
       throw new HttpException(
         error.response ??
           'There was a problem in the server trying to create the direction, try again later.',
@@ -98,7 +95,6 @@ export class DirectionsService {
         message: 'Direction removed!',
       };
     } catch (error) {
-      // console.log(error);
       throw new HttpException(
         error.response ??
           'There was a problem trying to delete the direction, try again later.',

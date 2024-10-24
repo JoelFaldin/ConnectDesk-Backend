@@ -6,16 +6,17 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { LoginDto } from './dto/login.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { compare, hash } from 'bcrypt';
 import { JwtPayload, sign, verify } from 'jsonwebtoken';
-import { envs } from 'src/config';
+import { compare, hash } from 'bcrypt';
 import { randomUUID } from 'crypto';
+
+import { PrismaService } from 'src/prisma/prisma.service';
 import { GetPasswordDTO } from './dto/getPassword.dto';
-import sendEmail from 'src/config/email';
-import { tokenDTO } from './dto/token.dto';
 import { ResetPasswordDTO } from './dto/resetPass.dto';
+import { LoginDto } from './dto/login.dto';
+import { tokenDTO } from './dto/token.dto';
+import sendEmail from 'src/config/email';
+import { envs } from 'src/config';
 
 @Injectable()
 export class AuthService {
@@ -131,7 +132,6 @@ export class AuthService {
         message: 'Email sent, check your email!',
       };
     } catch (error) {
-      console.log(error);
       throw new HttpException(
         error.response ?? 'There was a problem in the server, try again later.',
         error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,

@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+
 import { DepartmentsService } from './departments.service';
 import { NewDepartmentDTO } from './dto/departments.dto';
 

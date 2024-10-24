@@ -9,10 +9,10 @@ import {
   Query,
 } from '@nestjs/common';
 
-import { createUserDTO, UpdateUserInfoDTO } from './dto/user.dto';
-import { UsersService } from './users.service';
-import { SafeUser, User } from './entities/user.entity';
 import { QueryFilterDto, QueryValuesDto } from './dto/queryValues.dto';
+import { createUserDTO, UpdateUserInfoDTO } from './dto/user.dto';
+import { SafeUser, User } from './entities/user.entity';
+import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {

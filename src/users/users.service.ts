@@ -2,10 +2,10 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
-import { createUserDTO, UpdateUserInfoDTO } from './dto/user.dto';
 import { User, Role, SafeUser, ReturnUserData } from './entities/user.entity';
-import { PrismaService } from '../prisma/prisma.service';
 import { QueryFilterDto, QueryValuesDto } from './dto/queryValues.dto';
+import { createUserDTO, UpdateUserInfoDTO } from './dto/user.dto';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
@@ -58,7 +58,11 @@ export class UsersService {
         totalData: searchUsers.length,
       };
     } catch (error) {
-      console.log(error);
+      throw new HttpException(
+        error.response ??
+          'There was a problem trying to fetch users data, try again later.',
+        error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -92,7 +96,11 @@ export class UsersService {
         totalData: count,
       };
     } catch (error) {
-      console.log(error);
+      throw new HttpException(
+        error.response ??
+          'There was a problem trying filter users, try again later.',
+        error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -194,7 +202,6 @@ export class UsersService {
         message: 'User removed!',
       };
     } catch (error) {
-      // console.log(error);
       throw new HttpException(
         error.response ??
           'There was a problem trying to remove the user, try again later.',
@@ -228,7 +235,6 @@ export class UsersService {
         ? { message: 'This user is now an admin!' }
         : { message: 'This user is no longer an admin!' };
     } catch (error) {
-      // console.log(error);
       throw new HttpException(
         error.response ??
           'There was an error trying to update the users role, try again later.',

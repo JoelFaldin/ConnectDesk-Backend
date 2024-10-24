@@ -7,8 +7,9 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { DirectionsService } from './directions.service';
+
 import { CreateDirectionDTO, UpdateDirectionDTO } from './dto/direction.dto';
+import { DirectionsService } from './directions.service';
 
 @Controller('directions')
 export class DirectionsController {

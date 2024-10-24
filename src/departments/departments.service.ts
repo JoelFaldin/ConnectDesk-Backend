@@ -1,7 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { NewDepartmentDTO, UpdateDepartmentDTO } from './dto/departments.dto';
 import { randomUUID } from 'crypto';
+
+import { NewDepartmentDTO, UpdateDepartmentDTO } from './dto/departments.dto';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class DepartmentsService {
@@ -43,7 +44,6 @@ export class DepartmentsService {
 
       return newDepartment;
     } catch (error) {
-      // console.log(error);
       throw new HttpException(
         error.response ??
           'There was a problem in the server trying to create the department, try again later.',
@@ -79,7 +79,6 @@ export class DepartmentsService {
         id: searchDepartment.id,
       };
     } catch (error) {
-      // console.log(error);
       throw new HttpException(
         error.response ??
           'There was an error trying to update the department, try again later.',
@@ -113,7 +112,6 @@ export class DepartmentsService {
         message: 'Department removed!',
       };
     } catch (error) {
-      // console.log(error);
       throw new HttpException(
         error.response ??
           'There was an error trying to delete the department, try agan later.',

@@ -5,9 +5,10 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { Express } from 'express';
-import { ExcelService } from './excel.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Express } from 'express';
+
+import { ExcelService } from './excel.service';
 
 @Controller('excel')
 export class ExcelController {
