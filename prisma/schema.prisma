@@ -26,12 +26,12 @@ model User {
 model Directions {
   id String @id @unique
   name String
+  address String
 }
 
 model Departments {
   id String @id @unique
   name String @unique
-  address String
 }
 
 model BlackList {

@@ -27,7 +27,10 @@ export class DirectionsService {
         },
       });
 
-      return direction;
+      return {
+        ...direction,
+        message: 'Direction created!',
+      };
     } catch (error) {
       throw new HttpException(
         'There was a problem trying to create the direction, try again later.',
@@ -55,12 +58,16 @@ export class DirectionsService {
         where: {
           id,
         },
-        data: updateDirection,
+        data: {
+          name: updateDirection.name ?? direction.name,
+          address: updateDirection.address ?? direction.address,
+        },
       });
 
       return {
         ...direction,
         ...updateDirection,
+        message: 'Direction successfully updated!',
       };
     } catch (error) {
       throw new HttpException(
