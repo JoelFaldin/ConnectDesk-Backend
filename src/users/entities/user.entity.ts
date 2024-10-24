@@ -10,7 +10,7 @@ export class User {
   lastNames: string;
   email: string;
   password: string;
-  role: Role;
+  role: string;
   departments: string;
   directions: string;
   jobNumber: string;
@@ -18,3 +18,7 @@ export class User {
 }
 
 export type SafeUser = Omit<User, 'password'>;
+
+export class ReturnUserData extends User {
+  message: string;
+}

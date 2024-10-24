@@ -3,7 +3,7 @@ import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 import { createUserDTO, UpdateUserInfoDTO } from './dto/user.dto';
-import { User, Role, SafeUser } from './entities/user.entity';
+import { User, Role, SafeUser, ReturnUserData } from './entities/user.entity';
 import { PrismaService } from '../prisma/prisma.service';
 import { QueryFilterDto, QueryValuesDto } from './dto/queryValues.dto';
 
@@ -96,7 +96,7 @@ export class UsersService {
     }
   }
 
-  async createUser(newUser: createUserDTO): Promise<User | null> {
+  async createUser(newUser: createUserDTO): Promise<ReturnUserData | null> {
     try {
       const searchUser = await this.prisma.user.findUnique({
         where: {
@@ -119,15 +119,16 @@ export class UsersService {
           rut: newUser.rut,
           ...newUser,
           password: hash,
+          role: newUser.role ?? 'USER',
         },
       });
 
       return {
+        message: 'User created!',
         ...user,
-        role: Role[newUser.role as keyof typeof Role],
+        role: newUser.role ?? 'USER',
       };
     } catch (error) {
-      // console.log(error);
       throw new HttpException(
         error.response ?? 'There was an error on the server, try again later.',
         error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
