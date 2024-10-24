@@ -117,13 +117,6 @@ export class AuthService {
       const expiration = '5m';
       const token = sign({ rut }, envs.secret, { expiresIn: expiration });
 
-      await this.prisma.recoverPassword.create({
-        data: {
-          rut,
-          token,
-        },
-      });
-
       const link = `http://localhost:5173/newPassword?token=${token}`;
       const subject = 'Password reset';
       const content = `
