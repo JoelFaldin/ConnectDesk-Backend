@@ -77,6 +77,7 @@ export class DepartmentsService {
       return {
         name: departmentData.name,
         id: searchDepartment.id,
+        message: 'Department updated!',
       };
     } catch (error) {
       throw new HttpException(
