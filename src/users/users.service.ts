@@ -110,6 +110,7 @@ export class UsersService {
       const { column, order, searchValue, searchColumn, pageSize, page } =
         orderFilterData;
 
+      console.log(orderFilterData);
       if (column && order && !searchValue && !searchColumn) {
         return this.prisma.user.findMany({
           orderBy: [
@@ -120,11 +121,44 @@ export class UsersService {
           skip: page === 1 ? 0 : page * pageSize,
           take: pageSize,
         });
-      } else if (!column && !order) {
+      } else if (!column && !order && !searchValue && !searchColumn) {
         return this.prisma.user.findMany({
           skip: page === 1 ? 0 : page * pageSize,
           take: pageSize,
         });
+      } else if (column && order && searchValue && searchColumn) {
+        return this.prisma.user.findMany({
+          orderBy: {
+            [column]: order,
+          },
+          skip: page === 1 ? 0 : page * pageSize,
+          take: pageSize,
+          where: {
+            [searchColumn]: {
+              contains: searchValue,
+            },
+          },
+        });
+      } else if (!column && !order && searchValue && searchColumn) {
+        return this.prisma.user.findMany({
+          skip: page === 1 ? 0 : page * pageSize,
+          take: pageSize,
+          where: {
+            [searchColumn]: {
+              contains: searchValue,
+            },
+          },
+        });
+      } else if (column && !order) {
+        return this.prisma.user.findMany({
+          skip: page === 1 ? 0 : page * pageSize,
+          take: pageSize,
+        });
+      } else {
+        throw new HttpException(
+          'Invalid request, please try again.',
+          HttpStatus.BAD_REQUEST,
+        );
       }
     } catch (error) {
       throw new HttpException(
