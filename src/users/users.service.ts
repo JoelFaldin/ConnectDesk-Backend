@@ -6,6 +6,7 @@ import { User, Role, SafeUser, ReturnUserData } from './entities/user.entity';
 import { QueryFilterDto, QueryValuesDto } from './dto/queryValues.dto';
 import { createUserDTO, UpdateUserInfoDTO } from './dto/user.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { OrderDto } from './dto/order.dto';
 
 @Injectable()
 export class UsersService {
@@ -100,6 +101,35 @@ export class UsersService {
         error.response ??
           'There was a problem trying filter users, try again later.',
         error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getOrderedUsers(orderFilterData: OrderDto) {
+    try {
+      const { column, order, searchValue, searchColumn, pageSize, page } =
+        orderFilterData;
+
+      if (column && order && !searchValue && !searchColumn) {
+        return this.prisma.user.findMany({
+          orderBy: [
+            {
+              [column]: order,
+            },
+          ],
+          skip: page === 1 ? 0 : page * pageSize,
+          take: pageSize,
+        });
+      } else if (!column && !order) {
+        return this.prisma.user.findMany({
+          skip: page === 1 ? 0 : page * pageSize,
+          take: pageSize,
+        });
+      }
+    } catch (error) {
+      throw new HttpException(
+        'There was a problem trying to order and filter the data, try again later.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }

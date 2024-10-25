@@ -13,6 +13,7 @@ import { QueryFilterDto, QueryValuesDto } from './dto/queryValues.dto';
 import { createUserDTO, UpdateUserInfoDTO } from './dto/user.dto';
 import { SafeUser, User } from './entities/user.entity';
 import { UsersService } from './users.service';
+import { OrderDto } from './dto/order.dto';
 
 @Controller('users')
 export class UsersController {
@@ -26,6 +27,11 @@ export class UsersController {
   @Get('filters')
   getFilteredUsers(@Query() queryFilter: QueryFilterDto) {
     return this.userService.getFilteredUsers(queryFilter);
+  }
+
+  @Get('order')
+  getOrderedUsers(@Query() order: OrderDto) {
+    return this.userService.getOrderedUsers(order);
   }
 
   @Get(':id')

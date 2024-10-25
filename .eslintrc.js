@@ -24,8 +24,6 @@ module.exports = {
     'prettier/prettier': ['error',
       { 'endOfLine': 'auto' }
     ],
+    'no-unused-vars': ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
   },
-  'no-unused-vars': ['error', {
-    'argsIgnorePattern': '^_',
-  }]
 };
