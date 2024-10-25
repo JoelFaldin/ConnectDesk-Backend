@@ -30,9 +30,9 @@ export class ExcelController {
     return this.excelService.downloadTemplate(res);
   }
 
-  @Post('update')
-  @UseInterceptors(FileInterceptor('file'))
-  async updateFile(@UploadedFile() file: Express.Multer.File) {
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('excelFile'))
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
     return this.excelService.uploadFile(file);
   }
 }

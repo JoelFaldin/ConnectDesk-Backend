@@ -116,10 +116,10 @@ export class ExcelService {
     const sheet = book.addWorksheet('template');
 
     sheet.columns = [
-      { header: 'userId', key: 'id', width: 20 },
+      { header: 'rut', key: 'id', width: 20 },
       { header: 'names', key: 'names', width: 20 },
       { header: 'lastNames', key: 'lastNames', width: 20 },
-      { header: 'email', key: 'email', width: 40 },
+      { header: 'email', key: 'email', width: 30 },
       { header: 'role', key: 'role', width: 15 },
       { header: 'departments', key: 'departments', width: 30 },
       { header: 'directions', key: 'directions', width: 30 },
@@ -158,16 +158,57 @@ export class ExcelService {
       const book = new exceljs.Workbook();
       await book.xlsx.load(file.buffer);
 
-      const sheet = book.getWorksheet(1);
-      sheet.eachRow((row, value) => {
-        console.log(`Row ${row} = ${value}`);
+      const worksheet = book.getWorksheet(1);
+      const excelData = [];
+
+      worksheet.eachRow((row, rowNumber) => {
+        if (rowNumber != 1 && Array.isArray(row.values)) {
+          const [
+            _val,
+            rut,
+            names,
+            lastNames,
+            emailObj,
+            role,
+            departments,
+            directions,
+            jobNumber,
+            contact,
+          ] = row.values as [
+            string,
+            string,
+            string,
+            string,
+            { text: string },
+            string,
+            string,
+            string,
+            string,
+            string,
+          ];
+
+          excelData.push({
+            rut,
+            names,
+            lastNames,
+            email: emailObj.text,
+            role,
+            departments,
+            directions,
+            jobNumber,
+            contact: contact.toString(),
+          });
+        }
+      });
+
+      await this.prisma.user.createMany({
+        data: excelData,
       });
 
       return {
-        message: 'Server can read the file!',
+        message: 'Data successfully saved in the database!',
       };
     } catch (error) {
-      console.log('there was an error trying to read the file D:');
       throw new HttpException(
         'Server couldnt read the file corectly.',
         HttpStatus.INTERNAL_SERVER_ERROR,
