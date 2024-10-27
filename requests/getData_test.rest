@@ -1,3 +1,0 @@
-GET http://localhost:3001/api/newData/?page=1&pageSize=10
-Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lcyI6IlN1cGVyYWRtaW4iLCJpZGVudGlmaWVyIjoiMTEuMTExLjExMS0xIiwiaWF0IjoxNzExNzYxMTg3fQ.SE723VNROfgjdAMJjgGZAFL4IcDlmgN2KHaVdXwCtkk

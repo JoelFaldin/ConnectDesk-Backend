@@ -1,8 +1,0 @@
-### Testing the login:
-POST http://localhost:3001/api/verifyLogin
-Content-Type: application/json
-
-{
-    "identifier": "11.111.111-1",
-    "password": "newestAdming2374"
-}
