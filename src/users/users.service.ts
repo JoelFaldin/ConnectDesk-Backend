@@ -110,7 +110,6 @@ export class UsersService {
       const { column, order, searchValue, searchColumn, pageSize, page } =
         orderFilterData;
 
-      console.log(orderFilterData);
       if (column && order && !searchValue && !searchColumn) {
         return this.prisma.user.findMany({
           orderBy: [
