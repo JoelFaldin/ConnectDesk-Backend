@@ -1,73 +1,124 @@
+# ConnectDesk - NestJS Backend
+
+NestJS backend project for the ConnectDesk project! 🧨
+
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
+  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/nest-og.png" alt="Nest Logo" /></a>
 </p>
 
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://circleci.com/gh/nestjs/nest
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+The ConnectDesk project consists on a table of data that centralizes user information in a company. The project uses role-based authorization, where admin users can create and edit data while normal users can just filter and order it.
 
-## Description
+## Features
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Authentication**: log in or sign up to a SQLite database.
+- **Centralized user data**: get access to the phone number of an user, their email, and place where they work!
+- **Built with [Nest](https://github.com/nestjs/nest)**: using Typescrpit and modern OOP techniques.
 
-## Installation
+## Technologies
+
+<div align="center">
+
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+
+![NestJS](https://img.shields.io/badge/nestjs-%23E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)
+
+![PNPM](https://img.shields.io/badge/pnpm-%234a4a4a.svg?style=for-the-badge&logo=pnpm&logoColor=f69220)
+
+</div>
+
+## Endpoints
+
+There are a *lot* of endpoints in this project, so I will just list the most important ones:
+
+**User data**:
+| Method | Endpoint | Description |
+|--------|:--------:|:-----------:|
+|  GET   | api/users | Return user data (you can also filter and order it!)
+|  GET   | api/users:id | Return specific user data by its rut (unique identifier)
+|  POST  | api/users | Create a new user
+|  PATCH | api/users | Update user data 
+|  DELETE | api/users:id | Delete an existing user
+
+**Departments handlers**:
+| Method | Endpoint | Description |
+|--------|:--------:|:-----------:|
+|   GET  | api/departments | Return all existing departmens
+|   POST | api/departments | Create a new department
+|  PATCH | api/departments:id | Update a department
+|  DELETE | api/departments:id | Delete an existing department
+
+**Directions handlers**:
+| Method | Endpoint | Description |
+|--------|:--------:|:-----------:|
+|   GET  | api/directions | Return all existing directions
+|   POST | api/directions | Create a new direction
+|  PATCH | api/directions:id | Update a direction
+|  DELETE | api/directions:id | Delete an existing direcion
+
+**Excel handler**:
+| Method | Endpoint | Description |
+|--------|:--------:|:-----------:|
+| GET | api/excel/download | Download an excel file with user data
+| GET | api/excel/template | Download an excel template
+| POST | api/excel/upload | Upload an excel file with user data and save it to the database!
+
+
+## Running the app in your machine
 
 ```bash
+# installing dependencies
 $ pnpm install
-```
 
-## Running the app
+# generating prisma schema
+$ 
 
-```bash
 # development
 $ pnpm run start
 
 # watch mode
 $ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
 ```
 
-## Test
+## Important
+
+Make sure you have the necessary enviroment variables defined:
+
+```bash
+DATABASE_URL="file:./dev.db"
+
+PORT=3000
+SECRET=custom-jwt-secret
+EMAIL_ADDRESS=your-configured-email-address
+EMAIL_PASS=configured-email-address-password
+```
+
+(The email is if you need to reset your password!)
+
+## Unit testing
 
 ```bash
 # unit tests
 $ pnpm run test
 
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
 ```
 
-## Support
+---
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Thanks for visiting this project!
 
-## Stay in touch
+This was originally made in [Express](https://expressjs.com) with plain JavaScript, but over time I thought I needed to migrate it to Nest to get familiar with the framework and learn about OOP.
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+<div align="center">
 
-## License
+![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB)
+![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
+    
+</div>
 
-Nest is [MIT licensed](LICENSE).
+<div align="center">
+<a href="http://nestjs.com/" target="blank"><img src="https://www.kscerbiakas.lt/content/images/size/w1200/2023/12/66769-2-1.jpg" width=700 alt="Cat image" /></a>
+</div>
