@@ -74,7 +74,10 @@ There are a *lot* of endpoints in this project, so I will just list the most imp
 $ pnpm install
 
 # generating prisma schema
-$ 
+$ pnpx prisma generate
+
+# run initial prisma migration
+$ pnpx prisma migrate dev --name init
 
 # development
 $ pnpm run start
