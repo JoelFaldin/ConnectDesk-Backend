@@ -8,7 +8,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class ExcelService {
   constructor(private prisma: PrismaService) {}
 
-  async downloadFile(users: string, page: number, res: Response) {
+  async downloadFile(res: Response) {
     const book = new exceljs.Workbook();
 
     book.creator = 'Server';
@@ -50,35 +50,9 @@ export class ExcelService {
       };
     });
 
-    if (users === 'all') {
-      // Getting all user data and saving it into the excel file:
-      try {
-        const userData = await this.prisma.user.findMany({
-          select: {
-            rut: true,
-            names: true,
-            lastNames: true,
-            email: true,
-            role: true,
-            departments: true,
-            directions: true,
-            jobNumber: true,
-            contact: true,
-          },
-        });
-
-        sheet.addRows(userData);
-      } catch (error) {
-        throw new HttpException(
-          'There was a problem in the server trying to generate the file, try again later.',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    } else {
-      const userNumber = parseInt(users);
-      const skip = (page - 1) * userNumber;
-
-      const data = await this.prisma.user.findMany({
+    // Getting all user data and saving it into the excel file:
+    try {
+      const userData = await this.prisma.user.findMany({
         select: {
           rut: true,
           names: true,
@@ -90,19 +64,89 @@ export class ExcelService {
           jobNumber: true,
           contact: true,
         },
-        skip,
-        take: userNumber,
       });
 
-      data.forEach((user) => {
-        sheet.addRow(user);
-      });
+      sheet.addRows(userData);
+    } catch (error) {
+      throw new HttpException(
+        'There was a problem in the server trying to generate the file, try again later.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
 
     const buffer = await book.xlsx.writeBuffer();
 
     res.setHeader('Content-Type', 'application/octet-stream');
     res.setHeader('Content-Disposition', 'attachment; filename=userdata.xlsx');
+
+    return res.end(buffer, 'binary');
+  }
+
+  async downloadLogsFile(res: Response) {
+    const book = new exceljs.Workbook();
+
+    book.creator = 'Server';
+    book.created = new Date();
+
+    const sheet = book.addWorksheet('logs', {
+      pageSetup: { paperSize: 9, orientation: 'landscape' },
+    });
+
+    sheet.columns = [
+      { header: 'LogId', key: 'logId', width: 40 },
+      { header: 'Endpoint', key: 'endpoint', width: 20 },
+      { header: 'Method', key: 'method', width: 10 },
+      { header: 'Status code', key: 'statusCode', width: 5 },
+      { header: 'Description', key: 'description', width: 40 },
+      { header: 'Date', key: 'date', width: 10 },
+    ];
+
+    const headers = sheet.getRow(1);
+    headers.eachCell((cell) => {
+      cell.style.font = {
+        bold: true,
+      };
+      cell.style.border = {
+        top: { style: 'thin' },
+        right: { style: 'thin' },
+        bottom: { style: 'thin' },
+        left: { style: 'thin' },
+      };
+      cell.style.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: {
+          argb: 'e0e0e0',
+        },
+      };
+    });
+
+    // Getting all user data and saving it into the excel file:
+    try {
+      const userData = await this.prisma.logs.findMany({
+        select: {
+          logId: true,
+          userId: false,
+          endpoint: true,
+          method: true,
+          statusCode: true,
+          description: true,
+          date: true,
+        },
+      });
+
+      sheet.addRows(userData);
+    } catch (error) {
+      throw new HttpException(
+        'There was a problem in the server trying to generate the file, try again later.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const buffer = await book.xlsx.writeBuffer();
+
+    res.setHeader('Content-Type', 'application/octet-stream');
+    res.setHeader('Content-Disposition', 'attachment; filename=logsdata.xlsx');
 
     return res.end(buffer, 'binary');
   }
@@ -153,6 +197,38 @@ export class ExcelService {
     return res.end(buffer, 'binary');
   }
 
+  async getSummary() {
+    try {
+      const successCount = await this.prisma.logs.count({
+        where: {
+          endpoint: {
+            contains: 'excel',
+          },
+          statusCode: { in: [200, 201] },
+        },
+      });
+
+      const errorCount = await this.prisma.logs.count({
+        where: {
+          endpoint: {
+            contains: 'excel',
+          },
+          statusCode: { in: [400, 500] },
+        },
+      });
+
+      return {
+        successCount,
+        errorCount,
+      };
+    } catch (error) {
+      throw new HttpException(
+        'Server couldnt read the file corectly.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   async uploadFile(file: Express.Multer.File) {
     try {
       const book = new exceljs.Workbook();
@@ -195,7 +271,7 @@ export class ExcelService {
             role,
             departments,
             directions,
-            jobNumber,
+            jobNumber: jobNumber.toString(),
             contact: contact.toString(),
           });
         }

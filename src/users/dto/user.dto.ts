@@ -1,7 +1,6 @@
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import {
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
   ValidateNested,
@@ -50,15 +49,25 @@ export class createUserDTO {
   contact: string;
 }
 
-class ValuesDTO {
+// class ValuesDTO {
+//   @IsString()
+//   @IsNotEmpty()
+//   columnId: number;
+
+//   @Transform(({ value }) => parseInt(value))
+//   @IsNumber()
+//   @IsNotEmpty()
+//   rowIndex: number;
+
+//   @IsString()
+//   @IsNotEmpty()
+//   value: string;
+// }
+
+class UpdateValuesDTO {
   @IsString()
   @IsNotEmpty()
-  columnId: number;
-
-  @Transform(({ value }) => parseInt(value))
-  @IsNumber()
-  @IsNotEmpty()
-  rowIndex: number;
+  columnName: string;
 
   @IsString()
   @IsNotEmpty()
@@ -67,14 +76,20 @@ class ValuesDTO {
 
 export class UpdateUserInfoDTO {
   @ValidateNested({ each: true })
-  @Type(() => ValuesDTO)
-  values: ValuesDTO[];
+  @Type(() => UpdateValuesDTO)
+  values: UpdateValuesDTO[];
 
-  @Transform(({ value }) => parseInt(value))
-  @IsNumber()
-  pageSize: number;
+  // @Transform(({ value }) => parseInt(value))
+  // @IsNumber()
+  // pageSize: number;
 
-  @Transform(({ value }) => parseInt(value))
-  @IsNumber()
-  page: number;
+  // @Transform(({ value }) => parseInt(value))
+  // @IsNumber()
+  // page: number;
+}
+
+export class UpdateUserQueryDTO {
+  @IsString()
+  @IsNotEmpty()
+  originalRut: string;
 }

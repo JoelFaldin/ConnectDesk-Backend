@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { JwtPayload, sign, verify } from 'jsonwebtoken';
 import { compare, hash } from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -17,18 +18,19 @@ import { LoginDto } from './dto/login.dto';
 import { tokenDTO } from './dto/token.dto';
 import sendEmail from 'src/config/email';
 import { envs } from 'src/config';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
   constructor(private prisma: PrismaService) {}
 
   async login(createAuthDto: LoginDto) {
-    const { identifier, password } = createAuthDto;
+    const { email, password } = createAuthDto;
 
     try {
       const user = await this.prisma.user.findUnique({
         where: {
-          rut: identifier,
+          email: email,
         },
       });
 
@@ -52,9 +54,10 @@ export class AuthService {
       return {
         message: 'Login successfully! Redirecting...',
         token,
-        nombres: user.names,
+        names: user.names,
+        email: user.email,
         identifier: user.rut,
-        access: user.role,
+        role: user.role,
       };
     } catch (error) {
       throw new HttpException(
@@ -121,9 +124,9 @@ export class AuthService {
       const link = `http://localhost:5173/newPassword?token=${token}`;
       const subject = 'Password reset';
       const content = `
-        Hey, to continue with the password reset process,
-        you should click this link:
-        ${link}
+      Hey, to continue with the password reset process,
+      you should click this link:
+      ${link}
       `;
 
       sendEmail(searchUser.email, subject, content);
@@ -192,6 +195,53 @@ export class AuthService {
     } catch (error) {
       throw new HttpException(
         error.response ?? 'There was a problem in the server, try again later.',
+        error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async registerUser(registerData: RegisterDto) {
+    try {
+      const searchUser = await this.prisma.user.findUnique({
+        where: {
+          email: registerData.email,
+        },
+      });
+
+      if (searchUser) {
+        throw new HttpException(
+          'User with that email already exists! Try another one.',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      // Create user:
+      const salt = 10;
+      const hash = await bcrypt.hash(registerData.password, salt);
+      const user = await this.prisma.user.create({
+        data: {
+          names: registerData.name,
+          lastNames: registerData.lastname,
+          rut: registerData.rut,
+          email: registerData.email,
+          directions: registerData.direction,
+          departments: registerData.department,
+          jobNumber: registerData.jobNumber.toString(),
+          contact: registerData.contactNumber.toString(),
+          password: hash,
+          role: 'USER',
+        },
+      });
+
+      return {
+        message: 'User created!',
+        ...user,
+        role: 'USER',
+      };
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        error.response ?? 'There was an error on the server, try again later.',
         error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

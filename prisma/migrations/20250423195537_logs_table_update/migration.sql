@@ -4,7 +4,7 @@ CREATE TABLE "User" (
     "names" TEXT NOT NULL,
     "lastNames" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
+    "password" TEXT,
     "role" TEXT NOT NULL,
     "departments" TEXT NOT NULL,
     "directions" TEXT NOT NULL,
@@ -15,14 +15,24 @@ CREATE TABLE "User" (
 -- CreateTable
 CREATE TABLE "Directions" (
     "id" TEXT NOT NULL PRIMARY KEY,
-    "name" TEXT NOT NULL
+    "name" TEXT NOT NULL,
+    "address" TEXT NOT NULL
 );
 
 -- CreateTable
 CREATE TABLE "Departments" (
     "id" TEXT NOT NULL PRIMARY KEY,
-    "name" TEXT NOT NULL,
-    "address" TEXT NOT NULL
+    "name" TEXT NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "Logs" (
+    "userId" TEXT NOT NULL PRIMARY KEY,
+    "endpoint" TEXT NOT NULL,
+    "method" TEXT NOT NULL,
+    "statusCode" INTEGER NOT NULL,
+    "description" TEXT NOT NULL,
+    "date" DATETIME NOT NULL
 );
 
 -- CreateTable
@@ -46,6 +56,9 @@ CREATE UNIQUE INDEX "Departments_id_key" ON "Departments"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Departments_name_key" ON "Departments"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Logs_userId_key" ON "Logs"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "BlackList_id_key" ON "BlackList"("id");

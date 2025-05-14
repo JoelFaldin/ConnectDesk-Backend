@@ -12,8 +12,8 @@ const envsScheme = joi
   .object({
     PORT: joi.number().required(),
     SECRET: joi.string().required(),
-    EMAIL_ADDRESS: joi.string().required(),
-    EMAIL_PASS: joi.string().required(),
+    // EMAIL_ADDRESS: joi.string().required(),
+    // EMAIL_PASS: joi.string().required(),
   })
   .unknown(true);
 

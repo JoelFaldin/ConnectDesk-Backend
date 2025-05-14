@@ -16,14 +16,13 @@ export class TokenMiddleware implements NestMiddleware {
 
   async use(req: Request, res: Response, next: NextFunction) {
     const header = req.headers.authorization;
+    const token = header.slice(7);
 
-    if (!header || typeof header != 'string') {
+    if (!header || typeof header != 'string' || !token) {
       throw new UnauthorizedException(
         'Invalid token, log in your account and try again.',
       );
     }
-
-    const token = header.slice(7);
 
     try {
       const data = jwt.verify(token, envs.secret) as JwtPayload;
@@ -36,6 +35,7 @@ export class TokenMiddleware implements NestMiddleware {
       }
       next();
     } catch (error) {
+      console.log(error);
       throw new HttpException(
         error.response ??
           'There was a problem with the token, try again later.',

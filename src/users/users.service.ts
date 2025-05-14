@@ -34,28 +34,57 @@ export class UsersService {
   }
 
   async getUsers(queryValues: QueryValuesDto): Promise<User[] | object> {
-    const { searchValue, searchColumn, page, pageSize } = queryValues;
+    const { searchValue, page, pageSize } = queryValues;
     const pageNumber = page ? Number(page) : 1;
-    const pageSizeNumber = pageSize ? Number(pageSize) : 10;
+    const pageSizeNumber = pageSize ? Number(pageSize) : 5;
+
+    const select = {
+      rut: true,
+      names: true,
+      lastNames: true,
+      email: true,
+      role: true,
+      departments: true,
+      directions: true,
+      jobNumber: true,
+      contact: true,
+    };
 
     try {
-      let where = {};
+      let searchUsers;
 
-      if (searchValue) {
-        where = {
-          [searchColumn]: searchValue,
-        };
+      if (!searchValue) {
+        searchUsers = await this.prisma.user.findMany({
+          select: select,
+          skip: (pageNumber - 1) * pageSizeNumber,
+          take: pageSizeNumber,
+        });
+      } else {
+        searchUsers = await this.prisma.user.findMany({
+          where: {
+            OR: [
+              { rut: { contains: searchValue } },
+              { names: { contains: searchValue } },
+              { lastNames: { contains: searchValue } },
+              { email: { contains: searchValue } },
+              { departments: { contains: searchValue } },
+              { directions: { contains: searchValue } },
+            ],
+          },
+          select: select,
+          skip: (pageNumber - 1) * pageSizeNumber,
+          take: pageSizeNumber,
+        });
       }
 
-      const searchUsers = await this.prisma.user.findMany({
-        where,
-        skip: (Number(pageNumber) - 1) * Number(pageSizeNumber),
-        take: Number(pageSizeNumber),
-      });
+      const total = await this.prisma.user.count({});
 
       return {
         message: 'Data sent!',
         content: searchUsers,
+        showing: pageSizeNumber,
+        page: pageNumber,
+        total: total,
         totalData: searchUsers.length,
       };
     } catch (error) {
@@ -65,6 +94,48 @@ export class UsersService {
         error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+
+    // const pageNumber = page ? Number(page) : 1;
+    // const pageSizeNumber = pageSize ? Number(pageSize) : 10;
+
+    // try {
+    //   let where = {};
+
+    //   if (searchValue) {
+    //     where = {
+    //       [searchColumn]: searchValue,
+    //     };
+    //   }
+
+    //   const searchUsers = await this.prisma.user.findMany({
+    //     where,
+    //     select: {
+    //       rut: true,
+    //       names: true,
+    //       lastNames: true,
+    //       email: true,
+    //       role: true,
+    //       departments: true,
+    //       directions: true,
+    //       jobNumber: true,
+    //       contact: true,
+    //     },
+    //     skip: (Number(pageNumber) - 1) * Number(pageSizeNumber),
+    //     take: Number(pageSizeNumber),
+    //   });
+
+    //   return {
+    //     message: 'Data sent!',
+    //     content: searchUsers,
+    //     totalData: searchUsers.length,
+    //   };
+    // } catch (error) {
+    //   throw new HttpException(
+    //     error.response ??
+    //       'There was a problem trying to fetch users data, try again later.',
+    //     error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+    //   );
+    // }
   }
 
   async getFilteredUsers(queryFilter: QueryFilterDto) {
@@ -207,24 +278,32 @@ export class UsersService {
     }
   }
 
-  async updateUser(updatedUser: UpdateUserInfoDTO) {
-    try {
-      const { values, pageSize, page } = updatedUser;
-      const skip = (page - 1) * pageSize;
+  async updateUser(originalRut: string, updatedUser: UpdateUserInfoDTO) {
+    const { values } = updatedUser;
 
-      const userData = await this.prisma.user.findMany({
-        skip,
-        take: pageSize,
+    try {
+      const searchUser = await this.prisma.user.findUnique({
+        where: {
+          rut: originalRut,
+        },
       });
 
+      if (!searchUser) {
+        throw new HttpException(
+          'User not found, try with a different one.',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       const newUser = {};
-      values.forEach(({ columnId, value }) => {
-        newUser[columnId] = value;
+
+      values.forEach(({ columnName, value }) => {
+        newUser[columnName] = value;
       });
 
       await this.prisma.user.update({
         where: {
-          rut: userData[values[0].rowIndex].rut,
+          rut: originalRut,
         },
         data: newUser,
       });
@@ -233,12 +312,41 @@ export class UsersService {
         message: 'User updated!',
       };
     } catch (error) {
+      console.log(error);
       throw new HttpException(
         error.response ??
           'There was a problem in the server trying to update the user, try again later.',
         error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+
+    // try {
+    //   const { values, pageSize, page } = updatedUser;
+    //   const skip = (page - 1) * pageSize;
+    //   const userData = await this.prisma.user.findMany({
+    //     skip,
+    //     take: pageSize,
+    //   });
+    //   const newUser = {};
+    //   values.forEach(({ columnId, value }) => {
+    //     newUser[columnId] = value;
+    //   });
+    //   await this.prisma.user.update({
+    //     where: {
+    //       rut: userData[values[0].rowIndex].rut,
+    //     },
+    //     data: newUser,
+    //   });
+    //   return {
+    //     message: 'User updated!',
+    //   };
+    // } catch (error) {
+    //   throw new HttpException(
+    //     error.response ??
+    //       'There was a problem in the server trying to update the user, try again later.',
+    //     error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+    //   );
+    // }
   }
 
   async deleteUser(rut: string) {
@@ -297,6 +405,20 @@ export class UsersService {
       return updatedUser.role === 'ADMIN'
         ? { message: 'This user is now an admin!' }
         : { message: 'This user is no longer an admin!' };
+    } catch (error) {
+      throw new HttpException(
+        error.response ??
+          'There was an error trying to update the users role, try again later.',
+        error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getSummary() {
+    try {
+      const userCount = await this.prisma.user.count({});
+
+      return userCount;
     } catch (error) {
       throw new HttpException(
         error.response ??

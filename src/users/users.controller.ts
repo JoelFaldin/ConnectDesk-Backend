@@ -10,7 +10,11 @@ import {
 } from '@nestjs/common';
 
 import { QueryFilterDto, QueryValuesDto } from './dto/queryValues.dto';
-import { createUserDTO, UpdateUserInfoDTO } from './dto/user.dto';
+import {
+  createUserDTO,
+  UpdateUserInfoDTO,
+  UpdateUserQueryDTO,
+} from './dto/user.dto';
 import { SafeUser, User } from './entities/user.entity';
 import { UsersService } from './users.service';
 import { OrderDto } from './dto/order.dto';
@@ -34,6 +38,11 @@ export class UsersController {
     return this.userService.getOrderedUsers(order);
   }
 
+  @Get('summary')
+  getSummary() {
+    return this.userService.getSummary();
+  }
+
   @Get(':id')
   getUser(@Param('id') rut: string): Promise<SafeUser | null> {
     return this.userService.getUser({ rut });
@@ -45,8 +54,11 @@ export class UsersController {
   }
 
   @Patch()
-  updateUser(@Body() updatedUser: UpdateUserInfoDTO) {
-    return this.userService.updateUser(updatedUser);
+  updateUser(
+    @Query() queryValue: UpdateUserQueryDTO,
+    @Body() updatedUser: UpdateUserInfoDTO,
+  ) {
+    return this.userService.updateUser(queryValue.originalRut, updatedUser);
   }
 
   @Delete(':id')

@@ -10,14 +10,55 @@ import { ExcelController } from './excel/excel.controller';
 import { ExcelService } from './excel/excel.service';
 import { AuthModule } from './auth/auth.module';
 import { TokenMiddleware } from './token.middleware';
+import { LoggerMiddleware } from './logger/logger.middleware';
+import { LoggerService } from './logger/logger.service';
+import { LogsModule } from './logs/logs.module';
+import { LogsService } from './logs/logs.service';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
-  imports: [UsersModule, DirectionsModule, DepartmentsModule, AuthModule],
+  imports: [
+    UsersModule,
+    DirectionsModule,
+    DepartmentsModule,
+    AuthModule,
+    LogsModule,
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 50,
+        },
+      ],
+    }),
+  ],
   controllers: [UsersController, ExcelController],
-  providers: [UsersService, PrismaService, ExcelService],
+  providers: [
+    UsersService,
+    PrismaService,
+    ExcelService,
+    LoggerService,
+    LogsService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware)
+      .exclude(
+        { path: 'users', method: RequestMethod.GET },
+        { path: 'logs', method: RequestMethod.GET },
+        { path: 'logs/:code', method: RequestMethod.GET },
+        { path: 'users/summary', method: RequestMethod.GET },
+        { path: 'excel/summary', method: RequestMethod.GET },
+        { path: 'auth/ping', method: RequestMethod.GET },
+      )
+      .forRoutes('*');
     consumer
       .apply(TokenMiddleware)
       .forRoutes(
@@ -31,7 +72,9 @@ export class AppModule {
         { path: 'directions', method: RequestMethod.POST },
         { path: 'directions/:id', method: RequestMethod.PATCH },
         { path: 'directions/:id', method: RequestMethod.DELETE },
-        { path: 'excel', method: RequestMethod.ALL },
+        { path: 'excel/download/logs', method: RequestMethod.GET },
+        { path: 'excel/template', method: RequestMethod.GET },
+        { path: 'excel/upload', method: RequestMethod.POST },
       );
   }
 }
