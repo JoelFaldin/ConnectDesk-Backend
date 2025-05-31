@@ -18,6 +18,12 @@ public class AuthService {
   }
 
   public User registerUser(String rut, String names, String lastnames, String email, String rawPassword) {
+    boolean userExists = userRepository.existsByEmail(email);
+
+    if (userExists) {
+      return null;
+    }
+
     String hashedPassword = passwordEncoder.encode(rawPassword);
     User user = new User(rut, names, lastnames, email, hashedPassword);
 

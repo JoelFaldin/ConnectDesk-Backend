@@ -2,6 +2,7 @@ package com.joelf.connect_desk_backend.auth;
 
 import java.net.URI;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,13 +22,19 @@ class AuthController {
   }
 
   @PostMapping("/register")
-  public ResponseEntity<Void> registerUser(@RequestBody User newUser) {
+  public ResponseEntity<?> registerUser(@RequestBody User newUser) {
     User createdUser = authService.registerUser(
         newUser.getRut(),
         newUser.getNames(),
         newUser.getLastnames(),
         newUser.getEmail(),
         newUser.getRawPassword());
+
+    if (createdUser == null) {
+      return ResponseEntity
+          .status(HttpStatus.CONFLICT)
+          .body("Email already in use!");
+    }
 
     URI location = UriComponentsBuilder
         .fromPath("/api/users/{id}")
