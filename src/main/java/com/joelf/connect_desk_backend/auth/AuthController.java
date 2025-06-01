@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.joelf.connect_desk_backend.user.User;
@@ -25,26 +26,32 @@ class AuthController {
 
   @PostMapping("/register")
   public ResponseEntity<?> registerUser(@RequestBody User newUser) {
-    User createdUser = authService.registerUser(
-        newUser.getRut(),
-        newUser.getNames(),
-        newUser.getLastnames(),
-        newUser.getEmail(),
-        newUser.getPassword());
-    System.out.println(newUser.getPassword());
+    try {
+      User createdUser = authService.registerUser(
+          newUser.getRut(),
+          newUser.getNames(),
+          newUser.getLastnames(),
+          newUser.getEmail(),
+          newUser.getPassword());
 
-    if (createdUser == null) {
-      return ResponseEntity
-          .status(HttpStatus.CONFLICT)
-          .body("Email already in use!");
+      URI location = UriComponentsBuilder
+          .fromPath("/api/users/{id}")
+          .buildAndExpand(createdUser.getId())
+          .toUri();
+
+      Map<String, Object> response = new HashMap<>();
+
+      response.put("message", "User created!");
+      response.put("location", location);
+
+      return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    } catch (ResponseStatusException e) {
+      Map<String, Object> response = new HashMap<>();
+
+      response.put("response", e.getReason());
+
+      return ResponseEntity.status(e.getStatusCode()).body(response);
     }
-
-    URI location = UriComponentsBuilder
-        .fromPath("/api/users/{id}")
-        .buildAndExpand(createdUser.getId())
-        .toUri();
-
-    return ResponseEntity.created(location).build();
   }
 
   @PostMapping("/login")
@@ -61,7 +68,11 @@ class AuthController {
 
       return ResponseEntity.ok(response);
     } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("");
+      Map<String, Object> response = new HashMap<>();
+
+      response.put("response", e.getMessage());
+
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
   }
 }
