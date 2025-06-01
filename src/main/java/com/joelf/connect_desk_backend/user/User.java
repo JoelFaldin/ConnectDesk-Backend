@@ -1,5 +1,7 @@
 package com.joelf.connect_desk_backend.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -38,6 +40,9 @@ public class User {
     this.password = password;
   }
 
+  public User() {
+  }
+
   // Setters and getters:
   public Long getId() {
     return this.user_id;
@@ -59,7 +64,7 @@ public class User {
     return this.email;
   }
 
-  public String getRawPassword() {
+  public String getPassword() {
     return this.password;
   }
 }

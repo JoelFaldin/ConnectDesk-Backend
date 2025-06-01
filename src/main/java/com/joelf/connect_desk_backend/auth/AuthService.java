@@ -1,5 +1,7 @@
 package com.joelf.connect_desk_backend.auth;
 
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,5 +30,16 @@ public class AuthService {
     User user = new User(rut, names, lastnames, email, hashedPassword);
 
     return userRepository.save(user);
+  }
+
+  public User authenticateUser(String email, String rawPassword) {
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new UsernameNotFoundException("Invalid credentials!"));
+
+    if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+      throw new BadCredentialsException("Invalid credentials, try again.");
+    }
+
+    return user;
   }
 }

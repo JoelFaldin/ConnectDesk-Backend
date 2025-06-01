@@ -1,6 +1,8 @@
 package com.joelf.connect_desk_backend.auth;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +30,8 @@ class AuthController {
         newUser.getNames(),
         newUser.getLastnames(),
         newUser.getEmail(),
-        newUser.getRawPassword());
+        newUser.getPassword());
+    System.out.println(newUser.getPassword());
 
     if (createdUser == null) {
       return ResponseEntity
@@ -42,5 +45,23 @@ class AuthController {
         .toUri();
 
     return ResponseEntity.created(location).build();
+  }
+
+  @PostMapping("/login")
+  public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    try {
+      User user = authService.authenticateUser(loginRequest.getEmail(), loginRequest.getPassword());
+
+      Map<String, Object> response = new HashMap<>();
+
+      response.put("message", "Login successfully! Redirecting...");
+      response.put("names", user.getNames());
+      response.put("lastnames", user.getLastnames());
+      response.put("identifier", user.getRut());
+
+      return ResponseEntity.ok(response);
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("");
+    }
   }
 }
