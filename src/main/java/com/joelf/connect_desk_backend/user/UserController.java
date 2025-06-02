@@ -54,4 +54,11 @@ class UserController {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
   }
+
+  @GetMapping("/summary")
+  public ResponseEntity<Long> getSummary() {
+    long userCount = userService.getUserCount();
+
+    return ResponseEntity.ok(userCount);
+  }
 }
