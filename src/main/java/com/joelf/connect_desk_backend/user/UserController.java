@@ -9,6 +9,8 @@ import java.util.Objects;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +20,10 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.joelf.connect_desk_backend.user.dto.CreateUser;
+import com.joelf.connect_desk_backend.user.interfaces.UserPatch;
 import com.joelf.connect_desk_backend.user.interfaces.UserSummaryProjection;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/users")
@@ -91,6 +96,25 @@ class UserController {
       response.put("location", location);
 
       return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    } catch (ResponseStatusException e) {
+      Map<String, Object> response = new HashMap<>();
+
+      response.put("response", e.getReason());
+
+      return ResponseEntity.status(e.getStatusCode()).body(response);
+    }
+  }
+
+  @PatchMapping("/{rut}")
+  public ResponseEntity<?> updateUser(@PathVariable String rut, @RequestBody @Valid UserPatch userPatch) {
+    try {
+      String message = userService.updateUser(rut, userPatch);
+
+      Map<String, Object> response = new HashMap<>();
+
+      response.put("message", message);
+
+      return ResponseEntity.ok(response);
     } catch (ResponseStatusException e) {
       Map<String, Object> response = new HashMap<>();
 

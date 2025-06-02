@@ -4,15 +4,20 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.joelf.connect_desk_backend.user.interfaces.UserSummaryProjection;
 
+import jakarta.transaction.Transactional;
+
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
   boolean existsByEmail(String email);
+
+  boolean existsByRut(String rut);
 
   Optional<User> findByEmail(String email);
 
@@ -36,4 +41,24 @@ public interface UserRepository extends JpaRepository<User, Long> {
         LIMIT :limit OFFSET :offset
       """, nativeQuery = true)
   List<UserSummaryProjection> findUsers(@Param("limit") int limit, @Param("offset") int offset);
+
+  @Modifying
+  @Transactional
+  @Query("UPDATE User u SET u.rut = :value WHERE u.rut = :rut")
+  void updateUserRut(@Param("rut") String rut, @Param("value") String value);
+
+  @Modifying
+  @Transactional
+  @Query("UPDATE User u SET u.names = :names WHERE u.rut = :rut")
+  void updateUserNames(@Param("rut") String rut, @Param("names") String names);
+
+  @Modifying
+  @Transactional
+  @Query("UPDATE User u SET u.lastnames = :lastnames WHERE u.rut = :rut")
+  void updateUserLastNames(@Param("rut") String rut, @Param("lastnames") String lastnames);
+
+  @Modifying
+  @Transactional
+  @Query("UPDATE User u SET u.email=: email WHERE u.rut=:rut")
+  void updateUserEmail(@Param("rut") String rut, @Param("email") String email);
 }
