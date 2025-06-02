@@ -14,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.joelf.connect_desk_backend.user.User;
+import com.joelf.connect_desk_backend.auth.dto.LoginRequest;
 
 @RestController()
 @RequestMapping("/auth")
@@ -54,7 +55,7 @@ class AuthController {
     }
   }
 
-  @PostMapping("/login")
+  @PostMapping("")
   public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
     try {
       User user = authService.authenticateUser(loginRequest.getEmail(), loginRequest.getPassword());

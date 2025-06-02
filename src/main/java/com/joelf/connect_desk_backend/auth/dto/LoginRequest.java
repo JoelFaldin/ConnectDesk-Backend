@@ -1,6 +1,6 @@
-package com.joelf.connect_desk_backend.auth;
+package com.joelf.connect_desk_backend.auth.dto;
 
-class LoginRequest {
+public class LoginRequest {
   private String email;
   private String password;
 
