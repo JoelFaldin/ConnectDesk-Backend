@@ -74,4 +74,16 @@ public class UserService {
 
     return "User updated!";
   }
+
+  public String deleteUser(String rut) {
+    boolean userExists = userRepository.existsByRut(rut);
+
+    if (!userExists) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
+    }
+
+    userRepository.deleteByRut(rut);
+
+    return "User removed!";
+  }
 }

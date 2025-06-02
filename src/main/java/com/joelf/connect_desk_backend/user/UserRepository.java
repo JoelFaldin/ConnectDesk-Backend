@@ -61,4 +61,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
   @Transactional
   @Query("UPDATE User u SET u.email=: email WHERE u.rut=:rut")
   void updateUserEmail(@Param("rut") String rut, @Param("email") String email);
+
+  @Transactional
+  void deleteByRut(String rut);
 }

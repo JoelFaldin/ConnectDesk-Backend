@@ -8,6 +8,7 @@ import java.util.Objects;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -119,6 +120,25 @@ class UserController {
       Map<String, Object> response = new HashMap<>();
 
       response.put("response", e.getReason());
+
+      return ResponseEntity.status(e.getStatusCode()).body(response);
+    }
+  }
+
+  @DeleteMapping("/{rut}")
+  public ResponseEntity<?> deleteUser(@PathVariable String rut) {
+    try {
+      String message = userService.deleteUser(rut);
+
+      Map<String, Object> response = new HashMap<>();
+
+      response.put("message", message);
+
+      return ResponseEntity.ok(response);
+    } catch (ResponseStatusException e) {
+      Map<String, Object> response = new HashMap<>();
+
+      response.put("message", e.getReason());
 
       return ResponseEntity.status(e.getStatusCode()).body(response);
     }
