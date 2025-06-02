@@ -29,13 +29,17 @@ public class User {
   @Column(nullable = false, unique = false)
   private String password;
 
+  @Column(nullable = false, unique = false)
+  private String role;
+
   // Constructor:
-  public User(String rut, String names, String lastnames, String email, String password) {
+  public User(String rut, String names, String lastnames, String email, String password, String role) {
     this.rut = rut;
     this.names = names;
     this.lastnames = lastnames;
     this.email = email;
     this.password = password;
+    this.role = role;
   }
 
   public User() {
@@ -64,5 +68,9 @@ public class User {
 
   public String getPassword() {
     return this.password;
+  }
+
+  public String getRole() {
+    return this.role;
   }
 }

@@ -5,7 +5,9 @@ public interface UserSummaryProjection {
 
   String getNames();
 
-  String getLastNames();
+  String getLastnames();
 
   String getEmail();
+
+  String getRole();
 }

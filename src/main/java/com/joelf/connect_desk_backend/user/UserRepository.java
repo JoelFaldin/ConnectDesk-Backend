@@ -17,7 +17,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
   Optional<User> findByEmail(String email);
 
   @Query(value = """
-        SELECT u.rut AS rut, u.names AS names, u.lastnames AS lastnames, u.email AS email
+        SELECT u.rut AS rut, u.names AS names, u.lastnames AS lastnames, u.email AS email, u.role AS role
         FROM users u
         WHERE (
           LOWER(u.rut) LIKE LOWER(CONCAT('%', :search, '%')) OR
@@ -30,6 +30,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
   List<UserSummaryProjection> findUsersBySearchValue(@Param("search") String search, @Param("limit") int limit,
       @Param("offset") int offset);
 
-  @Query(value = "SELECT u.rut AS rut, u.names AS names, u.lastnames AS lastnames, u.email AS email FROM users u LIMIT :limit OFFSET :offset", nativeQuery = true)
+  @Query(value = """
+        SELECT u.rut AS rut, u.names AS names, u.lastnames AS lastnames, u.email AS email, u.role as role
+        FROM users u
+        LIMIT :limit OFFSET :offset
+      """, nativeQuery = true)
   List<UserSummaryProjection> findUsers(@Param("limit") int limit, @Param("offset") int offset);
 }

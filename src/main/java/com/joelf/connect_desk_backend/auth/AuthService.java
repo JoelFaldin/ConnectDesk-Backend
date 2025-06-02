@@ -29,7 +29,7 @@ public class AuthService {
     }
 
     String hashedPassword = passwordEncoder.encode(rawPassword);
-    User user = new User(rut, names, lastnames, email, hashedPassword);
+    User user = new User(rut, names, lastnames, email, hashedPassword, "USER");
 
     return userRepository.save(user);
   }
