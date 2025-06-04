@@ -8,8 +8,8 @@ public class CreateUser {
   private String password;
   private String role;
 
-  private String department;
-  private String direction;
+  private String departments;
+  private String directions;
   private String jobNumber;
   private String contact;
 
@@ -38,12 +38,12 @@ public class CreateUser {
     this.role = role;
   }
 
-  public void setDepartment(String department) {
-    this.department = department;
+  public void setDepartments(String departments) {
+    this.departments = departments;
   }
 
-  public void setDirection(String direction) {
-    this.direction = direction;
+  public void setDirections(String directions) {
+    this.directions = directions;
   }
 
   public void setJobNumber(String jobNumber) {
@@ -78,12 +78,12 @@ public class CreateUser {
     return this.role;
   }
 
-  public String getDepartment() {
-    return this.department;
+  public String getDepartments() {
+    return this.departments;
   }
 
-  public String getDirection() {
-    return this.direction;
+  public String getDirections() {
+    return this.directions;
   }
 
   public String getJobNumber() {

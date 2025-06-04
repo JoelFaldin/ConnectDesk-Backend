@@ -28,7 +28,7 @@ import com.joelf.connect_desk_backend.user.interfaces.UserSummaryProjection;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 class UserController {
   private UserService userService;
 
@@ -86,8 +86,8 @@ class UserController {
           createUser.getEmail(),
           createUser.getPassword(),
           Objects.requireNonNullElse(createUser.getRole(), "USER"),
-          createUser.getDepartment(),
-          createUser.getDirection(),
+          createUser.getDepartments(),
+          createUser.getDirections(),
           createUser.getJobNumber(),
           createUser.getContact());
 

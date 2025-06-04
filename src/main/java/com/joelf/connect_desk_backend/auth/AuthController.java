@@ -17,8 +17,8 @@ import com.joelf.connect_desk_backend.user.entities.User;
 import com.joelf.connect_desk_backend.auth.dto.LoginRequest;
 import com.joelf.connect_desk_backend.auth.dto.RegisterRequest;
 
-@RestController()
-@RequestMapping("/auth")
+@RestController
+@RequestMapping("/api/auth")
 class AuthController {
   private AuthService authService;
 
