@@ -21,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.joelf.connect_desk_backend.user.dto.CreateUser;
+import com.joelf.connect_desk_backend.user.entities.User;
 import com.joelf.connect_desk_backend.user.interfaces.UserPatch;
 import com.joelf.connect_desk_backend.user.interfaces.UserSummaryProjection;
 
@@ -84,7 +85,11 @@ class UserController {
           createUser.getLastnames(),
           createUser.getEmail(),
           createUser.getPassword(),
-          Objects.requireNonNullElse(createUser.getRole(), "USER"));
+          Objects.requireNonNullElse(createUser.getRole(), "USER"),
+          createUser.getDepartment(),
+          createUser.getDirection(),
+          createUser.getJobNumber(),
+          createUser.getContact());
 
       URI location = UriComponentsBuilder
           .fromPath("/api/users/{id}")

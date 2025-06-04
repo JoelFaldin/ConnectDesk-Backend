@@ -10,4 +10,12 @@ public interface UserSummaryProjection {
   String getEmail();
 
   String getRole();
+
+  String getDepartments();
+
+  String getDirections();
+
+  String getJobNumber();
+
+  String getContact();
 }

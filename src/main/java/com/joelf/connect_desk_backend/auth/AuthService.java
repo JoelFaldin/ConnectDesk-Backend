@@ -7,8 +7,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.joelf.connect_desk_backend.user.UserRepository;
-import com.joelf.connect_desk_backend.user.User;
+import com.joelf.connect_desk_backend.user.repositories.UserRepository;
+import com.joelf.connect_desk_backend.user.entities.User;
+import com.joelf.connect_desk_backend.user.entities.UserJobDetails;
 
 @Service
 public class AuthService {
@@ -21,7 +22,8 @@ public class AuthService {
     this.passwordEncoder = passwordEncoder;
   }
 
-  public User registerUser(String rut, String names, String lastnames, String email, String rawPassword) {
+  public User registerUser(String rut, String names, String lastnames, String email, String rawPassword,
+      String departments, String directions, String jobNumber, String contact) {
     boolean userExists = userRepository.existsByEmail(email);
 
     if (userExists) {
@@ -29,7 +31,23 @@ public class AuthService {
     }
 
     String hashedPassword = passwordEncoder.encode(rawPassword);
-    User user = new User(rut, names, lastnames, email, hashedPassword, "USER");
+
+    User user = new User();
+    user.setRut(rut);
+    user.setNames(names);
+    user.setLastnames(lastnames);
+    user.setEmail(email);
+    user.setPassword(hashedPassword);
+    user.setRole("USER");
+
+    UserJobDetails details = new UserJobDetails();
+    details.setDepartments(departments);
+    details.setDirections(directions);
+    details.setJobNumber(jobNumber);
+    details.setContact(contact);
+
+    user.setDetails(details);
+    details.setUser(user);
 
     return userRepository.save(user);
   }

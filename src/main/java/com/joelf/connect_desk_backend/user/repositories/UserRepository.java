@@ -1,4 +1,4 @@
-package com.joelf.connect_desk_backend.user;
+package com.joelf.connect_desk_backend.user.repositories;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.joelf.connect_desk_backend.user.entities.User;
 import com.joelf.connect_desk_backend.user.interfaces.UserSummaryProjection;
 
 import jakarta.transaction.Transactional;
@@ -22,8 +23,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
   Optional<User> findByEmail(String email);
 
   @Query(value = """
-        SELECT u.rut AS rut, u.names AS names, u.lastnames AS lastnames, u.email AS email, u.role AS role
+        SELECT u.rut AS rut, u.names AS names, u.lastnames AS lastnames, u.email AS email, u.role AS role, p.departments AS departments, p.directions AS directions, p.job_number AS jobNumber, p.contact AS contact
         FROM users u
+        LEFT JOIN user_details p ON p.user_rut = u.rut
         WHERE (
           LOWER(u.rut) LIKE LOWER(CONCAT('%', :search, '%')) OR
           LOWER(u.names) LIKE LOWER(CONCAT('%', :search, '%')) OR
@@ -36,8 +38,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
       @Param("offset") int offset);
 
   @Query(value = """
-        SELECT u.rut AS rut, u.names AS names, u.lastnames AS lastnames, u.email AS email, u.role as role
+        SELECT u.rut AS rut, u.names AS names, u.lastnames AS lastnames, u.email AS email, u.role as role, p.departments AS departments, p.directions AS directions, p.job_number AS jobNumber, p.contact AS contact
         FROM users u
+        LEFT JOIN user_details p ON p.user_rut = u.rut
         LIMIT :limit OFFSET :offset
       """, nativeQuery = true)
   List<UserSummaryProjection> findUsers(@Param("limit") int limit, @Param("offset") int offset);

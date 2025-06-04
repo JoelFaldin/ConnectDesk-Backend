@@ -7,9 +7,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.joelf.connect_desk_backend.user.entities.User;
+import com.joelf.connect_desk_backend.user.entities.UserJobDetails;
 import com.joelf.connect_desk_backend.user.interfaces.UpdateUserValue;
 import com.joelf.connect_desk_backend.user.interfaces.UserPatch;
 import com.joelf.connect_desk_backend.user.interfaces.UserSummaryProjection;
+import com.joelf.connect_desk_backend.user.repositories.UserRepository;
 
 @Service
 public class UserService {
@@ -39,7 +42,8 @@ public class UserService {
     return userRepository.count();
   }
 
-  public User createUser(String rut, String names, String lastnames, String email, String password, String role) {
+  public User createUser(String rut, String names, String lastnames, String email, String password, String role,
+      String departments, String directions, String jobNumber, String contact) {
     boolean userExists = userRepository.existsByEmail(email);
 
     if (userExists) {
@@ -47,9 +51,23 @@ public class UserService {
     }
 
     String hashedPassword = passwordEncoder.encode(password);
-    User newUser = new User(rut, names, lastnames, email, hashedPassword, role);
+    User user = new User();
+    user.setRut(rut);
+    user.setNames(names);
+    user.setLastnames(lastnames);
+    user.setEmail(email);
+    user.setPassword(hashedPassword);
 
-    return userRepository.save(newUser);
+    UserJobDetails details = new UserJobDetails();
+    details.setDepartments(departments);
+    details.setDirections(directions);
+    details.setJobNumber(jobNumber);
+    details.setContact(contact);
+
+    user.setDetails(details);
+    details.setUser(user);
+
+    return userRepository.save(user);
   }
 
   public String updateUser(String originalRut, UserPatch userPatch) {

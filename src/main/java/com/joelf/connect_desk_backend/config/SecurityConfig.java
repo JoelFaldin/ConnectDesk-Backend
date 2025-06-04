@@ -18,6 +18,8 @@ public class SecurityConfig {
         .authorizeHttpRequests(req -> req
             .requestMatchers("/**").permitAll()
             .anyRequest().authenticated())
+        .headers(headers -> headers
+            .frameOptions(frameOptions -> frameOptions.sameOrigin()))
         .httpBasic(Customizer.withDefaults());
 
     return http.build();

@@ -13,8 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.joelf.connect_desk_backend.user.User;
+import com.joelf.connect_desk_backend.user.entities.User;
 import com.joelf.connect_desk_backend.auth.dto.LoginRequest;
+import com.joelf.connect_desk_backend.auth.dto.RegisterRequest;
 
 @RestController()
 @RequestMapping("/auth")
@@ -26,14 +27,18 @@ class AuthController {
   }
 
   @PostMapping("/register")
-  public ResponseEntity<?> registerUser(@RequestBody User newUser) {
+  public ResponseEntity<?> registerUser(@RequestBody RegisterRequest newUser) {
     try {
       User createdUser = authService.registerUser(
           newUser.getRut(),
           newUser.getNames(),
-          newUser.getLastnames(),
+          newUser.getLastNames(),
           newUser.getEmail(),
-          newUser.getPassword());
+          newUser.getPassword(),
+          newUser.getDepartments(),
+          newUser.getDirections(),
+          newUser.getJobNumber(),
+          newUser.getContact());
 
       URI location = UriComponentsBuilder
           .fromPath("/api/users/{id}")
