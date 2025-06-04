@@ -45,7 +45,7 @@ class UserController {
     try {
       List<UserSummaryProjection> userList = userService.getAllUsers(
           searchValue,
-          pageInt,
+          pageInt - 1,
           pageSizeInt);
 
       long total = userService.getUserCount();
