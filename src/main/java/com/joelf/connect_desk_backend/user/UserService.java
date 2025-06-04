@@ -57,6 +57,7 @@ public class UserService {
     user.setLastnames(lastnames);
     user.setEmail(email);
     user.setPassword(hashedPassword);
+    user.setRole(role);
 
     UserJobDetails details = new UserJobDetails();
     details.setDepartments(departments);
