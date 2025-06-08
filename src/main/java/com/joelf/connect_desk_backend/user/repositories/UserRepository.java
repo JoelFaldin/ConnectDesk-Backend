@@ -45,6 +45,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
       """, nativeQuery = true)
   List<UserSummaryProjection> findUsers(@Param("limit") int limit, @Param("offset") int offset);
 
+  @Query(value = """
+        SELECT u.rut AS rut, u.names AS names, u.lastnames AS lastnames, u.email AS email, u.role as role, p.departments AS departments, p.directions AS directions, p.job_number AS jobNumber, p.contact AS contact
+        FROM users u
+        LEFT JOIN user_details p ON p.user_rut = u.rut
+      """, nativeQuery = true)
+  List<UserSummaryProjection> findAllUsers();
+
   @Modifying
   @Transactional
   @Query("UPDATE User u SET u.rut = :value WHERE u.rut = :rut")
