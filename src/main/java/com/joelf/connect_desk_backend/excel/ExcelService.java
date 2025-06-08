@@ -2,6 +2,8 @@ package com.joelf.connect_desk_backend.excel;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Sheet;
@@ -13,20 +15,27 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.joelf.connect_desk_backend.user.repositories.UserRepository;
+import com.joelf.connect_desk_backend.user.repositories.UserJobDetailsRepository;
 import com.joelf.connect_desk_backend.user.interfaces.UserSummaryProjection;
+import com.joelf.connect_desk_backend.user.entities.User;
+import com.joelf.connect_desk_backend.user.entities.UserJobDetails;
 
 @Service
 public class ExcelService {
   private UserRepository userRepository;
+  private UserJobDetailsRepository userJobDetailsRepository;
 
   @Autowired
-  public ExcelService(UserRepository userRepository) {
+  public ExcelService(UserRepository userRepository, UserJobDetailsRepository userJobDetailsRepository) {
     this.userRepository = userRepository;
+    this.userJobDetailsRepository = userJobDetailsRepository;
   }
 
   public byte[] generateTemplate() throws IOException {
@@ -37,6 +46,54 @@ public class ExcelService {
     List<UserSummaryProjection> users = userRepository.findAllUsers();
 
     return createExcelFile(users);
+  }
+
+  public String uploadData(MultipartFile file) throws IOException {
+    try {
+      InputStream inputStream = file.getInputStream();
+
+      Workbook workbook = WorkbookFactory.create(inputStream);
+      Sheet sheet = workbook.getSheetAt(0);
+
+      List<User> users = new ArrayList<>();
+      List<UserJobDetails> details = new ArrayList<>();
+
+      for (int i = 1; i < sheet.getLastRowNum(); i++) {
+        Row row = sheet.getRow(i);
+
+        if (row == null)
+          continue;
+
+        User user = new User();
+        UserJobDetails detail = new UserJobDetails();
+
+        user.setRut(row.getCell(0).toString());
+        user.setNames(row.getCell(1).toString());
+        user.setLastnames(row.getCell(2).toString());
+        user.setEmail(row.getCell(3).toString());
+        user.setRole(row.getCell(4).toString());
+
+        users.add(user);
+
+        detail.setDepartments(row.getCell(5).toString());
+        detail.setDirections(row.getCell(6).toString());
+        detail.setJobNumber(row.getCell(7).toString());
+        detail.setContact(row.getCell(8).toString());
+
+        detail.setUser(user);
+
+        details.add(detail);
+      }
+
+      userRepository.saveAll(users);
+      userJobDetailsRepository.saveAll(details);
+
+      return "Data succesfully saved in the database!";
+
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+      throw new RuntimeException("Server couldn't read the file correctly.");
+    }
   }
 
   private byte[] createExcelFile(List<UserSummaryProjection> users) throws IOException {
