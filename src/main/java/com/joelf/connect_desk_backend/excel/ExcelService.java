@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.joelf.connect_desk_backend.excel.interfaces.LogProjection;
 import com.joelf.connect_desk_backend.logs.LogRepository;
 import com.joelf.connect_desk_backend.user.repositories.UserRepository;
 import com.joelf.connect_desk_backend.user.repositories.UserJobDetailsRepository;
@@ -50,6 +51,63 @@ public class ExcelService {
     List<UserSummaryProjection> users = userRepository.findAllUsers();
 
     return createExcelFile(users);
+  }
+
+  public byte[] generateExcelWithLogData() throws IOException {
+    Workbook workbook = new XSSFWorkbook();
+    Sheet sheet = workbook.createSheet("Log data");
+
+    Font headerFont = workbook.createFont();
+    headerFont.setBold(true);
+
+    CellStyle headerStyle = workbook.createCellStyle();
+    headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+    headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+    headerStyle.setFont(headerFont);
+
+    headerStyle.setBorderTop(BorderStyle.THIN);
+    headerStyle.setBorderBottom(BorderStyle.THIN);
+    headerStyle.setBorderLeft(BorderStyle.THIN);
+    headerStyle.setBorderRight(BorderStyle.THIN);
+
+    sheet.setColumnWidth(0, 12 * 256);
+    sheet.setColumnWidth(1, 20 * 256);
+    sheet.setColumnWidth(2, 10 * 256);
+    sheet.setColumnWidth(3, 15 * 256);
+    sheet.setColumnWidth(4, 20 * 256);
+    sheet.setColumnWidth(5, 15 * 256);
+
+    Row headerRow = sheet.createRow(0);
+    String[] columns = { "Log Id", "Endpoint", "Method", "Status code", "Description", "Date" };
+
+    for (int i = 0; i < columns.length; i++) {
+      Cell cell = headerRow.createCell(i);
+      cell.setCellValue(columns[i]);
+      cell.setCellStyle(headerStyle);
+    }
+
+    List<LogProjection> logs = logRepository.findAllLogs();
+
+    if (logs != null) {
+      int rowIdx = 1;
+
+      for (LogProjection log : logs) {
+        Row row = sheet.createRow(rowIdx);
+        row.createCell(0).setCellValue(log.getLogId());
+        row.createCell(1).setCellValue(log.getEndpoint());
+        row.createCell(2).setCellValue(log.getMethod());
+        row.createCell(3).setCellValue(log.getStatusCode());
+        row.createCell(4).setCellValue(log.getDescription());
+        row.createCell(5).setCellValue(log.getDate());
+      }
+    }
+
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+    workbook.write(outputStream);
+    workbook.close();
+
+    return outputStream.toByteArray();
   }
 
   public String uploadData(MultipartFile file) throws IOException {

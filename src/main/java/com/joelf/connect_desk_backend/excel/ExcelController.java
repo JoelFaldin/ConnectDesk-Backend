@@ -39,6 +39,18 @@ class ExcelController {
     return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
   }
 
+  @GetMapping("/download/logs")
+  public ResponseEntity<?> downloadLogsFile() throws IOException {
+    byte[] fileBytes = excelService.generateExcelWithLogData();
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+    headers.setContentDispositionFormData("attachment", "logsdata.xlsx");
+    headers.setContentLength(fileBytes.length);
+
+    return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
+  }
+
   @GetMapping("/download")
   public ResponseEntity<?> downloadFile() throws IOException {
     byte[] fileBytes = excelService.generateExcelWithData();

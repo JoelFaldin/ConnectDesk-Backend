@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.joelf.connect_desk_backend.excel.interfaces.LogProjection;
 import com.joelf.connect_desk_backend.logs.entity.Log;
 import com.joelf.connect_desk_backend.logs.interfaces.LogSummary;
 
@@ -23,6 +24,11 @@ public interface LogRepository extends JpaRepository<Log, Long> {
         LIMIT :pageSize OFFSET :page
       """, nativeQuery = true)
   List<Log> findAllLogs(int page, int pageSize);
+
+  @Query(value = """
+        SELECT * FROM log
+      """, nativeQuery = true)
+  List<LogProjection> findAllLogs();
 
   @Query(value = """
         SELECT * FROM log l
