@@ -59,7 +59,7 @@ class LogController {
 
       FullLogPageResponse res;
 
-      if (Integer.parseInt(code) == 1) {
+      if (codeInt == 1) {
         res = logService.findAll(pageInt, pageSizeInt);
       } else {
         res = logService.findByCode(codeInt, pageInt, pageSizeInt);

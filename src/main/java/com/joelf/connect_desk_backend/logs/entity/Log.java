@@ -1,6 +1,6 @@
 package com.joelf.connect_desk_backend.logs.entity;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,16 +32,18 @@ public class Log {
   private String description;
 
   @Column(nullable = false, unique = false)
-  private Date date;
+  private LocalDateTime date = LocalDateTime.now();
 
   // Constructor:
-  public Log(String userId, String endpoint, String method, int statusCode, String description, Date date) {
+  public Log(String userId, String endpoint, String method, int statusCode, String description) {
     this.userId = userId;
     this.endpoint = endpoint;
     this.method = method;
     this.statusCode = statusCode;
     this.description = description;
-    this.date = date;
+  }
+
+  public Log() {
   }
 
   // Setters and getters:
@@ -65,16 +67,16 @@ public class Log {
     this.description = description;
   }
 
-  public void setDate(Date date) {
-    this.date = date;
-  }
-
   public String getUserId() {
     return this.userId;
   }
 
   public String getEndpoint() {
     return this.endpoint;
+  }
+
+  public String getMethod() {
+    return this.method;
   }
 
   public int getStatusCode() {
@@ -85,7 +87,7 @@ public class Log {
     return this.description;
   }
 
-  public Date getDate() {
+  public LocalDateTime getDate() {
     return this.date;
   }
 }
