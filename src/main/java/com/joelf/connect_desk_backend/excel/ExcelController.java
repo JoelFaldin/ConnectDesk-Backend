@@ -1,7 +1,9 @@
 package com.joelf.connect_desk_backend.excel;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -60,6 +62,30 @@ class ExcelController {
       return ResponseEntity.ok(res);
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+    }
+  }
+
+  @GetMapping("/summary")
+  public ResponseEntity<?> getSummary() throws IOException {
+    try {
+      List<Integer> successCodes = Arrays.asList(200, 201);
+      List<Integer> errorCodes = Arrays.asList(400, 500);
+
+      long successCount = excelService.countOperations(successCodes);
+      long errorCount = excelService.countOperations(errorCodes);
+
+      Map<String, Object> response = new HashMap<>();
+
+      response.put("successCount", successCount);
+      response.put("errorCount", errorCount);
+
+      return ResponseEntity.ok(response);
+    } catch (Exception e) {
+      Map<String, Object> response = new HashMap<>();
+
+      response.put("message", "There was a problem fetching excel logs, try again later.");
+
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
   }
 }

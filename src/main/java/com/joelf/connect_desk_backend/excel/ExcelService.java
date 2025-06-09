@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.joelf.connect_desk_backend.logs.LogRepository;
 import com.joelf.connect_desk_backend.user.repositories.UserRepository;
 import com.joelf.connect_desk_backend.user.repositories.UserJobDetailsRepository;
 import com.joelf.connect_desk_backend.user.interfaces.UserSummaryProjection;
@@ -30,11 +31,14 @@ import com.joelf.connect_desk_backend.user.entities.UserJobDetails;
 @Service
 public class ExcelService {
   private UserRepository userRepository;
+  private LogRepository logRepository;
   private UserJobDetailsRepository userJobDetailsRepository;
 
   @Autowired
-  public ExcelService(UserRepository userRepository, UserJobDetailsRepository userJobDetailsRepository) {
+  public ExcelService(UserRepository userRepository, LogRepository logRepository,
+      UserJobDetailsRepository userJobDetailsRepository) {
     this.userRepository = userRepository;
+    this.logRepository = logRepository;
     this.userJobDetailsRepository = userJobDetailsRepository;
   }
 
@@ -94,6 +98,10 @@ public class ExcelService {
       System.out.println(e.getMessage());
       throw new RuntimeException("Server couldn't read the file correctly.");
     }
+  }
+
+  public long countOperations(List<Integer> list) throws IOException {
+    return logRepository.countOperations("excel", list);
   }
 
   private byte[] createExcelFile(List<UserSummaryProjection> users) throws IOException {

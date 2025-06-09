@@ -30,4 +30,11 @@ public interface LogRepository extends JpaRepository<Log, Long> {
         LIMIT :pageSize OFFSET :page
       """, nativeQuery = true)
   List<Log> findByCode(@Param("statusCodes") List<Integer> statusCodes, int page, int pageSize);
+
+  @Query(value = """
+        SELECT COUNT(*) FROM log l
+        WHERE l.endpoint LIKE %:keyword%
+        AND l.status_code IN :statusCodes
+      """, nativeQuery = true)
+  long countOperations(@Param("keyword") String keyword, @Param("statusCodes") List<Integer> statusCodes);
 }
