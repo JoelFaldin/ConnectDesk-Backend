@@ -1,127 +1,98 @@
-# ConnectDesk - NestJS Backend
+# ConnectDesk Backend - Spring Boot
 
-NestJS backend project for the ConnectDesk project! 🧨
+Spring Boot backend app for the ConnectDesk project. Includes secure role-based autentication, and centralizes user data in an organization. It includes authentication, user management, and Excel import/export funcionalities.
 
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/nest-og.png" alt="Nest Logo" /></a>
+  <a href="https://spring.io/projects/spring-boot" target="blank"><img src="https://imgs.search.brave.com/z8133euH64zknm3yfaC0IcEfv6ytTDBhMa3cgp1OLhU/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/dmluY2Vuem9yYWNj/YS5jb20vaW1hZ2Vz/L3NwcmluZy5wbmc" alt="Spring Boot Logo" /></a>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## 🚀 Features
 
-The ConnectDesk project consists on a table of data that centralizes user information in a company. The project uses role-based authorization, where admin users can create and edit data while normal users can just filter and order it.
+- **Authentication & Authorization**: Login with JWT and registration with role-based access.
+- **User management**: Create, read, update and delete user profiles (rut, email, names and lastnames)!
+- **Excel integration**: Import and export data via excel, uploading or downloading a file with data.
+- **Modular architecture**: Implementing Spring Data JPA, including controllers, services and repositories.
 
-## Features
-
-- **Authentication**: log in or sign up to a SQLite database.
-- **Centralized user data**: get access to the phone number of an user, their email, and place where they work!
-- **Built with [Nest](https://github.com/nestjs/nest)**: using Typescrpit and modern OOP techniques.
-
-## Technologies
+## 📦 Technologies
 
 <div align="center">
 
-![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
-
-![NestJS](https://img.shields.io/badge/nestjs-%23E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white)
-![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)
-
-![PNPM](https://img.shields.io/badge/pnpm-%234a4a4a.svg?style=for-the-badge&logo=pnpm&logoColor=f69220)
+![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)
+![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white)
+![Gradle](https://img.shields.io/badge/Gradle-02303A.svg?style=for-the-badge&logo=Gradle&logoColor=white)
+![MySQL](https://img.shields.io/badge/mysql-4479A1.svg?style=for-the-badge&logo=mysql&logoColor=white)
 
 </div>
 
-## Endpoints
+## 📁 Endpoints
 
-There are a *lot* of endpoints in this project, so I will just list the most important ones:
+All endpoints are prefixed with `/api` and return JSON responses:
 
-**User data**:
+**User route**:
 | Method | Endpoint | Description |
 |--------|:--------:|:-----------:|
-|  GET   | api/users | Return user data (you can also filter and order it!)
-|  GET   | api/users:id | Return specific user data by its rut (unique identifier)
-|  POST  | api/users | Create a new user
-|  PATCH | api/users | Update user data 
-|  DELETE | api/users:id | Delete an existing user
+|  GET   | /users | Get user data (you can filter and get paginated responses!)
+|  GET   | /users/summary | Return the total amount of users in the database
+|  POST  | /users | Create a new user
+|  PATCH | /users/{rut} | Update user data
+|  DELETE | /users/{rut} | Delete an existing user
 
-**Departments handlers**:
+**Auth route**:
 | Method | Endpoint | Description |
 |--------|:--------:|:-----------:|
-|   GET  | api/departments | Return all existing departmens
-|   POST | api/departments | Create a new department
-|  PATCH | api/departments:id | Update a department
-|  DELETE | api/departments:id | Delete an existing department
+|  POST  | /auth/register | Register an user
+|  POST  | /auth | Log in with email and password
 
-**Directions handlers**:
+**Excel route**:
 | Method | Endpoint | Description |
 |--------|:--------:|:-----------:|
-|   GET  | api/directions | Return all existing directions
-|   POST | api/directions | Create a new direction
-|  PATCH | api/directions:id | Update a direction
-|  DELETE | api/directions:id | Delete an existing direcion
+| GET | /excel/template | Download a template to use
+| GET | /excel/download/logs | Download an excel file with all logs in the database
+| GET | /excel/download | Download an excel file with user data
+| POST | /excel/upload | Upload an excel file with user data and save it to the database!
+| GET | /excel/summary | Return the amount of successful and error operations
 
-**Excel handler**:
-| Method | Endpoint | Description |
-|--------|:--------:|:-----------:|
-| GET | api/excel/download | Download an excel file with user data
-| GET | api/excel/template | Download an excel template
-| POST | api/excel/upload | Upload an excel file with user data and save it to the database!
+## 🤖 Configuration
 
+The project is configured to accept request from `http://localhost:4200/`, the local address of the Angular frontend app. You can change this on the `CorsConfig.java` file, in the main package.
+Additionally, the project also has a _logger_ configured to save all data related to database operations. It is applied to every route of the backend but these:
+```
+/api/users
+/api/users/summary
+/api/logs/summary
+/api/logs/all
+/api/logs/{code}
+/api/excel/summary
+/api/health
+```
 
 ## Running the app in your machine
 
+1. Make sure you added the application.properties file into your project:
 ```bash
-# installing dependencies
-$ pnpm install
+# MySQL Config:
+spring.datasource.url=jdbc:mysql://localhost:3306/db-name
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.username=sa
+spring.datasource.password=
 
-# generating prisma schema
-$ pnpx prisma generate
-
-# run initial prisma migration
-$ pnpx prisma migrate dev --name init
-
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
+# JPA (Hibernate) config
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
 ```
 
-## Important
-
-Make sure you have the necessary enviroment variables defined:
-
+2. Build and run the project:
 ```bash
-DATABASE_URL="file:./dev.db"
-
-PORT=3000
-SECRET=custom-jwt-secret
-EMAIL_ADDRESS=your-configured-email-address
-EMAIL_PASS=configured-email-address-password
+./gradlew clean build
+./gradlw bootrun
 ```
 
-(The email is if you need to reset your password!)
-
-## Unit testing
-
+3. Run the tests:
 ```bash
-# unit tests
-$ pnpm run test
-
+./gradlew test
 ```
 
----
+## Thanks for visiting!
 
-Thanks for visiting this project!
-
-This was originally made in [Express](https://expressjs.com) with plain JavaScript, but over time I thought I needed to migrate it to Nest to get familiar with the framework and learn about OOP.
-
-<div align="center">
-
-![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB)
-![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
-    
-</div>
-
-<div align="center">
-<a href="http://nestjs.com/" target="blank"><img src="https://www.kscerbiakas.lt/content/images/size/w1200/2023/12/66769-2-1.jpg" width=700 alt="Cat image" /></a>
-</div>
+This project was originally built in Express and plain JavaScript. Then I refactored it to NestJS to get a better hand at the framework, and finally I refactored it again in Java Springboot. What a ride.
