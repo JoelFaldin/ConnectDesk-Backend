@@ -92,3 +92,7 @@ spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
 ```bash
 ./gradlew test
 ```
+
+## Thanks for visiting!
+
+This project was originally built in Express and plain JavaScript. Then I refactored it to NestJS to get a better hand at the framework, and finally I refactored it again in Java Springboot. What a ride.
