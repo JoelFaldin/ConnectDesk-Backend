@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,17 +15,16 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.joelf.connect_desk_backend.user.entities.User;
+import com.joelf.connect_desk_backend.auth.dto.AuthResponse;
 import com.joelf.connect_desk_backend.auth.dto.LoginRequest;
 import com.joelf.connect_desk_backend.auth.dto.RegisterRequest;
 
 @RestController
 @RequestMapping("/api/auth")
 class AuthController {
-  private AuthService authService;
 
-  public AuthController(AuthService authService) {
-    this.authService = authService;
-  }
+  @Autowired
+  private AuthService authService;
 
   @PostMapping("/register")
   public ResponseEntity<?> registerUser(@RequestBody RegisterRequest newUser) {
@@ -63,14 +63,15 @@ class AuthController {
   @PostMapping("")
   public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
     try {
-      User user = authService.authenticateUser(loginRequest.getEmail(), loginRequest.getPassword());
+      AuthResponse authResponse = authService.authenticateUser(loginRequest);
 
       Map<String, Object> response = new HashMap<>();
 
       response.put("message", "Login successfully! Redirecting...");
-      response.put("names", user.getNames());
-      response.put("lastnames", user.getLastnames());
-      response.put("identifier", user.getRut());
+      response.put("token", authResponse.getJwt());
+      response.put("names", authResponse.getName());
+      response.put("email", authResponse.getEmail());
+      response.put("identifier", authResponse.getId());
 
       return ResponseEntity.ok(response);
     } catch (Exception e) {

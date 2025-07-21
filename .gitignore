@@ -34,6 +34,7 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+.vscode/
 
 # dotenv environment variable files
 .env
@@ -56,4 +57,10 @@ pids
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Prisma database:
-/prisma/dev.db
+/prisma/dev.db\
+
+# bin:
+/bin
+
+# gradle:
+/.gradle

@@ -1,26 +1,34 @@
 package com.joelf.connect_desk_backend.auth;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.joelf.connect_desk_backend.user.repositories.UserRepository;
+import com.joelf.connect_desk_backend.auth.dto.AuthResponse;
+import com.joelf.connect_desk_backend.auth.dto.LoginRequest;
 import com.joelf.connect_desk_backend.user.entities.User;
 import com.joelf.connect_desk_backend.user.entities.UserJobDetails;
 
 @Service
 public class AuthService {
 
-  private UserRepository userRepository;
-  private PasswordEncoder passwordEncoder;
+  @Autowired
+  private AuthenticationManager authenticationManager;
 
-  public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-    this.userRepository = userRepository;
-    this.passwordEncoder = passwordEncoder;
-  }
+  @Autowired
+  private JwtService jwtService;
+
+  @Autowired
+  private UserRepository userRepository;
+
+  @Autowired
+  private PasswordEncoder passwordEncoder;
 
   public User registerUser(String rut, String names, String lastnames, String email, String rawPassword,
       String departments, String directions, String jobNumber, String contact) {
@@ -52,14 +60,16 @@ public class AuthService {
     return userRepository.save(user);
   }
 
-  public User authenticateUser(String email, String rawPassword) {
-    User user = userRepository.findByEmail(email)
+  public AuthResponse authenticateUser(LoginRequest request) {
+
+    authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+
+    User user = userRepository.findByEmail(request.getEmail())
         .orElseThrow(() -> new UsernameNotFoundException("User not found, try another email..."));
 
-    if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
-      throw new BadCredentialsException("Invalid credentials, try again.");
-    }
+    String jwtToken = jwtService.generateToken(user);
 
-    return user;
+    return new AuthResponse(jwtToken, user.getNames(), user.getId(), user.getEmail(), user.getRole());
   }
 }

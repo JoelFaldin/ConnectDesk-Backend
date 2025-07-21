@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class ConnectDeskBackendApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ConnectDeskBackendApplication.class, args);
-	}
+  public static void main(String[] args) {
+    SpringApplication.run(ConnectDeskBackendApplication.class, args);
+  }
 
 }
