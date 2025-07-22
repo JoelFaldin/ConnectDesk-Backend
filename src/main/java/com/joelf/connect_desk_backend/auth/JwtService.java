@@ -29,7 +29,7 @@ public class JwtService {
     return Jwts.builder()
         .subject(user.getEmail())
         .issuedAt(new Date(System.currentTimeMillis()))
-        .expiration(new Date(System.currentTimeMillis() + 86400000))
+        .expiration(new Date(System.currentTimeMillis() + 86400000)) // 86,400,000ms = 24 hours = 1 day
         .signWith(key)
         .compact();
   }
@@ -37,8 +37,6 @@ public class JwtService {
   public String extractUserName(String token) {
     SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtSecret));
     JwtParser parser = Jwts.parser().verifyWith(key).build();
-
-    System.out.println("SIGN KEY: " + Base64.getEncoder().encodeToString(key.getEncoded()));
 
     return parser.parseSignedClaims(token).getPayload().getSubject();
   }
