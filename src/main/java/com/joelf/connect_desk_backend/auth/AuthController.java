@@ -71,6 +71,7 @@ class AuthController {
       response.put("token", authResponse.getJwt());
       response.put("names", authResponse.getName());
       response.put("email", authResponse.getEmail());
+      response.put("role", authResponse.getRole());
       response.put("identifier", authResponse.getId());
 
       return ResponseEntity.ok(response);

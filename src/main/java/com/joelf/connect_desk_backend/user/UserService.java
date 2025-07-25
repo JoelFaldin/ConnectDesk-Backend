@@ -78,16 +78,21 @@ public class UserService {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found, try with a different one.");
     }
 
+    String storedRut = originalRut;
+
     for (UpdateUserValue element : userPatch.getValues()) {
       if (element.getColumn() == null || element.getValue() == null) {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing column or value in update request.");
       }
 
       switch (element.getColumn()) {
-        case "rut" -> userRepository.updateUserRut(originalRut, element.getValue());
-        case "names" -> userRepository.updateUserNames(originalRut, element.getValue());
-        case "lastnames" -> userRepository.updateUserLastNames(originalRut, element.getValue());
-        case "email" -> userRepository.updateUserEmail(originalRut, element.getValue());
+        case "names" -> userRepository.updateUserNames(storedRut, element.getValue());
+        case "lastnames" -> userRepository.updateUserLastNames(storedRut, element.getValue());
+        case "email" -> userRepository.updateUserEmail(storedRut, element.getValue());
+        case "rut" -> {
+          userRepository.updateUserRut(storedRut, element.getValue());
+          storedRut = element.getValue();
+        }
       }
     }
 
