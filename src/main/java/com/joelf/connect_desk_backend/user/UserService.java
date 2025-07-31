@@ -1,6 +1,7 @@
 package com.joelf.connect_desk_backend.user;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +23,10 @@ public class UserService {
   public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
+  }
+
+  public Optional<User> getUserByRut(String rut) {
+    return userRepository.findByRut(rut);
   }
 
   public List<UserSummaryProjection> getAllUsers(String searchValue, int page, int pageSize) {

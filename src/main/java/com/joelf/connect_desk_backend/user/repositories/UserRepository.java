@@ -22,6 +22,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
   Optional<User> findByEmail(String email);
 
+  Optional<User> findByRut(String rut);
+
   @Query(value = """
         SELECT u.rut AS rut, u.names AS names, u.lastnames AS lastnames, u.email AS email, u.role AS role, p.departments AS departments, p.directions AS directions, p.job_number AS jobNumber, p.contact AS contact
         FROM users u

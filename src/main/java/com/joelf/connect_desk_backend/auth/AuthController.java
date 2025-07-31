@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,7 @@ import com.joelf.connect_desk_backend.user.entities.User;
 import com.joelf.connect_desk_backend.auth.dto.AuthResponse;
 import com.joelf.connect_desk_backend.auth.dto.LoginRequest;
 import com.joelf.connect_desk_backend.auth.dto.RegisterRequest;
+import com.joelf.connect_desk_backend.auth.dto.ResetRequest;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -25,6 +27,9 @@ class AuthController {
 
   @Autowired
   private AuthService authService;
+
+  @Autowired
+  private EmailService emailService;
 
   @PostMapping("/register")
   public ResponseEntity<?> registerUser(@RequestBody RegisterRequest newUser) {
@@ -81,6 +86,25 @@ class AuthController {
       response.put("response", e.getMessage());
 
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+  }
+
+  @PostMapping("reset/{rut}")
+  public ResponseEntity<?> resetPassword(@PathVariable String rut, @RequestBody ResetRequest resetRequest) {
+    try {
+      emailService.notifyUser(rut, "Password change", "Hey man, you changed the password of your account.");
+
+      Map<String, Object> response = new HashMap<>();
+
+      response.put("message", "User notified!");
+
+      return ResponseEntity.status(HttpStatus.OK).body(response);
+    } catch (ResponseStatusException e) {
+      Map<String, Object> response = new HashMap<>();
+
+      response.put("response", e.getReason());
+
+      return ResponseEntity.status(e.getStatusCode()).body(response);
     }
   }
 }
