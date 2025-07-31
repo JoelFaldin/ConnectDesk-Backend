@@ -115,4 +115,10 @@ public class UserService {
 
     return "User removed!";
   }
+
+  public String resetPassword(String email, String password) {
+    userRepository.updatePassword(email, password);
+
+    return "Password updated!";
+  }
 }

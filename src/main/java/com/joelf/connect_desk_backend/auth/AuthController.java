@@ -92,11 +92,11 @@ class AuthController {
   @PostMapping("reset/{rut}")
   public ResponseEntity<?> resetPassword(@PathVariable String rut, @RequestBody ResetRequest resetRequest) {
     try {
-      emailService.notifyUser(rut, "Password change", "Hey man, you changed the password of your account.");
+      emailService.notifyUser(rut, "Password change", "Hey man, you changed the password of your account.", resetRequest.getNewPassword(), resetRequest.getSendEmail());
 
       Map<String, Object> response = new HashMap<>();
 
-      response.put("message", "User notified!");
+      response.put("message", "Password updated!");
 
       return ResponseEntity.status(HttpStatus.OK).body(response);
     } catch (ResponseStatusException e) {

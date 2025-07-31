@@ -2,6 +2,7 @@ package com.joelf.connect_desk_backend.auth;
 
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -24,20 +25,27 @@ public class EmailService {
   @Autowired
   private UserService userService;
 
-  public void notifyUser(String rut, String subject, String text) {
+  @Autowired
+  private PasswordEncoder passwordEncoder;
+
+  public void notifyUser(String rut, String subject, String text, String newPassword, boolean sendEmail) {
     User user = userService
       .getUserByRut(rut)
       .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
 
-    SimpleMailMessage message = new SimpleMailMessage();
+    String hashedPassword = passwordEncoder.encode(newPassword);
 
-    System.out.println(user.getEmail());
+    userService.resetPassword(user.getEmail(), hashedPassword);
 
-    message.setFrom(fromAddress);
-    message.setTo(user.getEmail());
-    message.setSubject(subject);
-    message.setText(text);
+    if (sendEmail) {
+      SimpleMailMessage message = new SimpleMailMessage();
 
-    mailSender.send(message);
+      message.setFrom(fromAddress);
+      message.setTo(user.getEmail());
+      message.setSubject(subject);
+      message.setText(text);
+
+      mailSender.send(message);
+    }
   }
 }
