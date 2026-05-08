@@ -1,0 +1,16 @@
+# Binaries, programs, plugins
+
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary
+
+*.test
+
+# Environment
+
+.env
+*.env
