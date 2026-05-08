@@ -1,6 +1,14 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"log"
+	"net"
+	"net/http"
+
+	"github.com/JoelFaldin/ConnectDesk-backend/internal/config"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+)
 
 func main() {
 	router := gin.Default()
@@ -11,5 +19,15 @@ func main() {
 		})
 	})
 
-	router.Run()
+	// Load Go configuration:
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("Failed to load .env file")
+	}
+
+	host := ""
+	port := config.Config()
+	addr := net.JoinHostPort(host, port)
+
+	http.ListenAndServe(addr, router)
 }
