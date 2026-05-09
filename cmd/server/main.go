@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/config"
+	"github.com/JoelFaldin/ConnectDesk-backend/internal/handler"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -13,11 +14,8 @@ import (
 func main() {
 	router := gin.Default()
 
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+	// Route handlers:
+	router.GET("/users", handler.GetUsers)
 
 	// Load Go configuration:
 	err := godotenv.Load(".env")
