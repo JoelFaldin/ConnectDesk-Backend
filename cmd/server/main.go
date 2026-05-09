@@ -14,9 +14,6 @@ import (
 func main() {
 	router := gin.Default()
 
-	// Route handlers:
-	router.GET("/users", handler.GetUsers)
-
 	// Load Go configuration:
 	err := godotenv.Load(".env")
 	if err != nil {
@@ -26,6 +23,12 @@ func main() {
 	host := ""
 	port := config.Config()
 	addr := net.JoinHostPort(host, port)
+
+	// Cors:
+	router.Use(config.Cors())
+
+	// Route handlers:
+	router.GET("/users", handler.GetUsers)
 
 	http.ListenAndServe(addr, router)
 }
