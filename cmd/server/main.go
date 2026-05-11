@@ -5,6 +5,8 @@ import (
 	"net"
 	"net/http"
 
+	_ "github.com/mattn/go-sqlite3"
+
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/config"
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/handler"
 	"github.com/gin-gonic/gin"
@@ -12,6 +14,9 @@ import (
 )
 
 func main() {
+	// Database config:
+	config.ConfigureDb()
+
 	router := gin.Default()
 
 	// Load Go configuration:
