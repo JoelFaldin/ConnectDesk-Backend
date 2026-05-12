@@ -13,3 +13,7 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 func (r *UserRepository) GetUsers() (*sql.Rows, error) {
 	return r.db.Query("SELECT * FROM users")
 }
+
+func (r *UserRepository) GetSummary() (*sql.Rows, error) {
+	return r.db.Query("SELECT COUNT(*) FROM users")
+}

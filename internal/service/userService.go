@@ -1,6 +1,8 @@
 package service
 
 import (
+	"database/sql"
+
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/model"
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/repository"
 )
@@ -32,4 +34,13 @@ func (s *UserService) GetUsersService() ([]model.UserData, error) {
 	}
 
 	return users, res.Err()
+}
+
+func (s *UserService) GetUsersSummary() (*sql.Rows, error) {
+	res, err := s.repo.GetSummary()
+	if err != nil {
+		return nil, err
+	}
+
+	return res, res.Err()
 }

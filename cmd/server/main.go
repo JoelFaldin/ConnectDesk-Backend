@@ -39,6 +39,7 @@ func main() {
 	router.Use(config.Cors())
 
 	// Route handlers:
+	router.GET("/users/summary", userHandler.GetSummary)
 	router.GET("/users", userHandler.GetUsers)
 
 	http.ListenAndServe(addr, router)

@@ -35,3 +35,12 @@ func (h *UserHandler) GetUsers(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response)
 }
+
+func (h *UserHandler) GetSummary(c *gin.Context) {
+	res, err := h.service.GetUsersSummary()
+	if err != nil {
+		log.Fatal("Error counting data: ", err)
+	}
+
+	c.JSON(http.StatusOK, res)
+}
