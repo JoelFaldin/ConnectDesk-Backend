@@ -9,13 +9,19 @@ import (
 
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/config"
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/handler"
+	"github.com/JoelFaldin/ConnectDesk-backend/internal/repository"
+	"github.com/JoelFaldin/ConnectDesk-backend/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
 func main() {
 	// Database config:
-	config.ConfigureDb()
+	db := config.ConfigureDb()
+
+	userRepo := repository.NewUserRepository(db)
+	userService := service.NewUserService(userRepo)
+	userHandler := handler.NewUserHandler(userService)
 
 	router := gin.Default()
 
@@ -33,7 +39,7 @@ func main() {
 	router.Use(config.Cors())
 
 	// Route handlers:
-	router.GET("/users", handler.GetUsers)
+	router.GET("/users", userHandler.GetUsers)
 
 	http.ListenAndServe(addr, router)
 }

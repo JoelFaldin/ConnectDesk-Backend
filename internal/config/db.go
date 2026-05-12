@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-func ConfigureDb() {
+func ConfigureDb() *sql.DB {
 	if err := os.MkdirAll("./data", 0755); err != nil {
 		log.Fatal(err)
 	}
@@ -24,4 +24,6 @@ func ConfigureDb() {
 	if err = db.Ping(); err != nil {
 		log.Fatal("Database isnt working: ", err)
 	}
+
+	return db
 }
