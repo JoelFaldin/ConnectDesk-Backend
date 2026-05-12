@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/JoelFaldin/ConnectDesk-backend/internal/database"
 )
 
 func ConfigureDb() *sql.DB {
@@ -12,17 +14,12 @@ func ConfigureDb() *sql.DB {
 		log.Fatal(err)
 	}
 
-	absPath, _ := filepath.Abs("./data/sqliteApp.db")
-
-	db, err := sql.Open("sqlite3", absPath)
+	absPath, err := filepath.Abs("./data/sqliteApp.db")
 	if err != nil {
-		log.Fatal("Couldnt connect to db: ", err)
+		log.Fatal("Couldnt resolve db path: ", err)
 	}
 
-	// Check if db is alive:
-	if err = db.Ping(); err != nil {
-		log.Fatal("Database isnt working: ", err)
-	}
+	db := database.InitDB(absPath)
 
 	return db
 }
