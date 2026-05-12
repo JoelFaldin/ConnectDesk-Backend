@@ -1,8 +1,7 @@
 package service
 
 import (
-	"database/sql"
-
+	"github.com/JoelFaldin/ConnectDesk-backend/internal/model"
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/repository"
 )
 
@@ -14,12 +13,23 @@ func NewUserService(repo *repository.UserRepository) *UserService {
 	return &UserService{repo: repo}
 }
 
-func (s *UserService) GetUsersService() *sql.Rows {
+func (s *UserService) GetUsersService() ([]model.UserData, error) {
 	res, err := s.repo.GetUsers()
 
 	if err != nil {
-
+		return nil, err
 	}
 
-	return res
+	var users []model.UserData
+	for res.Next() {
+		var u model.UserData
+
+		if err := res.Scan(&u.Contact, &u.Departmens, &u.Directions, &u.Email, &u.JobNumber, &u.Lastnames, &u.Names, &u.Role, &u.Rut); err != nil {
+			return nil, err
+		}
+
+		users = append(users, u)
+	}
+
+	return users, res.Err()
 }

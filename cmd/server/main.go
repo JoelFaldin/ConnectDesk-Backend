@@ -42,4 +42,6 @@ func main() {
 	router.GET("/users", userHandler.GetUsers)
 
 	http.ListenAndServe(addr, router)
+
+	defer db.Close()
 }

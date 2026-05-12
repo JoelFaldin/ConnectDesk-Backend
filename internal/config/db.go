@@ -18,7 +18,6 @@ func ConfigureDb() *sql.DB {
 	if err != nil {
 		log.Fatal("Couldnt connect to db: ", err)
 	}
-	defer db.Close()
 
 	// Check if db is alive:
 	if err = db.Ping(); err != nil {
