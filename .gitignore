@@ -1,5 +1,4 @@
 # Binaries, programs, plugins
-
 *.exe
 *.exe~
 *.dll
@@ -7,13 +6,15 @@
 *.dylib
 
 # Test binary
-
 *.test
 
 # Environment
-
 .env
 *.env
 
 # Database:
 *.db
+
+# Logs
+*.log
+tmp/main
