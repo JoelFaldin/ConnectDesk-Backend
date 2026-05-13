@@ -20,3 +20,33 @@ type UserModel struct {
 	Total     int        `json:"total"`
 	TotalData int        `json:"totalData"`
 }
+
+type CreateUserModel struct {
+	Rut       string `json:"rut" binding:"required"`
+	Names     string `json:"names" binding:"required"`
+	Lastnames string `json:"lastnames" binding:"required"`
+	Email     string `json:"email" binding:"required"`
+	Password  string `json:"password" binding:"required"`
+	Role      string `json:"role" binding:"required"`
+
+	Departments string `json:"departments" binding:"required"`
+	Directions  string `json:"directions" binding:"required"`
+	JobNumber   string `json:"jobNumber" binding:"required"`
+	Contact     string `json:"contact" binding:"required"`
+}
+
+type CreateNewUser struct {
+	Rut       string `json:"rut"`
+	Names     string `json:"names"`
+	Lastnames string `json:"lastnames"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	Role      string `json:"role"`
+}
+
+type CreateNewDetails struct {
+	Departments string `json:"departments"`
+	Directions  string `json:"directions"`
+	JobNumber   string `json:"jobNumber"`
+	Contact     string `json:"contact"`
+}

@@ -20,7 +20,8 @@ func main() {
 	db := config.ConfigureDb()
 
 	userRepo := repository.NewUserRepository(db)
-	userService := service.NewUserService(userRepo)
+	detailsRepo := repository.NewDetailsRepository(db)
+	userService := service.NewUserService(userRepo, detailsRepo)
 	userHandler := handler.NewUserHandler(userService)
 
 	router := gin.Default()
@@ -39,8 +40,7 @@ func main() {
 	router.Use(config.Cors())
 
 	// Route handlers:
-	router.GET("/users/summary", userHandler.GetSummary)
-	router.GET("/users", userHandler.GetUsers)
+	userHandler.RegisterRoutes(router)
 
 	http.ListenAndServe(addr, router)
 

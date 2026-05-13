@@ -17,6 +17,13 @@ func NewUserHandler(s *service.UserService) *UserHandler {
 	return &UserHandler{service: s}
 }
 
+func (h *UserHandler) RegisterRoutes(r *gin.Engine) {
+	users := r.Group("/users")
+	users.GET("", h.GetUsers)
+	users.GET("/summary", h.GetSummary)
+	users.POST("", h.CreateUser)
+}
+
 func (h *UserHandler) GetUsers(c *gin.Context) {
 	res, err := h.service.GetUsersService()
 
@@ -43,4 +50,25 @@ func (h *UserHandler) GetSummary(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, res)
+}
+
+func (h *UserHandler) CreateUser(c *gin.Context) {
+	var user model.CreateUserModel
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userId := h.service.CreateUser(user)
+	if userId == -1 {
+		c.JSON(http.StatusConflict, gin.H{
+			"response": "Failed to create user: User already exists",
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "User created!",
+	})
 }
