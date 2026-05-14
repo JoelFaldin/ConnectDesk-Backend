@@ -50,7 +50,7 @@ func (s *UserService) GetUsersSummary() (*sql.Rows, error) {
 
 func (s *UserService) CreateUser(newUser model.CreateUserModel) int {
 	// s.repo.DeleteJobDetails(1)
-	deptoId := s.userRepo.DetailsExists(newUser.Departments)
+	deptoId := s.detailsRepo.DetailsExists(newUser.Departments)
 	if deptoId == 0 {
 		newDet := model.CreateNewDetails{
 			Departments: newUser.Departments,
@@ -59,7 +59,7 @@ func (s *UserService) CreateUser(newUser model.CreateUserModel) int {
 			Contact:     newUser.Contact,
 		}
 
-		deptoId = s.userRepo.CreateDetails(newDet, newUser.Rut)
+		deptoId = s.detailsRepo.CreateDetails(newDet, newUser.Rut)
 	}
 
 	userId := s.userRepo.UserExists(newUser.Rut)

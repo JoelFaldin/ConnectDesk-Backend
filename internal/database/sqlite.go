@@ -36,7 +36,7 @@ func createTables(db *sql.DB) {
 
 		CREATE TABLE IF NOT EXISTS user_job_details (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			departments TEXT NOT NULL UNIQUE,
+			departments TEXT NOT NULL,
 			directions TEXT NOT NULL,
 			jobNumber TEXT NOT NULL,
 			contact TEXT NOT NULL,

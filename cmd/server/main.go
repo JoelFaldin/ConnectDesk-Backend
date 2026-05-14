@@ -22,7 +22,9 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 	detailsRepo := repository.NewDetailsRepository(db)
 	userService := service.NewUserService(userRepo, detailsRepo)
+	authService := service.NewAuthService(userRepo, detailsRepo)
 	userHandler := handler.NewUserHandler(userService)
+	authHandler := handler.NewAuthHandler(authService)
 
 	router := gin.Default()
 
@@ -41,6 +43,7 @@ func main() {
 
 	// Route handlers:
 	userHandler.RegisterRoutes(router)
+	authHandler.RegisterRoutes(router)
 
 	http.ListenAndServe(addr, router)
 

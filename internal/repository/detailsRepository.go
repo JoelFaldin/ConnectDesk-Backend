@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/model"
 )
@@ -14,26 +15,30 @@ func NewDetailsRepository(db *sql.DB) *DetailsRepository {
 	return &DetailsRepository{db: db}
 }
 
-func (r *UserRepository) CreateDetails(newDetails model.CreateNewDetails, rut string) int {
+func (r *DetailsRepository) CreateDetails(newDetails model.CreateNewDetails, rut string) int {
 	var newDetailId int
 
 	query := `INSERT INTO user_job_details (departments, directions, jobNumber, contact, user_rut) VALUES ($1, $2, $3, $4, $5) RETURNING id`
-	r.db.QueryRow(query, newDetails.Departments, newDetails.Directions, newDetails.JobNumber, newDetails.Contact, rut).Scan(&newDetailId)
+	err := r.db.QueryRow(query, newDetails.Departments, newDetails.Directions, newDetails.JobNumber, newDetails.Contact, rut).Scan(&newDetailId)
+	if err != nil {
+		fmt.Println("CreateDetails: %w", err)
+		return 0
+	}
 
 	return newDetailId
 }
 
-func (r *UserRepository) DetailsExists(depto string) int {
+func (r *DetailsRepository) DetailsExists(userRut string) int {
 	var id int
-	r.db.QueryRow("SELECT id FROM user_job_details WHERE departments = $1", depto).Scan(&id)
+	r.db.QueryRow("SELECT id FROM user_job_details WHERE user_rut = $1", userRut).Scan(&id)
 
 	return id
 }
 
-func (r *UserRepository) GetJobDetails() (*sql.Rows, error) {
+func (r *DetailsRepository) GetJobDetails() (*sql.Rows, error) {
 	return r.db.Query("SELECT * FROM user_job_details")
 }
 
-func (r *UserRepository) DeleteJobDetails(detailsId int) {
+func (r *DetailsRepository) DeleteJobDetails(detailsId int) {
 	r.db.Exec("DELETE FROM user_job_details WHERE id = $1", detailsId)
 }

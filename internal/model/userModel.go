@@ -61,3 +61,15 @@ type UpdateUserInput struct {
 	JobNumber   *string `json:"jobNumber"`
 	Contact     *string `json:"contact"`
 }
+
+type RegisterUser struct {
+	Rut         *string `json:"rut" binding:"required"`
+	Names       *string `json:"names" binding:"required"`
+	Lastnames   *string `json:"lastnames" binding:"required"`
+	Email       *string `json:"email" binding:"required"`
+	Password    *string `json:"password" binding:"required"`
+	Departments *string `json:"departments" binding:"required"`
+	Directions  *string `json:"directions" binding:"required"`
+	JobNumber   *string `json:"jobNumber" binding:"required"`
+	Contact     *string `json:"contact" binding:"required"`
+}
