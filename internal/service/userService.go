@@ -3,6 +3,7 @@ package service
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/model"
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/repository"
@@ -62,7 +63,6 @@ func (s *UserService) CreateUser(newUser model.CreateUserModel) int {
 	}
 
 	userId := s.userRepo.UserExists(newUser.Rut)
-	fmt.Println(userId)
 	if userId == 0 {
 		newUser := model.CreateNewUser{
 			Rut:       newUser.Rut,
@@ -90,4 +90,48 @@ func (s *UserService) CreateUser(newUser model.CreateUserModel) int {
 	// }
 
 	// fmt.Println(res)
+}
+
+func (h *UserService) UpdateUser(rut string, input model.UpdateUserInput) (sql.Result, error) {
+	setClauses := []string{}
+	args := []any{}
+
+	if input.Rut != nil {
+		setClauses = append(setClauses, "rut = ?")
+		args = append(args, *input.Rut)
+	}
+	if input.Names != nil {
+		setClauses = append(setClauses, "names = ?")
+		args = append(args, *input.Names)
+	}
+	if input.Lastnames != nil {
+		setClauses = append(setClauses, "lastnames = ?")
+		args = append(args, *input.Lastnames)
+	}
+	if input.Email != nil {
+		setClauses = append(setClauses, "email = ?")
+		args = append(args, *input.Email)
+	}
+	if input.Departments != nil {
+		setClauses = append(setClauses, "departments = ?")
+		args = append(args, *input.Departments)
+	}
+	if input.Directions != nil {
+		setClauses = append(setClauses, "directions = ?")
+		args = append(args, *input.Directions)
+	}
+	if input.JobNumber != nil {
+		setClauses = append(setClauses, "jobNumber = ?")
+		args = append(args, *input.JobNumber)
+	}
+	if input.Contact != nil {
+		setClauses = append(setClauses, "contact = ?")
+		args = append(args, *input.Contact)
+	}
+
+	args = append(args, rut)
+	query := fmt.Sprintf("UPDATE users SET %s WHERE rut = ?", strings.Join(setClauses, ", "))
+
+	res, err := h.userRepo.RawUpdate(query, args...)
+	return res, err
 }

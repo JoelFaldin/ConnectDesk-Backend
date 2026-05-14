@@ -50,3 +50,14 @@ type CreateNewDetails struct {
 	JobNumber   string `json:"jobNumber"`
 	Contact     string `json:"contact"`
 }
+
+type UpdateUserInput struct {
+	Rut         *string `json:"name"`
+	Names       *string `json:"names"`
+	Lastnames   *string `json:"lastnames"`
+	Email       *string `json:"email"`
+	Departments *string `json:"department"`
+	Directions  *string `json:"directions"`
+	JobNumber   *string `json:"jobNumber"`
+	Contact     *string `json:"contact"`
+}

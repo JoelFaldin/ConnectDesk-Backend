@@ -45,3 +45,7 @@ func (r *UserRepository) UserExists(rut string) int {
 func (r *UserRepository) DeleteUser(rut string) {
 	r.db.Exec("DELETE FROM users WHERE rut = $1", rut)
 }
+
+func (r *UserRepository) RawUpdate(q string, args ...any) (sql.Result, error) {
+	return r.db.Exec(q, args...)
+}
