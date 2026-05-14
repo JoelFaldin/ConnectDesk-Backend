@@ -18,7 +18,7 @@ func NewUserHandler(s *service.UserService) *UserHandler {
 }
 
 func (h *UserHandler) RegisterRoutes(r *gin.Engine) {
-	users := r.Group("/users")
+	users := r.Group("api/users")
 	users.GET("", h.GetUsers)
 	users.GET("/summary", h.GetSummary)
 	users.POST("", h.CreateUser)
