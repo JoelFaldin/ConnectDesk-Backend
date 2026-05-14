@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/model"
@@ -19,6 +20,7 @@ func NewAuthHandler(s *service.AuthService) *AuthHandler {
 func (h *AuthHandler) RegisterRoutes(r *gin.Engine) {
 	auth := r.Group("/auth")
 	auth.POST("/register", h.RegisterUser)
+	auth.POST("", h.Login)
 }
 
 func (h *AuthHandler) RegisterUser(c *gin.Context) {
@@ -49,4 +51,33 @@ func (h *AuthHandler) RegisterUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "User created!",
 	})
+}
+
+func (h *AuthHandler) Login(c *gin.Context) {
+	var loginData model.LoginData
+	if err := c.ShouldBindJSON(&loginData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	res, err := h.service.Login(loginData)
+	if err != nil {
+		if errors.Is(err, model.ErrUserNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{
+				"response": err.Error(),
+			})
+		} else if errors.Is(err, model.ErrToken) {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"response": err.Error(),
+			})
+		} else if errors.Is(err, model.ErrIncorrectPassword) {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"response": err.Error(),
+			})
+		}
+
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
 }

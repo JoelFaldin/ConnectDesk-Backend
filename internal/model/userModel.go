@@ -1,5 +1,7 @@
 package model
 
+import "fmt"
+
 type UserData struct {
 	Rut        string `json:"rut"`
 	Names      string `json:"names"`
@@ -73,3 +75,21 @@ type RegisterUser struct {
 	JobNumber   *string `json:"jobNumber" binding:"required"`
 	Contact     *string `json:"contact" binding:"required"`
 }
+
+type LoginData struct {
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+type LoginResponse struct {
+	Message    string
+	Token      string
+	Names      string
+	Email      string
+	Role       string
+	Identifier int
+}
+
+var ErrUserNotFound = fmt.Errorf("user not found")
+var ErrToken = fmt.Errorf("couldnt complete login, try again later")
+var ErrIncorrectPassword = fmt.Errorf("Incorrect password, try again")
