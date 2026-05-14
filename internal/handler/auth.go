@@ -31,7 +31,13 @@ func (h *AuthHandler) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	userId := h.service.RegisterUser(registerUser)
+	userId, err := h.service.RegisterUser(registerUser)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"response": "Couldnt complete the operation.",
+		})
+	}
+
 	if userId == -1 {
 		c.JSON(http.StatusConflict, gin.H{
 			"response": "User already exists",
