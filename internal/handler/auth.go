@@ -19,8 +19,8 @@ func NewAuthHandler(s *service.AuthService) *AuthHandler {
 
 func (h *AuthHandler) RegisterRoutes(r *gin.Engine) {
 	auth := r.Group("api/auth")
-	auth.POST("", h.Login)
 	auth.POST("/register", h.RegisterUser)
+	auth.POST("", h.Login)
 }
 
 func (h *AuthHandler) RegisterUser(c *gin.Context) {
