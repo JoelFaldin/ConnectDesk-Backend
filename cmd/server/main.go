@@ -21,13 +21,16 @@ func main() {
 
 	userRepo := repository.NewUserRepository(db)
 	detailsRepo := repository.NewDetailsRepository(db)
+	logRepository := repository.NewLogRepository(db)
 
 	userService := service.NewUserService(userRepo, detailsRepo)
 	authService := service.NewAuthService(userRepo, detailsRepo)
+	logService := service.NewLogService(logRepository)
 
 	userHandler := handler.NewUserHandler(userService)
 	authHandler := handler.NewAuthHandler(authService)
 	healthHandler := handler.NewHealthHandler()
+	logHandler := handler.NewLogHandler(logService)
 
 	router := gin.Default()
 
@@ -48,6 +51,7 @@ func main() {
 	userHandler.RegisterRoutes(router)
 	authHandler.RegisterRoutes(router)
 	healthHandler.RegisterRoutes(router)
+	logHandler.RegisterRoutes(router)
 
 	http.ListenAndServe(addr, router)
 

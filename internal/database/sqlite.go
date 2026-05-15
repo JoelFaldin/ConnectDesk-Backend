@@ -42,6 +42,16 @@ func createTables(db *sql.DB) {
 			contact TEXT NOT NULL,
 			user_rut TEXT REFERENCES users
 		);
+
+		CREATE TABLE IF NOT EXISTS log (
+			log_id INTEGER PRIMARY KEY AUTOINCREMENT,
+			endpoint TEXT NOT NULL,
+			method TEXT NOT NULL,
+			status_code INTEGER NOT NULL,
+			description TEXT NOT NULL,
+			local_date_time TEXT NOT NULL,
+			user_id INTEGER REFERENCES users
+		)
 	`
 
 	_, err := db.Exec(schema)
