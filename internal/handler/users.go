@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/model"
@@ -29,7 +28,11 @@ func (h *UserHandler) GetUsers(c *gin.Context) {
 	res, err := h.service.GetUsersService()
 
 	if err != nil {
-		log.Fatal("Error processing data: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"response": "Error processing data, try again later.",
+		})
+
+		return
 	}
 
 	response := model.UserModel{
@@ -47,7 +50,11 @@ func (h *UserHandler) GetUsers(c *gin.Context) {
 func (h *UserHandler) GetSummary(c *gin.Context) {
 	res, err := h.service.GetUsersSummary()
 	if err != nil {
-		log.Fatal("Error counting data: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"response": "Error counting data, try again later.",
+		})
+
+		return
 	}
 
 	c.JSON(http.StatusOK, res)
@@ -96,7 +103,11 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 
 	_, err := h.service.UpdateUser(userRut, input)
 	if err != nil {
-		log.Fatal("Couldnt update user: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"response": "Couldnt update user, try again later.",
+		})
+
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
