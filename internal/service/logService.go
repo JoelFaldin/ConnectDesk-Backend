@@ -2,7 +2,6 @@ package service
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/repository"
 )
@@ -16,12 +15,19 @@ func NewLogService(logRepo *repository.LogRepository) *LogService {
 }
 
 func (h *LogService) GetSummary() (*sql.Rows, error) {
+	res, err := h.logRepo.Count()
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func (h *LogService) GetAllLogs() (*sql.Rows, error) {
 	res, err := h.logRepo.GetAllLogs()
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println(res)
-
-	return res, res.Err()
+	return res, nil
 }
