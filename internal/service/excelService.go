@@ -31,8 +31,18 @@ func createExcelFile() (*excelize.File, error) {
 		return nil, err
 	}
 
-	// headers := [9]string{"Rut", "Names", "Lastnames", "Email", "Role", "Departments", "Directions", "Job Number", "Contact"}
-	file.SetSheetRow("template", "A1", &[]interface{}{"Rut", "Names", "Lastnames", "Email", "Role", "Departments", "Directions", "Job Number", "Contact"})
+	err = file.SetSheetRow("template", "A1", &[]any{"Rut", "Names", "Lastnames", "Email", "Role", "Departments", "Directions", "Job Number", "Contact"})
+	if err != nil {
+		return nil, err
+	}
+
+	err = file.SetColWidth("template", "C", "C", float64(len("Lastnames")+2))
+	err = file.SetColWidth("template", "F", "F", float64(len("Departments")+2))
+	err = file.SetColWidth("template", "G", "G", float64(len("Directions")+2))
+	err = file.SetColWidth("template", "H", "H", float64(len("Job Number")+2))
+	if err != nil {
+		return nil, err
+	}
 
 	file.SetActiveSheet(index)
 
