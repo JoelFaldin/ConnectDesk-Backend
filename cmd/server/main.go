@@ -26,11 +26,13 @@ func main() {
 	userService := service.NewUserService(userRepo, detailsRepo)
 	authService := service.NewAuthService(userRepo, detailsRepo)
 	logService := service.NewLogService(logRepository)
+	excelService := service.NewExcelService()
 
 	userHandler := handler.NewUserHandler(userService)
 	authHandler := handler.NewAuthHandler(authService)
 	healthHandler := handler.NewHealthHandler()
 	logHandler := handler.NewLogHandler(logService)
+	excelHandler := handler.NewExcelHandler(excelService)
 
 	router := gin.Default()
 
@@ -52,6 +54,7 @@ func main() {
 	authHandler.RegisterRoutes(router)
 	healthHandler.RegisterRoutes(router)
 	logHandler.RegisterRoutes(router)
+	excelHandler.RegisterRoutes(router)
 
 	http.ListenAndServe(addr, router)
 
