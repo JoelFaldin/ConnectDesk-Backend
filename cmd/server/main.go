@@ -26,7 +26,7 @@ func main() {
 	userService := service.NewUserService(userRepo, detailsRepo)
 	authService := service.NewAuthService(userRepo, detailsRepo)
 	logService := service.NewLogService(logRepository)
-	excelService := service.NewExcelService(userRepo)
+	excelService := service.NewExcelService(userRepo, logRepository)
 
 	userHandler := handler.NewUserHandler(userService)
 	authHandler := handler.NewAuthHandler(authService)

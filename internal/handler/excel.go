@@ -20,6 +20,7 @@ func (h *ExcelHandler) RegisterRoutes(r *gin.Engine) {
 	excel := r.Group("api/excel")
 	excel.GET("/template", h.GetTemplate)
 	excel.GET("/download", h.DownloadFile)
+	excel.GET("/download/logs", h.DownloadLogs)
 }
 
 func (h *ExcelHandler) GetTemplate(c *gin.Context) {
@@ -60,6 +61,28 @@ func (h *ExcelHandler) DownloadFile(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
+		return
+	}
+}
+
+func (h *ExcelHandler) DownloadLogs(c *gin.Context) {
+	file, err := h.service.DownloadLogsFile()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", "logs.xlsx"))
+	c.Header("Content-Transfer-Encoding", "binary")
+
+	if err := file.Write(c.Writer); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+
 		return
 	}
 }
