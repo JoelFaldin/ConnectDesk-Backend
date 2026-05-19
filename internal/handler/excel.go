@@ -18,7 +18,8 @@ func NewExcelHandler(s *service.ExcelService) *ExcelHandler {
 
 func (h *ExcelHandler) RegisterRoutes(r *gin.Engine) {
 	excel := r.Group("api/excel")
-	excel.GET("/download", h.GetTemplate)
+	excel.GET("/template", h.GetTemplate)
+	excel.GET("/download", h.DownloadFile)
 }
 
 func (h *ExcelHandler) GetTemplate(c *gin.Context) {
@@ -32,6 +33,27 @@ func (h *ExcelHandler) GetTemplate(c *gin.Context) {
 
 	c.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", "template.xlsx"))
+	c.Header("Content-Transfer-Encoding", "binary")
+
+	if err := file.Write(c.Writer); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+}
+
+func (h *ExcelHandler) DownloadFile(c *gin.Context) {
+	file, err := h.service.DownloadFile()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", "userdata.xlsx"))
 	c.Header("Content-Transfer-Encoding", "binary")
 
 	if err := file.Write(c.Writer); err != nil {

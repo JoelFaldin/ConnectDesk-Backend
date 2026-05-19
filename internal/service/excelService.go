@@ -3,21 +3,44 @@ package service
 import (
 	"fmt"
 
+	"github.com/JoelFaldin/ConnectDesk-backend/internal/model"
+	"github.com/JoelFaldin/ConnectDesk-backend/internal/repository"
 	"github.com/xuri/excelize/v2"
 )
 
 type ExcelService struct {
+	userRepo *repository.UserRepository
 }
 
-func NewExcelService() *ExcelService {
-	return &ExcelService{}
+func NewExcelService(userRepo *repository.UserRepository) *ExcelService {
+	return &ExcelService{userRepo: userRepo}
 }
 
 func (h *ExcelService) GenerateTemplate() (*excelize.File, error) {
-	return createExcelFile()
+	return createExcelFile(nil)
 }
 
-func createExcelFile() (*excelize.File, error) {
+func (h *ExcelService) DownloadFile() (*excelize.File, error) {
+	res, err := h.userRepo.GetUsers()
+	if err != nil {
+		return nil, err
+	}
+
+	var users []model.UserData
+	for res.Next() {
+		var u model.UserData
+
+		if err := res.Scan(&u.Departmens, &u.Directions, &u.JobNumber, &u.Contact, &u.Rut, &u.Names, &u.Lastnames, &u.Email, &u.Role); err != nil {
+			return nil, err
+		}
+
+		users = append(users, u)
+	}
+
+	return createExcelFile(users)
+}
+
+func createExcelFile(userData []model.UserData) (*excelize.File, error) {
 	// Configuring file:
 	file := excelize.NewFile()
 	defer func() {
@@ -41,15 +64,19 @@ func createExcelFile() (*excelize.File, error) {
 	colWidths := []struct {
 		col    string
 		header string
+		length int
 	}{
-		{"C", "Lastnames"},
-		{"F", "Departments"},
-		{"G", "Directions"},
-		{"H", "Job Number"},
+		{"A", "Rut", 14},
+		{"C", "Lastnames", len("Lastnames") + 2},
+		{"D", "Email", len("Email") + 14},
+		{"F", "Departments", len("Departments") + 2},
+		{"G", "Directions", len("Directions") + 2},
+		{"H", "Job Number", len("Job Number") + 2},
+		{"I", "Contact", len("Contact") + 6},
 	}
 
 	for _, cw := range colWidths {
-		if err := file.SetColWidth("template", cw.col, cw.col, float64(len(cw.header)+2)); err != nil {
+		if err := file.SetColWidth("template", cw.col, cw.col, float64(cw.length)); err != nil {
 			return nil, err
 		}
 	}
@@ -87,6 +114,25 @@ func createExcelFile() (*excelize.File, error) {
 		location := fmt.Sprintf("%s1", hc.col)
 		if err := file.SetCellStyle("template", location, location, style); err != nil {
 			return nil, err
+		}
+	}
+
+	// Setting data:
+	if len(userData) != 0 {
+		for i, u := range userData {
+			row := i + 2
+			cell, _ := excelize.CoordinatesToCellName(1, row)
+			file.SetSheetRow("template", cell, &[]any{
+				u.Rut,
+				u.Names,
+				u.Lastnames,
+				u.Email,
+				u.Role,
+				u.Departmens,
+				u.Directions,
+				u.JobNumber,
+				u.Contact,
+			})
 		}
 	}
 
