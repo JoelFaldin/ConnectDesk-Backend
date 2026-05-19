@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/model"
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/repository"
@@ -263,4 +264,15 @@ func createLogExcelFile(logsData []model.LogModel) (*excelize.File, error) {
 	}
 
 	return file, nil
+}
+
+func (h *ExcelService) CountOperations(statusCodes []int) (int, error) {
+	strCodes := make([]string, len(statusCodes))
+
+	for i, code := range statusCodes {
+		strCodes[i] = strconv.Itoa(code)
+	}
+
+	res := h.logRepo.CountOperations("excel", strCodes)
+	return res, nil
 }

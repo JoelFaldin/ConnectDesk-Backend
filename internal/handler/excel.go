@@ -21,6 +21,7 @@ func (h *ExcelHandler) RegisterRoutes(r *gin.Engine) {
 	excel.GET("/template", h.GetTemplate)
 	excel.GET("/download", h.DownloadFile)
 	excel.GET("/download/logs", h.DownloadLogs)
+	excel.GET("/summary", h.GetSummary)
 }
 
 func (h *ExcelHandler) GetTemplate(c *gin.Context) {
@@ -85,4 +86,30 @@ func (h *ExcelHandler) DownloadLogs(c *gin.Context) {
 
 		return
 	}
+}
+
+func (h *ExcelHandler) GetSummary(c *gin.Context) {
+	successCodes := []int{200, 201}
+	errorCodes := []int{400, 500}
+
+	successCount, err := h.service.CountOperations(successCodes)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	errorCount, err := h.service.CountOperations(errorCodes)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"successCount": successCount,
+		"errorCount":   errorCount,
+	})
 }
