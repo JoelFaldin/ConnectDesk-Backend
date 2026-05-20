@@ -22,6 +22,7 @@ func (h *ExcelHandler) RegisterRoutes(r *gin.Engine) {
 	excel.GET("/download", h.DownloadFile)
 	excel.GET("/download/logs", h.DownloadLogs)
 	excel.GET("/summary", h.GetSummary)
+	excel.POST("/upload", h.UploadFile)
 }
 
 func (h *ExcelHandler) GetTemplate(c *gin.Context) {
@@ -111,5 +112,27 @@ func (h *ExcelHandler) GetSummary(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"successCount": successCount,
 		"errorCount":   errorCount,
+	})
+}
+
+func (h *ExcelHandler) UploadFile(c *gin.Context) {
+	file, err := c.FormFile("excelFile")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	err = h.service.UploadExcelData(file)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"response": "Data saved in the database!",
 	})
 }

@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"mime/multipart"
 	"strconv"
 
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/model"
@@ -256,4 +257,30 @@ func (h *ExcelService) CountOperations(statusCodes []int) (int, error) {
 
 	res := h.logRepo.CountOperations("excel", strCodes)
 	return res, nil
+}
+
+// Extract data from the excel file and save it into db
+func (h *ExcelService) UploadExcelData(f *multipart.FileHeader) error {
+	file, err := f.Open()
+	if err != nil {
+		return err
+	}
+
+	workbook, err := excelize.OpenReader(file)
+	if err != nil {
+		return err
+	}
+	defer workbook.Close()
+
+	rows, err := workbook.GetRows("users")
+	if err != nil {
+		return err
+	}
+
+	err = h.userRepo.SaveBatch(rows)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

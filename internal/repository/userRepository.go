@@ -57,3 +57,51 @@ func (r *UserRepository) UserExistsEmail(email string) (int, string, string, str
 
 	return id, names, role, password
 }
+
+func (r *UserRepository) SaveBatch(rows [][]string) error {
+	tx, err := r.db.Begin()
+	if err != nil {
+		return err
+	}
+	// Rollback if something goes wrong :0
+	defer tx.Rollback()
+
+	stmtDetail, err := tx.Prepare(`
+		INSERT INTO user_job_details
+		(departments, directions, jobNumber, contact, user_rut)
+		VALUES
+		(?, ?, ?, ?, ?)
+	`)
+	if err != nil {
+		return err
+	}
+	defer stmtDetail.Close()
+
+	stmtUser, err := tx.Prepare(`
+		INSERT INTO users
+		(rut, names, lastnames, email, password, role, details)
+		VALUES (?, ?, ?, ?, ?, ?, ?)
+	`)
+	if err != nil {
+		return err
+	}
+	defer stmtUser.Close()
+
+	for _, row := range rows {
+		detailsResult, err := stmtDetail.Exec(row[5], row[6], row[7], row[8], row[0])
+		if err != nil {
+			return err
+		}
+		detailsID, err := detailsResult.LastInsertId()
+		if err != nil {
+			return err
+		}
+
+		_, err = stmtUser.Exec(row[0], row[1], row[2], row[3], "", row[4], detailsID)
+		if err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit()
+}
