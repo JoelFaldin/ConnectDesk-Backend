@@ -19,7 +19,36 @@ func NewExcelService(userRepo *repository.UserRepository, logRepo *repository.Lo
 }
 
 func (h *ExcelService) GenerateTemplate() (*excelize.File, error) {
-	return createExcelFile(nil)
+	rowValues := &[]string{"Rut", "Names", "Lastnames", "Email", "Role", "Departments", "Directions", "Job Number", "Contact"}
+	colWidths := []struct {
+		col    string
+		header string
+		length int
+	}{
+		{"A", "Rut", 14},
+		{"C", "Lastnames", len("Lastnames") + 2},
+		{"D", "Email", len("Email") + 14},
+		{"F", "Departments", len("Departments") + 2},
+		{"G", "Directions", len("Directions") + 2},
+		{"H", "Job Number", len("Job Number") + 2},
+		{"I", "Contact", len("Contact") + 6},
+	}
+	headerCells := []struct {
+		col    string
+		header string
+	}{
+		{"A", "Rut"},
+		{"B", "Names"},
+		{"C", "Lastnames"},
+		{"D", "Email"},
+		{"E", "Role"},
+		{"F", "Departments"},
+		{"G", "Directions"},
+		{"H", "Job Number"},
+		{"I", "Contact"},
+	}
+
+	return createExcelFile(nil, "template", "template.xlsx", rowValues, colWidths, headerCells)
 }
 
 func (h *ExcelService) DownloadFile() (*excelize.File, error) {
@@ -39,7 +68,52 @@ func (h *ExcelService) DownloadFile() (*excelize.File, error) {
 		users = append(users, u)
 	}
 
-	return createExcelFile(users)
+	// Data preparation for createExcelFile:
+	matrix := make([][]any, len(users))
+	for i, u := range users {
+		matrix[i] = []any{
+			u.Rut,
+			u.Names,
+			u.Lastnames,
+			u.Email,
+			u.Role,
+			u.Departmens,
+			u.Directions,
+			u.JobNumber,
+			u.Contact,
+		}
+	}
+
+	rowValues := &[]string{"Rut", "Names", "Lastnames", "Email", "Role", "Departments", "Directions", "Job Number", "Contact"}
+	colWidths := []struct {
+		col    string
+		header string
+		length int
+	}{
+		{"A", "Rut", 14},
+		{"C", "Lastnames", len("Lastnames") + 2},
+		{"D", "Email", len("Email") + 14},
+		{"F", "Departments", len("Departments") + 2},
+		{"G", "Directions", len("Directions") + 2},
+		{"H", "Job Number", len("Job Number") + 2},
+		{"I", "Contact", len("Contact") + 6},
+	}
+	headerCells := []struct {
+		col    string
+		header string
+	}{
+		{"A", "Rut"},
+		{"B", "Names"},
+		{"C", "Lastnames"},
+		{"D", "Email"},
+		{"E", "Role"},
+		{"F", "Departments"},
+		{"G", "Directions"},
+		{"H", "Job Number"},
+		{"I", "Contact"},
+	}
+
+	return createExcelFile(matrix, "users.xlsx", "users", rowValues, colWidths, headerCells)
 }
 
 func (h *ExcelService) DownloadLogsFile() (*excelize.File, error) {
@@ -59,134 +133,21 @@ func (h *ExcelService) DownloadLogsFile() (*excelize.File, error) {
 		logs = append(logs, l)
 	}
 
-	return createLogExcelFile(logs)
-}
-
-func createExcelFile(userData []model.UserData) (*excelize.File, error) {
-	// Configuring file:
-	file := excelize.NewFile()
-	defer func() {
-		if err := file.Close(); err != nil {
-			fmt.Println(err)
-		}
-	}()
-
-	index, err := file.NewSheet("template")
-	if err != nil {
-		return nil, err
-	}
-
-	// Set headers:
-	err = file.SetSheetRow("template", "A1", &[]any{"Rut", "Names", "Lastnames", "Email", "Role", "Departments", "Directions", "Job Number", "Contact"})
-	if err != nil {
-		return nil, err
-	}
-
-	colWidths := []struct {
-		col    string
-		header string
-		length int
-	}{
-		{"A", "Rut", 14},
-		{"C", "Lastnames", len("Lastnames") + 2},
-		{"D", "Email", len("Email") + 14},
-		{"F", "Departments", len("Departments") + 2},
-		{"G", "Directions", len("Directions") + 2},
-		{"H", "Job Number", len("Job Number") + 2},
-		{"I", "Contact", len("Contact") + 6},
-	}
-
-	for _, cw := range colWidths {
-		if err := file.SetColWidth("template", cw.col, cw.col, float64(cw.length)); err != nil {
-			return nil, err
+	// Data preparation for createExcelFile:
+	matrix := make([][]any, len(logs))
+	for i, l := range logs {
+		matrix[i] = []any{
+			l.Log_id,
+			l.Endpoint,
+			l.Method,
+			l.Status_Code,
+			l.Description,
+			l.Local_date_time,
+			l.User_id,
 		}
 	}
 
-	// Style headers:
-	style, err := file.NewStyle(&excelize.Style{
-		Fill: excelize.Fill{Type: "pattern", Color: []string{"#B2B2B2"}, Pattern: 1},
-		Border: []excelize.Border{
-			{Type: "left", Color: "000000", Style: 1},
-			{Type: "top", Color: "000000", Style: 1},
-			{Type: "right", Color: "000000", Style: 1},
-			{Type: "bottom", Color: "000000", Style: 1},
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	headerCells := []struct {
-		col    string
-		header string
-	}{
-		{"A", "Rut"},
-		{"B", "Names"},
-		{"C", "Lastnames"},
-		{"D", "Email"},
-		{"E", "Role"},
-		{"F", "Departments"},
-		{"G", "Directions"},
-		{"H", "Job Number"},
-		{"I", "Contact"},
-	}
-
-	for _, hc := range headerCells {
-		location := fmt.Sprintf("%s1", hc.col)
-		if err := file.SetCellStyle("template", location, location, style); err != nil {
-			return nil, err
-		}
-	}
-
-	// Setting data:
-	if len(userData) != 0 {
-		for i, u := range userData {
-			row := i + 2
-			cell, _ := excelize.CoordinatesToCellName(1, row)
-			file.SetSheetRow("template", cell, &[]any{
-				u.Rut,
-				u.Names,
-				u.Lastnames,
-				u.Email,
-				u.Role,
-				u.Departmens,
-				u.Directions,
-				u.JobNumber,
-				u.Contact,
-			})
-		}
-	}
-
-	// Preparing file for return:
-	file.SetActiveSheet(index)
-
-	if err := file.SaveAs("template.xlsx"); err != nil {
-		return nil, err
-	}
-
-	return file, nil
-}
-
-func createLogExcelFile(logsData []model.LogModel) (*excelize.File, error) {
-	// Configuring file:
-	file := excelize.NewFile()
-	defer func() {
-		if err := file.Close(); err != nil {
-			fmt.Println(err)
-		}
-	}()
-
-	index, err := file.NewSheet("logs")
-	if err != nil {
-		return nil, err
-	}
-
-	// Set headers:
-	err = file.SetSheetRow("logs", "A1", &[]any{"Log id", "Endpoint", "Method", "Status Code", "Description", "Local date", "User id"})
-	if err != nil {
-		return nil, err
-	}
-
+	rowValues := &[]string{"Log id", "Endpoint", "Method", "Status Code", "Description", "Local date", "User id"}
 	colWidths := []struct {
 		col    string
 		header string
@@ -198,27 +159,6 @@ func createLogExcelFile(logsData []model.LogModel) (*excelize.File, error) {
 		{"E", "Description", len("Description") + 2},
 		{"F", "Local date", len("Local date") + 8},
 	}
-
-	for _, cw := range colWidths {
-		if err := file.SetColWidth("logs", cw.col, cw.col, float64(cw.length)); err != nil {
-			return nil, err
-		}
-	}
-
-	// Style headers:
-	style, err := file.NewStyle(&excelize.Style{
-		Fill: excelize.Fill{Type: "pattern", Color: []string{"#B2B2B2"}, Pattern: 1},
-		Border: []excelize.Border{
-			{Type: "left", Color: "000000", Style: 1},
-			{Type: "top", Color: "000000", Style: 1},
-			{Type: "right", Color: "000000", Style: 1},
-			{Type: "bottom", Color: "000000", Style: 1},
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-
 	headerCells := []struct {
 		col    string
 		header string
@@ -231,35 +171,76 @@ func createLogExcelFile(logsData []model.LogModel) (*excelize.File, error) {
 		{"F", "Local date"},
 		{"G", "User id"},
 	}
+	return createExcelFile(matrix, "logs", "logs.xlsx", rowValues, colWidths, headerCells)
+}
+
+func createExcelFile(matrix [][]any, fileName, sheetName string, rowValues *[]string, colWidths []struct {
+	col    string
+	header string
+	length int
+}, headerCells []struct {
+	col    string
+	header string
+}) (*excelize.File, error) {
+	// Configuring file:
+	file := excelize.NewFile()
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Println(err)
+		}
+	}()
+
+	index, err := file.NewSheet(sheetName)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set headers:
+	err = file.SetSheetRow(sheetName, "A1", rowValues)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, cw := range colWidths {
+		if err := file.SetColWidth(sheetName, cw.col, cw.col, float64(cw.length)); err != nil {
+			return nil, err
+		}
+	}
+
+	// Style headers:
+	style, err := file.NewStyle(&excelize.Style{
+		Fill: excelize.Fill{Type: "pattern", Color: []string{"#B2B2B2"}, Pattern: 1},
+		Border: []excelize.Border{
+			{Type: "left", Color: "000000", Style: 1},
+			{Type: "top", Color: "000000", Style: 1},
+			{Type: "right", Color: "000000", Style: 1},
+			{Type: "bottom", Color: "000000", Style: 1},
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	for _, hc := range headerCells {
 		location := fmt.Sprintf("%s1", hc.col)
-		if err := file.SetCellStyle("logs", location, location, style); err != nil {
+		if err := file.SetCellStyle(sheetName, location, location, style); err != nil {
 			return nil, err
 		}
 	}
 
 	// Setting data:
-	if len(logsData) != 0 {
-		for i, l := range logsData {
+	if len(matrix) != 0 {
+		for i, rowData := range matrix {
 			row := i + 2
 			cell, _ := excelize.CoordinatesToCellName(1, row)
-			file.SetSheetRow("logs", cell, &[]any{
-				l.Log_id,
-				l.Endpoint,
-				l.Method,
-				l.Status_Code,
-				l.Description,
-				l.Local_date_time,
-				l.User_id,
-			})
+			file.SetSheetRow(sheetName, cell, &rowData)
 		}
 	}
 
 	// Preparing file for return:
 	file.SetActiveSheet(index)
 
-	if err := file.SaveAs("logs.xlsx"); err != nil {
+	if err := file.SaveAs(fileName); err != nil {
 		return nil, err
 	}
 
