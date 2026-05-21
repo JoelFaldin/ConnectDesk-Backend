@@ -14,8 +14,8 @@ func NewLogRepository(db *sql.DB) *LogRepository {
 	return &LogRepository{db: db}
 }
 
-func (h *LogRepository) Count() (*sql.Rows, error) {
-	return h.db.Query("SELECT COUNT(*) FROM log")
+func (h *LogRepository) Count() *sql.Row {
+	return h.db.QueryRow("SELECT COUNT(*) FROM log")
 }
 
 func (h *LogRepository) GetAllLogs() (*sql.Rows, error) {
@@ -30,4 +30,15 @@ func (h *LogRepository) CountOperations(term string, statusCodes []string) int {
 	h.db.QueryRow(query, term).Scan(&count)
 
 	return count
+}
+
+func (h *LogRepository) FindAllLogs(page, pageSize int) (*sql.Rows, error) {
+	return h.db.Query("SELECT * FROM log LIMIT $1 OFFSET $2", pageSize, page)
+}
+
+func (h *LogRepository) FindByCode(statusCodes []string, page, pageSize int) (*sql.Rows, error) {
+	inClaude := strings.Join(statusCodes, ",")
+	query := fmt.Sprintf("SELECT * FROM log WHERE status_code IN (%s) LIMIT $1 OFFSET $2", inClaude)
+
+	return h.db.Query(query, pageSize, page)
 }
