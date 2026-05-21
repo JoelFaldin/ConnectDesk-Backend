@@ -21,7 +21,6 @@ func NewAuthService(userRepo *repository.UserRepository, detailsRepo *repository
 func (h *AuthService) RegisterUser(newUser model.RegisterUser) (int, error) {
 	detailsId := h.detailsRepo.DetailsExists(*newUser.Rut)
 	if detailsId == 0 {
-		fmt.Println("details doesnt exist")
 		newDetails := model.CreateNewDetails{
 			Departments: *newUser.Departments,
 			Directions:  *newUser.Directions,
@@ -62,7 +61,6 @@ func (h *AuthService) Login(loginData model.LoginData) (model.LoginResponse, err
 
 	err := bcrypt.CompareHashAndPassword([]byte(password), []byte(loginData.Password))
 	if err != nil {
-		fmt.Println("passwords do not matfch")
 		return model.LoginResponse{}, model.ErrIncorrectPassword
 	}
 

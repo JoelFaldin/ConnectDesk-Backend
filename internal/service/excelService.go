@@ -242,7 +242,6 @@ func createExcelFile(matrix [][]any, fileName, sheetName string, rowValues *[]st
 	file.SetActiveSheet(index)
 
 	if err := file.SaveAs(fileName); err != nil {
-		fmt.Println(fileName)
 		return nil, err
 	}
 

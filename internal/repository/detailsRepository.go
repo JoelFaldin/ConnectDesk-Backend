@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/model"
 )
@@ -21,7 +20,6 @@ func (r *DetailsRepository) CreateDetails(newDetails model.CreateNewDetails, rut
 	query := `INSERT INTO user_job_details (departments, directions, jobNumber, contact, user_rut) VALUES ($1, $2, $3, $4, $5) RETURNING id`
 	err := r.db.QueryRow(query, newDetails.Departments, newDetails.Directions, newDetails.JobNumber, newDetails.Contact, rut).Scan(&newDetailId)
 	if err != nil {
-		fmt.Println("CreateDetails: %w", err)
 		return 0
 	}
 
