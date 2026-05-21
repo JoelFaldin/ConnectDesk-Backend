@@ -77,19 +77,6 @@ func (s *UserService) CreateUser(newUser model.CreateUserModel) int {
 	} else {
 		return -1
 	}
-
-	// for r.Next() {
-	// 	var id int
-	// 	var departments, directions, jobNumber, contact, user_rut string
-	// 	if err := r.Scan(&id, &departments, &directions, &jobNumber, &contact, &user_rut); err != nil {
-	// 		log.Println(err)
-	// 		continue
-	// 	}
-	// 	// Print to console or log
-	// 	fmt.Printf("ID: %d: %s - %s - %s - %s - %s\n", id, departments, directions, jobNumber, contact, user_rut)
-	// }
-
-	// fmt.Println(res)
 }
 
 func (h *UserService) UpdateUser(rut string, input model.UpdateUserInput) (sql.Result, error) {
