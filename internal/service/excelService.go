@@ -49,7 +49,7 @@ func (h *ExcelService) GenerateTemplate() (*excelize.File, error) {
 		{"I", "Contact"},
 	}
 
-	return createExcelFile(nil, "template", "template.xlsx", rowValues, colWidths, headerCells)
+	return createExcelFile(nil, "template.xlsx", "template", rowValues, colWidths, headerCells)
 }
 
 func (h *ExcelService) DownloadFile() (*excelize.File, error) {
@@ -172,7 +172,7 @@ func (h *ExcelService) DownloadLogsFile() (*excelize.File, error) {
 		{"F", "Local date"},
 		{"G", "User id"},
 	}
-	return createExcelFile(matrix, "logs", "logs.xlsx", rowValues, colWidths, headerCells)
+	return createExcelFile(matrix, "logs.xlsx", "logs", rowValues, colWidths, headerCells)
 }
 
 func createExcelFile(matrix [][]any, fileName, sheetName string, rowValues *[]string, colWidths []struct {
@@ -242,6 +242,7 @@ func createExcelFile(matrix [][]any, fileName, sheetName string, rowValues *[]st
 	file.SetActiveSheet(index)
 
 	if err := file.SaveAs(fileName); err != nil {
+		fmt.Println(fileName)
 		return nil, err
 	}
 
