@@ -272,10 +272,12 @@ func (h *ExcelService) UploadExcelData(f *multipart.FileHeader) error {
 	}
 	defer workbook.Close()
 
-	rows, err := workbook.GetRows("users")
+	r, err := workbook.GetRows("users")
 	if err != nil {
 		return err
 	}
+
+	rows := r[1:]
 
 	err = h.userRepo.SaveBatch(rows)
 	if err != nil {
