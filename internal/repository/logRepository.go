@@ -42,3 +42,12 @@ func (h *LogRepository) FindByCode(statusCodes []string, page, pageSize int) (*s
 
 	return h.db.Query(query, pageSize, page)
 }
+
+func (h *LogRepository) RecordLog(endpoint, method string, status_code int, description, local_date_time string, user_id int) {
+	h.db.Exec(`
+		INSERT INTO log
+		(endpoint, method, status_code, description, local_date_time, user_id)
+		VALUES
+		(?, ?, ?, ?, ?, ?)`,
+		endpoint, method, status_code, description, local_date_time, user_id)
+}

@@ -4,16 +4,19 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/JoelFaldin/ConnectDesk-backend/internal/config"
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/service"
 	"github.com/gin-gonic/gin"
 )
 
 type ExcelHandler struct {
-	service *service.ExcelService
+	service     *service.ExcelService
+	logService  *service.LogService
+	userService *service.UserService
 }
 
-func NewExcelHandler(s *service.ExcelService) *ExcelHandler {
-	return &ExcelHandler{service: s}
+func NewExcelHandler(s *service.ExcelService, l *service.LogService, u *service.UserService) *ExcelHandler {
+	return &ExcelHandler{service: s, logService: l, userService: u}
 }
 
 func (h *ExcelHandler) RegisterRoutes(r *gin.Engine) {
@@ -65,6 +68,12 @@ func (h *ExcelHandler) DownloadFile(c *gin.Context) {
 		})
 		return
 	}
+
+	token := c.GetHeader("Authorization")
+
+	email := config.DecodeJWT(token[7:])
+	user_id := h.userService.FindUser(email)
+	h.logService.RecordLog("/excel/download", "GET", 200, "Download user excel file", user_id)
 }
 
 func (h *ExcelHandler) DownloadLogs(c *gin.Context) {

@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -26,7 +27,7 @@ func GenerateJWT(email string) (string, error) {
 	return tokenString, nil
 }
 
-func DecodeJWT(jsonwebtoken string) {
+func DecodeJWT(jsonwebtoken string) string {
 	secret := JwtSecret()
 	hmac := []byte(secret)
 
@@ -38,8 +39,15 @@ func DecodeJWT(jsonwebtoken string) {
 	})
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		fmt.Println(claims["sub"], claims["exp"], claims["iat"])
+		sub, ok := claims["sub"].(string)
+		if !ok {
+			log.Fatal("Invalid data type from token")
+		}
+
+		return sub
 	} else {
-		fmt.Println(err)
+		log.Fatal(err.Error())
 	}
+
+	return ""
 }

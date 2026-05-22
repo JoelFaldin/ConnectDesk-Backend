@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/model"
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/repository"
@@ -107,4 +108,8 @@ func (h *LogService) FindByCode(statusCode, page, pageSize int) ([]model.LogMode
 	}
 
 	return logs, total, nil
+}
+
+func (h *LogService) RecordLog(endpoint, method string, status_code int, description string, user_id int) {
+	h.logRepo.RecordLog(endpoint, method, status_code, description, time.Now().Format("2006-01-02 15:04:05"), user_id)
 }

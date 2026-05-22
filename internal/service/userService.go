@@ -122,3 +122,15 @@ func (h *UserService) UpdateUser(rut string, input model.UpdateUserInput) (sql.R
 	res, err := h.userRepo.RawUpdate(query, args...)
 	return res, err
 }
+
+func (s *UserService) FindUser(email string) int {
+	var id int
+	var names, role, password string
+
+	err := s.userRepo.UserExistsEmail(email).Scan(&id, &names, &role, &password)
+	if err != nil {
+		return 0
+	}
+
+	return id
+}

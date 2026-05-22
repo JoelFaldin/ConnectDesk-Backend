@@ -50,12 +50,8 @@ func (r *UserRepository) RawUpdate(q string, args ...any) (sql.Result, error) {
 	return r.db.Exec(q, args...)
 }
 
-func (r *UserRepository) UserExistsEmail(email string) (int, string, string, string) {
-	var id int
-	var names, role, password string
-	r.db.QueryRow("SELECT user_id, names, role, password FROM users WHERE email = $1", email).Scan(&id, &names, &role, &password)
-
-	return id, names, role, password
+func (r *UserRepository) UserExistsEmail(email string) *sql.Row {
+	return r.db.QueryRow("SELECT user_id, names, role, password FROM users WHERE email = ?", email)
 }
 
 func (r *UserRepository) SaveBatch(rows [][]string) error {

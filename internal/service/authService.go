@@ -54,7 +54,10 @@ func (h *AuthService) RegisterUser(newUser model.RegisterUser) (int, error) {
 }
 
 func (h *AuthService) Login(loginData model.LoginData) (model.LoginResponse, error) {
-	userId, userName, role, password := h.userRepo.UserExistsEmail(loginData.Email)
+	var userId int
+	var userName, role, password string
+
+	h.userRepo.UserExistsEmail(loginData.Email).Scan(&userId, &userName, &role, &password)
 	if userId == 0 {
 		return model.LoginResponse{}, model.ErrUserNotFound
 	}
