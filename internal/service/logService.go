@@ -1,7 +1,6 @@
 package service
 
 import (
-	"database/sql"
 	"fmt"
 	"strconv"
 	"time"
@@ -30,24 +29,37 @@ func (h *LogService) GetSummary() (int, error) {
 	return total, nil
 }
 
-func (h *LogService) GetAllLogs() (*sql.Rows, error) {
+func (h *LogService) GetAllLogs() ([]model.AllLogs, error) {
 	res, err := h.logRepo.GetAllLogs()
 	if err != nil {
 		return nil, err
 	}
 
-	return res, nil
+	var logs []model.AllLogs
+	for res.Next() {
+		var l model.AllLogs
+		var endpoint, method, status_code string
+		var user_id int
+
+		if err := res.Scan(&l.Log_id, &endpoint, &method, &status_code, &l.Description, &l.Local_date_time, &user_id); err != nil {
+			return nil, err
+		}
+
+		logs = append(logs, l)
+	}
+
+	return logs, nil
 }
 
-func (h *LogService) FindAllLogs(page, pageSize int) ([]model.LogModel, int, error) {
+func (h *LogService) FindAllLogs(page, pageSize int) ([]model.LogModelResponse, int, error) {
 	res, err := h.logRepo.FindAllLogs(page, pageSize)
 	if err != nil {
 		return nil, -1, err
 	}
 
-	var logs []model.LogModel
+	var logs []model.LogModelResponse
 	for res.Next() {
-		var l model.LogModel
+		var l model.LogModelResponse
 
 		if err := res.Scan(&l.Log_id, &l.Endpoint, &l.Method, &l.Status_Code, &l.Description, &l.Local_date_time, &l.User_id); err != nil {
 			return nil, -1, err
@@ -111,5 +123,6 @@ func (h *LogService) FindByCode(statusCode, page, pageSize int) ([]model.LogMode
 }
 
 func (h *LogService) RecordLog(endpoint, method string, status_code int, description string, user_id int) {
-	h.logRepo.RecordLog(endpoint, method, status_code, description, time.Now().Format("2006-01-02 15:04:05"), user_id)
+	currentTime := time.Now().Format(time.RFC3339)
+	h.logRepo.RecordLog(endpoint, method, status_code, description, currentTime, user_id)
 }

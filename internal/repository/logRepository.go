@@ -19,7 +19,7 @@ func (h *LogRepository) Count() *sql.Row {
 }
 
 func (h *LogRepository) GetAllLogs() (*sql.Rows, error) {
-	return h.db.Query("SELECT log_id, description, local_date_time FROM log")
+	return h.db.Query("SELECT log_id, endpoint, method, status_code, description, local_date_time, user_id FROM log")
 }
 
 func (h *LogRepository) CountOperations(term string, statusCodes []string) int {

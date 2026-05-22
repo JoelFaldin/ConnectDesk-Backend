@@ -32,7 +32,7 @@ func main() {
 	authHandler := handler.NewAuthHandler(authService)
 	healthHandler := handler.NewHealthHandler()
 	logHandler := handler.NewLogHandler(logService)
-	excelHandler := handler.NewExcelHandler(excelService)
+	excelHandler := handler.NewExcelHandler(excelService, logService, userService)
 
 	router := gin.Default()
 
