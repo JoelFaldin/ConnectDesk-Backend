@@ -144,4 +144,10 @@ func (h *ExcelHandler) UploadFile(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"response": "Data saved in the database!",
 	})
+
+	token := c.GetHeader("Authorization")
+
+	email := config.DecodeJWT(token[7:])
+	user_id := h.userService.FindUser(email)
+	h.logService.RecordLog("/excel/upload", "GET", 200, "Upload user excel file", user_id)
 }

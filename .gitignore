@@ -20,4 +20,4 @@
 tmp/main
 
 # Others
-.xlsx
+*.xlsx
