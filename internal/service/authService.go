@@ -64,7 +64,7 @@ func (h *AuthService) Login(loginData model.LoginData) (model.LoginResponse, err
 		return model.LoginResponse{}, model.ErrIncorrectPassword
 	}
 
-	token, err := config.GenerateJWT(userName)
+	token, err := config.GenerateJWT(loginData.Email)
 	if err != nil {
 		fmt.Println(err.Error())
 		return model.LoginResponse{}, model.ErrToken

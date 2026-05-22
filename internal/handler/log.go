@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -54,7 +53,6 @@ func (h *LogHandler) FilterLogs(c *gin.Context) {
 	code := c.Param("code")
 	statusCode, err := strconv.Atoi(code)
 	if err != nil {
-		fmt.Println("converting")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"response": err.Error(),
 		})
@@ -64,7 +62,6 @@ func (h *LogHandler) FilterLogs(c *gin.Context) {
 	page := c.Query("page")
 	pageInt, err := strconv.Atoi(page)
 	if err != nil {
-		fmt.Println("converting 2")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"response": err.Error(),
 		})
@@ -74,7 +71,6 @@ func (h *LogHandler) FilterLogs(c *gin.Context) {
 	pageSize := c.Query("pageSize")
 	pageSizeInt, err := strconv.Atoi(pageSize)
 	if err != nil {
-		fmt.Println("converting 3")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"response": err.Error(),
 		})
@@ -84,7 +80,6 @@ func (h *LogHandler) FilterLogs(c *gin.Context) {
 	if statusCode == 1 {
 		response, total, err := h.logService.FindAllLogs(pageInt, pageSizeInt)
 		if err != nil {
-			fmt.Println("test1")
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"response": err.Error(),
 			})
@@ -100,7 +95,6 @@ func (h *LogHandler) FilterLogs(c *gin.Context) {
 	} else {
 		response, total, err := h.logService.FindByCode(statusCode, pageInt, pageSizeInt)
 		if err != nil {
-			fmt.Println(err.Error())
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"response": err.Error(),
 			})
