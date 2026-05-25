@@ -1,26 +1,26 @@
-# ConnectDesk Backend - Spring Boot
 
-Spring Boot backend app for the ConnectDesk project. Includes secure role-based autentication, and centralizes user data in an organization. It includes authentication, user management, and Excel import/export funcionalities.
+# ConnectDesk Backend - Go Gin
+
+A [Golang](https://go.dev/) web application build using the [Gin](https://gin-gonic.com/) framework! :D
+
+Includes secure role-based authentication, excel integration, log system. Centralizes user data in an organization.
 
 <p align="center">
-  <a href="https://spring.io/projects/spring-boot" target="blank"><img src="https://imgs.search.brave.com/z8133euH64zknm3yfaC0IcEfv6ytTDBhMa3cgp1OLhU/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/dmluY2Vuem9yYWNj/YS5jb20vaW1hZ2Vz/L3NwcmluZy5wbmc" alt="Spring Boot Logo" /></a>
+  <a href="https://gin-gonic.com/" target="blank"><img src="https://miro.medium.com/1*HtCjHzGwf6iWNqXu5Cndsg.png" alt="Golang Gin Logo" /></a>
 </p>
 
 ## 🚀 Features
 
 - **Authentication & Authorization**: Login with JWT and registration with role-based access.
-- **User management**: Create, read, update and delete user profiles (rut, email, names and lastnames)!
+- **User management**: Create, read, update and delete user profiles (rut, email, names and last names)!
 - **Excel integration**: Import and export data via excel, uploading or downloading a file with data.
-- **Modular architecture**: Implementing Spring Data JPA, including controllers, services and repositories.
 
 ## 📦 Technologies
 
 <div align="center">
 
-![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)
-![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white)
-![Gradle](https://img.shields.io/badge/Gradle-02303A.svg?style=for-the-badge&logo=Gradle&logoColor=white)
-![MySQL](https://img.shields.io/badge/mysql-4479A1.svg?style=for-the-badge&logo=mysql&logoColor=white)
+![Golang](https://img.shields.io/badge/Go-00ADD8?logo=Go&logoColor=white&style=for-the-badge)
+![Sqlite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=SQLite&logoColor=white)
 
 </div>
 
@@ -54,8 +54,8 @@ All endpoints are prefixed with `/api` and return JSON responses:
 
 ## 🤖 Configuration
 
-The project is configured to accept request from `http://localhost:4200/`, the local address of the Angular frontend app. You can change this on the `CorsConfig.java` file, in the main package.
-Additionally, the project also has a _logger_ configured to save all data related to database operations. It is applied to every route of the backend but these:
+The project is configured to accept request from `http://localhost:4200/`, the local address of the Angular frontend app. You can change this on the `internal/config.cors.go` file.
+Additionally, the project also has a log system to save all data related to database operations. It is applied to every route of the backend but these:
 ```
 /api/users
 /api/users/summary
@@ -66,33 +66,27 @@ Additionally, the project also has a _logger_ configured to save all data relate
 /api/health
 ```
 
+## Environment Variables
+
+To properly run the app, you will need these environment variables:
+```
+PORT="any_port"
+FRONTEND_PORT="any_port"
+SECRET_KEY="any_secret_key"
+```
+
 ## Running the app in your machine
 
-1. Make sure you added the application.properties file into your project:
-```bash
-# MySQL Config:
-spring.datasource.url=jdbc:mysql://localhost:3306/db-name
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-spring.datasource.username=sa
-spring.datasource.password=
-
-# JPA (Hibernate) config
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+1. Get go dependencies:
+```
+go mod tidy
 ```
 
-2. Build and run the project:
-```bash
-./gradlew clean build
-./gradlw bootrun
+2. Start the app (the project uses the [air](https://github.com/air-verse/air) go package:
 ```
-
-3. Run the tests:
-```bash
-./gradlew test
+air
 ```
 
 ## Thanks for visiting!
 
-This project was originally built in Express and plain JavaScript. Then I refactored it to NestJS to get a better hand at the framework, and finally I refactored it again in Java Springboot. What a ride.
+This project was originally built in Express and plain JavaScript. Then I refactored it to NestJS to get a better hand at the framework, then it was refactored again using Java Springboot. Now, I decided to refactor it one more time to get comfortable with the Go programming language.
