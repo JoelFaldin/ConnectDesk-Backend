@@ -57,12 +57,12 @@ type UpdateUserInput struct {
 
 type RegisterUser struct {
 	Rut         *string `json:"rut" binding:"required"`
-	Names       *string `json:"names" binding:"required"`
-	Lastnames   *string `json:"lastnames" binding:"required"`
+	Names       *string `json:"name" binding:"required"`
+	Lastnames   *string `json:"lastname" binding:"required"`
 	Email       *string `json:"email" binding:"required"`
 	Password    *string `json:"password" binding:"required"`
-	Departments *string `json:"departments" binding:"required"`
-	Directions  *string `json:"directions" binding:"required"`
-	JobNumber   *string `json:"jobNumber" binding:"required"`
-	Contact     *string `json:"contact" binding:"required"`
+	Departments *string `json:"department" binding:"required"`
+	Directions  *string `json:"direction" binding:"required"`
+	JobNumber   *int    `json:"jobNumber" binding:"required"`
+	Contact     *int    `json:"contactNumber" binding:"required"`
 }

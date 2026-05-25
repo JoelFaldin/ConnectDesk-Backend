@@ -24,8 +24,8 @@ func (h *AuthService) RegisterUser(newUser model.RegisterUser) (int, error) {
 		newDetails := model.CreateNewDetails{
 			Departments: *newUser.Departments,
 			Directions:  *newUser.Directions,
-			JobNumber:   *newUser.JobNumber,
-			Contact:     *newUser.Contact,
+			JobNumber:   fmt.Sprintf("%d", *newUser.JobNumber),
+			Contact:     fmt.Sprintf("%d", *newUser.Contact),
 		}
 
 		detailsId = h.detailsRepo.CreateDetails(newDetails, *newUser.Rut)
