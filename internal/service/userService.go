@@ -39,13 +39,16 @@ func (s *UserService) GetUsersService() ([]model.UserData, error) {
 	return users, res.Err()
 }
 
-func (s *UserService) GetUsersSummary() (*sql.Rows, error) {
-	res, err := s.userRepo.GetSummary()
+func (s *UserService) GetUsersSummary() (int, error) {
+	res := s.userRepo.GetSummary()
+
+	var count int
+	err := res.Scan(&count)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
-	return res, res.Err()
+	return count, res.Err()
 }
 
 func (s *UserService) CreateUser(newUser model.CreateUserModel) int {

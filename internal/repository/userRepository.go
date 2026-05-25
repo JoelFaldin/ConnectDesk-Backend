@@ -22,8 +22,8 @@ func (r *UserRepository) GetUsers() (*sql.Rows, error) {
 	`)
 }
 
-func (r *UserRepository) GetSummary() (*sql.Rows, error) {
-	return r.db.Query("SELECT COUNT(*) FROM users")
+func (r *UserRepository) GetSummary() *sql.Row {
+	return r.db.QueryRow("SELECT COUNT(*) FROM users")
 }
 
 func (r *UserRepository) CreateUser(newUser model.CreateNewUser, detailsId int) int {

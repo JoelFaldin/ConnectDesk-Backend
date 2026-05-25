@@ -29,7 +29,6 @@ func (h *LogRepository) CountOperations(term string, statusCodes []string) int {
 	var count int
 	search_term := "%" + term + "%"
 	h.db.QueryRow(query, search_term).Scan(&count)
-	fmt.Println(query)
 
 	return count
 }
