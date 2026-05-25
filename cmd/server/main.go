@@ -9,6 +9,7 @@ import (
 
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/config"
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/handler"
+	"github.com/JoelFaldin/ConnectDesk-backend/internal/middleware"
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/repository"
 	"github.com/JoelFaldin/ConnectDesk-backend/internal/service"
 	"github.com/gin-gonic/gin"
@@ -35,6 +36,9 @@ func main() {
 	excelHandler := handler.NewExcelHandler(excelService, logService, userService)
 
 	router := gin.Default()
+
+	// Logging middleware:
+	router.Use(middleware.Logger(logService))
 
 	// Load Go configuration:
 	err := godotenv.Load(".env")
