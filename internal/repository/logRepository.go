@@ -23,11 +23,13 @@ func (h *LogRepository) GetAllLogs() (*sql.Rows, error) {
 }
 
 func (h *LogRepository) CountOperations(term string, statusCodes []string) int {
-	inClause := strings.Join(statusCodes, ",")
-	query := fmt.Sprintf("SELECT COUNT(*) FROM log WHERE endpoint LIKE ? AND role IN (%s)", inClause)
+	inClause := strings.Join(statusCodes, ", ")
+	query := fmt.Sprintf("SELECT COUNT(*) FROM log WHERE endpoint LIKE ? AND status_code IN (%s)", inClause)
 
 	var count int
-	h.db.QueryRow(query, term).Scan(&count)
+	search_term := "%" + term + "%"
+	h.db.QueryRow(query, search_term).Scan(&count)
+	fmt.Println(query)
 
 	return count
 }
