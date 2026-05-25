@@ -38,7 +38,7 @@ func main() {
 	router := gin.Default()
 
 	// Logging middleware:
-	router.Use(middleware.Logger(logService))
+	router.Use(middleware.Logger(logService, userService))
 
 	// Load Go configuration:
 	err := godotenv.Load(".env")

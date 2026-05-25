@@ -49,7 +49,6 @@ func (s *UserService) GetUsersSummary() (*sql.Rows, error) {
 }
 
 func (s *UserService) CreateUser(newUser model.CreateUserModel) int {
-	// s.repo.DeleteJobDetails(1)
 	deptoId := s.detailsRepo.DetailsExists(newUser.Departments)
 	if deptoId == 0 {
 		newDet := model.CreateNewDetails{
